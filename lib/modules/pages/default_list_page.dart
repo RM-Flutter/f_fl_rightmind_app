@@ -62,6 +62,7 @@ class _DefaultListPageState extends State<DefaultListPage> {
   Widget build(BuildContext context) {
     return Consumer<BlogProviderModel>(
       builder: (context, points, child) {
+        print("TYPE -> ${widget.type}");
         return SafeArea(
           child: Scaffold( resizeToAvoidBottomInset: true,
             backgroundColor: const Color(0xffFFFFFF),
@@ -81,16 +82,18 @@ class _DefaultListPageState extends State<DefaultListPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           IconButton(
-                            icon: Icon(Icons.arrow_back, color:  const Color(0xff224982)),
-                            onPressed: () =>  Navigator.pop(context),
+                            icon: const Icon(Icons.arrow_back, color:Color(0xff224982)),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
                           ),
                           Text(
-                            widget.type.toString().tr().toUpperCase(),
+                            widget.type == "rmnotifications" ? AppStrings.notifications.tr().toUpperCase() : widget.type.toString().tr().toUpperCase(),
                             style: const TextStyle(color: Color(0xff224982), fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.arrow_back, color: Colors.transparent),
-                            onPressed: () {},
+                            icon: const Icon(Icons.arrow_back, color:Colors.transparent),
+                            onPressed: (){},
                           ),
                         ],
                       ),
@@ -195,7 +198,7 @@ class _DefaultListPageState extends State<DefaultListPage> {
                 borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
                 child: src.toString().startsWith("http") || src.toString().startsWith("https")?  CachedNetworkImage(
                   height: 135,
-                  fit: BoxFit.fill,
+                  fit: BoxFit.cover,
                   width: double.infinity,
                   imageUrl: src,
                   placeholder: (context, url) =>
@@ -207,7 +210,7 @@ class _DefaultListPageState extends State<DefaultListPage> {
                   ),
                 ) : Image.asset(src,
                   height: 135,
-                  fit: BoxFit.fill,
+                  fit: BoxFit.cover,
                   width: double.infinity,
                 ),
               ), // Replace with project images

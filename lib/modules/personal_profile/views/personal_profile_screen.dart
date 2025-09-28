@@ -17,6 +17,7 @@ import '../../../general_services/layout.service.dart';
 import '../../../general_services/validation_service.dart';
 import '../../../utils/base_page/mobile.header.dart';
 import '../../../utils/base_page/mobile.scaffold.dart';
+import '../../../utils/componentes/general_components/gradient_bg_image.dart';
 import '../../../utils/custom_shimmer_loading/shimmer_animated_loading.dart';
 import '../../authentication/views/widgets/phone_number_field.dart';
 import '../viewmodels/personal_profile.viewmodel.dart';
@@ -93,55 +94,281 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                     viewModel.isSuccessUpdate = false;
                     viewModel.isSuccessUpdateImage = false;
                   }
-                  return Padding(
-                    padding: const EdgeInsets.only(top: AppSizes.s12),
+                  return GradientBgImage(
+                    padding: EdgeInsets.all(0),
                     child: Padding(
-                      padding: const EdgeInsets.only(
-                          left: AppSizes.s12, right: AppSizes.s12),
-                      child: !kIsWeb?Column(
-                        children: [
-                          // CHANGE PHONE NUMBER
-                          ...[
-                            Text(
-                              AppStrings.updateMainData.tr(),
-                              style: textStyle,
+                      padding: const EdgeInsets.only(top: AppSizes.s12),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: AppSizes.s12, right: AppSizes.s12),
+                        child: !kIsWeb?Column(
+                          children: [
+                            // CHANGE PHONE NUMBER
+                            ...[
+                              Text(
+                                AppStrings.updateMainData.tr(),
+                                style: textStyle,
+                              ),
+                              Form(
+                                key: viewModel.form1Key,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    //Avatar
+
+                                    gapH12,
+                                    //Name
+                                    TextFormField(
+                                      controller: viewModel.nameController,
+                                      keyboardType: TextInputType.emailAddress,
+                                      decoration: InputDecoration(
+                                          hintText: AppStrings.name.tr()),
+                                      validator: (value) =>
+                                          ValidationService.validateRequired(
+                                              value, AppStrings.name.tr()),
+                                    ),
+
+                                    gapH12,
+                                    //BirthDate
+                                    TextFormField(
+                                      readOnly: true,
+                                      onTap: () async => await viewModel
+                                          .selectBirthDate(context),
+                                      controller: viewModel.birthDateController,
+                                      decoration: InputDecoration(
+                                          hintText: AppStrings.birthdate.tr()),
+                                      validator: (value) =>
+                                          ValidationService.validateRequired(
+                                              value, AppStrings.birthdate.tr()),
+                                    ),
+                                    //update profile button
+                                    gapH18,
+                                    Center(
+                                      child: CustomElevatedButton( isOutlined: true,titleColor: Color(AppColors.primary),
+                                          radius: AppSizes.s10,
+                                          titleSize: AppSizes.s14,
+                                          title: AppStrings.updateProfile.tr(),
+                                          onPressed: () async =>
+                                              viewModel.updateProfileMainInfo(
+                                                  context: context)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const CustomDivider(),
+                            ],
+                            // CHANGE EMAIL
+                            ...[
+                              Text(
+                                AppStrings.changeEmail.tr(),
+                                style: textStyle,
+                              ),
+                              gapH18,
+                              //Email
+                              Form(
+                                key: viewModel.form2Key,
+                                child: TextFormField(
+                                  controller: viewModel.emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  decoration:
+                                      const InputDecoration(hintText: 'Email'),
+                                  validator: (value) =>
+                                      ValidationService.validateEmail(value),
+                                ),
+                              ),
+                              gapH18,
+                              Center(
+                                child: CustomElevatedButton( isOutlined: true,titleColor: Color(AppColors.primary),
+                                    radius: AppSizes.s10,
+                                    titleSize: AppSizes.s14,
+                                    backgroundColor: UserSettingConst.userSettings
+                                                    ?.emailVerifiedAt ==
+                                                null &&
+                                            UserSettingConst
+                                                    .userSettings?.email !=
+                                                null
+                                        ? Colors.yellow
+                                        : Color(AppColors.primary),
+                                    title: UserSettingConst.userSettings
+                                                    ?.emailVerifiedAt ==
+                                                null &&
+                                            UserSettingConst
+                                                    .userSettings?.email !=
+                                                null
+                                        ? AppStrings.emailVerification.tr()
+                                        : AppStrings.updateEmail.tr(),
+                                    onPressed: () async {
+                                      if (UserSettingConst.userSettings
+                                                  ?.emailVerifiedAt ==
+                                              null &&
+                                          UserSettingConst.userSettings?.email !=
+                                              null) {
+                                        await viewModel.getUUID(
+                                            context,"email");
+                                        viewModel.showEmailVerificationPopup(
+                                            context: context,
+                                            validate: true,
+                                            sendBy: "email",
+                                            newEmail: viewModel.emailController.text,
+                                            emailUuid: CacheHelper.getString("uuid"));
+                                      } else {
+                                        viewModel.updateProfileEmail(
+                                            context: context);
+                                      }
+                                    }),
+                              ),
+                              const CustomDivider(),
+                            ],
+                            ...[
+                              Text(
+                                AppStrings.changePhoneNumber.tr(),
+                                style: textStyle,
+                              ),
+                              gapH18,
+                              //phone number
+                              PhoneNumberField(
+                                controller: viewModel.phoneNumberController,
+                                countryCodeController:
+                                    viewModel.countryCodeController,
+                              ),
+                              gapH18,
+                              Center(
+                                child: CustomElevatedButton( isOutlined: true,titleColor: Color(AppColors.primary),
+                                    titleSize: AppSizes.s14,
+                                    radius: AppSizes.s10,
+                                    backgroundColor: UserSettingConst.userSettings
+                                                    ?.phoneVerifiedAt ==
+                                                null &&
+                                            UserSettingConst
+                                                    .userSettings?.phone !=
+                                                null
+                                        ? Colors.yellow
+                                        : const Color(AppColors.primary),
+                                    title: UserSettingConst.userSettings
+                                                    ?.phoneVerifiedAt ==
+                                                null &&
+                                            UserSettingConst
+                                                    .userSettings?.phone !=
+                                                null
+                                        ? AppStrings.phoneVerification.tr()
+                                        : AppStrings.updatePhone.tr(),
+                                    onPressed: () async {
+                                      if (UserSettingConst.userSettings?.phoneVerifiedAt ==
+                                              null &&
+                                          UserSettingConst.userSettings?.phone !=
+                                              null) {
+                                      await viewModel.getUUID(
+                                            context,"sms");
+                                       viewModel.showPhoneVerificationPopup(
+                                            context: context,
+                                            validate: true,
+                                            sendBy: "sms",
+                                            newPhoneNumber: viewModel
+                                                .phoneNumberController.text,
+                                            phoneUuid: CacheHelper.getString("uuid"));
+                                      } else {
+                                        viewModel.updateProfilePhoneNumber(
+                                            context: context);
+                                      }
+                                    }),
+                              ),
+                              gapH20,
+                              const CustomDivider(),
+                            ],
+                            gapH12,
+                            Text(AppStrings.two_factor_auth.tr(), style: textStyle,),
+                            gapH20,
+                            Center(
+                              child: CustomElevatedButton(
+                                isOutlined: true,titleColor: Color(AppColors.primary),
+                                titleSize: AppSizes.s14,
+                                width: LayoutService.getWidth(context),
+                                radius: AppSizes.s10,
+                                backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                                title: AppStrings.enable2fa.tr(),
+                                onPressed: () async =>
+                                await viewModel.activate2FA(
+                                    context: context),
+                              ),
                             ),
-                            Form(
-                              key: viewModel.form1Key,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  //Avatar
-
+                            gapH20,
+                            const CustomDivider(),
+                            Text(AppStrings.delete_account.tr(), style: textStyle,),
+                            gapH20,
+                            // Enable 2FA
+                            Center(
+                              child: CustomElevatedButton(
+                                titleSize: AppSizes.s14,
+                                width: LayoutService.getWidth(context),
+                                radius: AppSizes.s10,
+                                backgroundColor: const Color(0xffFF0000),
+                                title: AppStrings.deleteYourAccount.tr(),
+                                onPressed: () async => await viewModel
+                                    .removeAccount(context: context),
+                              ),
+                            ),
+                            SizedBox(height: 25,)
+                          ],
+                        ):
+                        Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 1100),
+                            child: Column(
+                              children: [
+                                // CHANGE PHONE NUMBER
+                                ...[
                                   gapH12,
-                                  //Name
-                                  TextFormField(
-                                    controller: viewModel.nameController,
-                                    keyboardType: TextInputType.emailAddress,
-                                    decoration: InputDecoration(
-                                        hintText: AppStrings.name.tr()),
-                                    validator: (value) =>
-                                        ValidationService.validateRequired(
-                                            value, AppStrings.name.tr()),
-                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        AppStrings.updateMainData.tr(),
+                                        style: textStyle,
+                                      ),
+                                      SizedBox(width: 20,),
+                                      Expanded(
+                                        flex: 5,
+                                        child: Form(
+                                          key: viewModel.form1Key,
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              TextFormField(
+                                                controller: viewModel.nameController,
+                                                keyboardType: TextInputType.emailAddress,
+                                                decoration: InputDecoration(
+                                                    hintText: AppStrings.name.tr()),
+                                                validator: (value) =>
+                                                    ValidationService.validateRequired(
+                                                        value, AppStrings.name.tr()),
+                                              ),
 
-                                  gapH12,
-                                  //BirthDate
-                                  TextFormField(
-                                    readOnly: true,
-                                    onTap: () async => await viewModel
-                                        .selectBirthDate(context),
-                                    controller: viewModel.birthDateController,
-                                    decoration: InputDecoration(
-                                        hintText: AppStrings.birthdate.tr()),
-                                    validator: (value) =>
-                                        ValidationService.validateRequired(
-                                            value, AppStrings.birthdate.tr()),
+                                              gapH12,
+                                              //BirthDate
+                                              TextFormField(
+                                                readOnly: true,
+                                                onTap: () async => await viewModel
+                                                    .selectBirthDate(context),
+                                                controller: viewModel.birthDateController,
+                                                decoration: InputDecoration(
+                                                    hintText: AppStrings.birthdate.tr()),
+                                                validator: (value) =>
+                                                    ValidationService.validateRequired(
+                                                        value, AppStrings.birthdate.tr()),
+                                              ),
+                                              //update profile button
+
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  //update profile button
                                   gapH18,
                                   Center(
-                                    child: CustomElevatedButton(
+                                    child: CustomElevatedButton( isOutlined: true,
+                                        titleColor: Color(AppColors.primary),
                                         radius: AppSizes.s10,
                                         titleSize: AppSizes.s14,
                                         title: AppStrings.updateProfile.tr(),
@@ -149,388 +376,177 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                                             viewModel.updateProfileMainInfo(
                                                 context: context)),
                                   ),
+                                  const CustomDivider(),
                                 ],
-                              ),
-                            ),
-                            const CustomDivider(),
-                          ],
-                          // CHANGE EMAIL
-                          ...[
-                            Text(
-                              AppStrings.changeEmail.tr(),
-                              style: textStyle,
-                            ),
-                            gapH18,
-                            //Email
-                            Form(
-                              key: viewModel.form2Key,
-                              child: TextFormField(
-                                controller: viewModel.emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                decoration:
-                                    const InputDecoration(hintText: 'Email'),
-                                validator: (value) =>
-                                    ValidationService.validateEmail(value),
-                              ),
-                            ),
-                            gapH18,
-                            Center(
-                              child: CustomElevatedButton(
-                                  radius: AppSizes.s10,
-                                  titleSize: AppSizes.s14,
-                                  backgroundColor: UserSettingConst.userSettings
-                                                  ?.emailVerifiedAt ==
-                                              null &&
-                                          UserSettingConst
-                                                  .userSettings?.email !=
-                                              null
-                                      ? Colors.yellow
-                                      : Color(AppColors.primary),
-                                  title: UserSettingConst.userSettings
-                                                  ?.emailVerifiedAt ==
-                                              null &&
-                                          UserSettingConst
-                                                  .userSettings?.email !=
-                                              null
-                                      ? AppStrings.emailVerification.tr()
-                                      : AppStrings.updateEmail.tr(),
-                                  onPressed: () async {
-                                    if (UserSettingConst.userSettings
-                                                ?.emailVerifiedAt ==
-                                            null &&
-                                        UserSettingConst.userSettings?.email !=
-                                            null) {
-                                      await viewModel.getUUID(
-                                          context,"email");
-                                      viewModel.showEmailVerificationPopup(
-                                          context: context,
-                                          validate: true,
-                                          sendBy: "email",
-                                          newEmail: viewModel.emailController.text,
-                                          emailUuid: CacheHelper.getString("uuid"));
-                                    } else {
-                                      viewModel.updateProfileEmail(
-                                          context: context);
-                                    }
-                                  }),
-                            ),
-                            const CustomDivider(),
-                          ],
-                          ...[
-                            Text(
-                              AppStrings.changePhoneNumber.tr(),
-                              style: textStyle,
-                            ),
-                            gapH18,
-                            //phone number
-                            PhoneNumberField(
-                              controller: viewModel.phoneNumberController,
-                              countryCodeController:
-                                  viewModel.countryCodeController,
-                            ),
-                            gapH18,
-                            Center(
-                              child: CustomElevatedButton(
-                                  titleSize: AppSizes.s14,
-                                  radius: AppSizes.s10,
-                                  backgroundColor: UserSettingConst.userSettings
-                                                  ?.phoneVerifiedAt ==
-                                              null &&
-                                          UserSettingConst
-                                                  .userSettings?.phone !=
-                                              null
-                                      ? Colors.yellow
-                                      : const Color(AppColors.primary),
-                                  title: UserSettingConst.userSettings
-                                                  ?.phoneVerifiedAt ==
-                                              null &&
-                                          UserSettingConst
-                                                  .userSettings?.phone !=
-                                              null
-                                      ? AppStrings.phoneVerification.tr()
-                                      : AppStrings.updatePhone.tr(),
-                                  onPressed: () async {
-                                    if (UserSettingConst.userSettings?.phoneVerifiedAt ==
-                                            null &&
-                                        UserSettingConst.userSettings?.phone !=
-                                            null) {
-                                    await viewModel.getUUID(
-                                          context,"sms");
-                                     viewModel.showPhoneVerificationPopup(
-                                          context: context,
-                                          validate: true,
-                                          sendBy: "sms",
-                                          newPhoneNumber: viewModel
-                                              .phoneNumberController.text,
-                                          phoneUuid: CacheHelper.getString("uuid"));
-                                    } else {
-                                      viewModel.updateProfilePhoneNumber(
-                                          context: context);
-                                    }
-                                  }),
-                            ),
-                            gapH20,
-                            const CustomDivider(),
-                          ],
-
-                          gapH12,
-                          Center(
-                            child: CustomElevatedButton(
-                              titleSize: AppSizes.s14,
-                              width: LayoutService.getWidth(context),
-                              radius: AppSizes.s10,
-                              backgroundColor: const Color(0xffFF0000),
-                              title: AppStrings.deleteYourAccount.tr(),
-                              onPressed: () async => await viewModel
-                                  .removeAccount(context: context),
-                            ),
-                          ),
-                          gapH20,
-                          const CustomDivider(),
-                          // Enable 2FA
-                          Center(
-                            child: CustomElevatedButton(
-                              titleSize: AppSizes.s14,
-                              width: LayoutService.getWidth(context),
-                              radius: AppSizes.s10,
-                              backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                              title: AppStrings.enable2fa.tr(),
-                              onPressed: () async =>
-                              await viewModel.activate2FA(
-                                  context: context),
-                            ),
-                          ),
-                        ],
-                      ):
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1000),
-                        child: Center(
-                          child: Column(
-                            children: [
-                              // CHANGE PHONE NUMBER
-                              ...[
-                                gapH12,
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      AppStrings.updateMainData.tr(),
-                                      style: textStyle,
-                                    ),
-                                    SizedBox(width: 20,),
-                                    Expanded(
-                                      flex: 5,
-                                      child: Form(
-                                        key: viewModel.form1Key,
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            TextFormField(
-                                              controller: viewModel.nameController,
-                                              keyboardType: TextInputType.emailAddress,
-                                              decoration: InputDecoration(
-                                                  hintText: AppStrings.name.tr()),
-                                              validator: (value) =>
-                                                  ValidationService.validateRequired(
-                                                      value, AppStrings.name.tr()),
-                                            ),
-
-                                            gapH12,
-                                            //BirthDate
-                                            TextFormField(
-                                              readOnly: true,
-                                              onTap: () async => await viewModel
-                                                  .selectBirthDate(context),
-                                              controller: viewModel.birthDateController,
-                                              decoration: InputDecoration(
-                                                  hintText: AppStrings.birthdate.tr()),
-                                              validator: (value) =>
-                                                  ValidationService.validateRequired(
-                                                      value, AppStrings.birthdate.tr()),
-                                            ),
-                                            //update profile button
-
-                                          ],
+                                // CHANGE EMAIL
+                                ...[
+                                  Row(
+                                    children: [
+                                      Text(
+                                        AppStrings.changeEmail.tr(),
+                                        style: textStyle,
+                                      ),
+                                      gapW20,
+                                      //Email
+                                      Expanded(
+                                        flex: 5,
+                                        child: Form(
+                                          key: viewModel.form2Key,
+                                          child: TextFormField(
+                                            controller: viewModel.emailController,
+                                            keyboardType: TextInputType.emailAddress,
+                                            decoration:
+                                            const InputDecoration(hintText: 'Email'),
+                                            validator: (value) =>
+                                                ValidationService.validateEmail(value),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                gapH18,
-                                Center(
-                                  child: CustomElevatedButton(
-                                      radius: AppSizes.s10,
-                                      titleSize: AppSizes.s14,
-                                      title: AppStrings.updateProfile.tr(),
-                                      onPressed: () async =>
-                                          viewModel.updateProfileMainInfo(
-                                              context: context)),
-                                ),
-                                const CustomDivider(),
-                              ],
-                              // CHANGE EMAIL
-                              ...[
-                                Row(
-                                  children: [
-                                    Text(
-                                      AppStrings.changeEmail.tr(),
-                                      style: textStyle,
-                                    ),
-                                    gapW20,
-                                    //Email
-                                    Expanded(
-                                      flex: 5,
-                                      child: Form(
-                                        key: viewModel.form2Key,
-                                        child: TextFormField(
-                                          controller: viewModel.emailController,
-                                          keyboardType: TextInputType.emailAddress,
-                                          decoration:
-                                          const InputDecoration(hintText: 'Email'),
-                                          validator: (value) =>
-                                              ValidationService.validateEmail(value),
+                                    ],
+                                  ),
+                                  gapH18,
+                                  Center(
+                                    child: CustomElevatedButton(titleColor: Color(AppColors.primary),
+                                      isOutlined: true,
+                                        radius: AppSizes.s10,
+                                        titleSize: AppSizes.s14,
+                                        backgroundColor: UserSettingConst.userSettings
+                                                        ?.emailVerifiedAt ==
+                                                    null &&
+                                                UserSettingConst
+                                                        .userSettings?.email !=
+                                                    null
+                                            ? Colors.yellow
+                                            : Color(AppColors.primary),
+                                        title: UserSettingConst.userSettings
+                                                        ?.emailVerifiedAt ==
+                                                    null &&
+                                                UserSettingConst
+                                                        .userSettings?.email !=
+                                                    null
+                                            ? AppStrings.emailVerification.tr()
+                                            : AppStrings.updateEmail.tr(),
+                                        onPressed: () async {
+                                          if (UserSettingConst.userSettings
+                                                      ?.emailVerifiedAt ==
+                                                  null &&
+                                              UserSettingConst.userSettings?.email !=
+                                                  null) {
+                                            await viewModel.getUUID(
+                                                context,"email");
+                                            viewModel.showEmailVerificationPopup(
+                                                context: context,
+                                                validate: true,
+                                                sendBy: "email",
+                                                newEmail: viewModel.emailController.text,
+                                                emailUuid: CacheHelper.getString("uuid"));
+                                          } else {
+                                            viewModel.updateProfileEmail(
+                                                context: context);
+                                          }
+                                        }),
+                                  ),
+                                  const CustomDivider(),
+                                ],
+                                ...[
+                                  Row(
+                                    children: [
+                                      Text(
+                                        AppStrings.changePhoneNumber.tr(),
+                                        style: textStyle,
+                                      ),
+                                      gapW20,
+                                      //phone number
+                                      Expanded(
+                                        flex: 5,
+                                        child: PhoneNumberField(
+                                          controller: viewModel.phoneNumberController,
+                                          countryCodeController:
+                                          viewModel.countryCodeController,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                gapH18,
-                                Center(
-                                  child: CustomElevatedButton(
-                                      radius: AppSizes.s10,
-                                      titleSize: AppSizes.s14,
-                                      backgroundColor: UserSettingConst.userSettings
-                                                      ?.emailVerifiedAt ==
+                                    ],
+                                  ),
+                                  gapH18,
+                                  Center(
+                                    child: CustomElevatedButton(titleColor: Color(AppColors.primary),
+                                        isOutlined: true,
+                                        titleSize: AppSizes.s14,
+                                        radius: AppSizes.s10,
+                                        backgroundColor: UserSettingConst.userSettings
+                                                        ?.phoneVerifiedAt ==
+                                                    null &&
+                                                UserSettingConst
+                                                        .userSettings?.phone !=
+                                                    null
+                                            ? Colors.yellow
+                                            : const Color(AppColors.primary),
+                                        title: UserSettingConst.userSettings
+                                                        ?.phoneVerifiedAt ==
+                                                    null &&
+                                                UserSettingConst
+                                                        .userSettings?.phone !=
+                                                    null
+                                            ? AppStrings.phoneVerification.tr()
+                                            : AppStrings.updatePhone.tr(),
+                                        onPressed: () async {
+                                          if (UserSettingConst.userSettings?.phoneVerifiedAt ==
                                                   null &&
-                                              UserSettingConst
-                                                      .userSettings?.email !=
-                                                  null
-                                          ? Colors.yellow
-                                          : Color(AppColors.primary),
-                                      title: UserSettingConst.userSettings
-                                                      ?.emailVerifiedAt ==
-                                                  null &&
-                                              UserSettingConst
-                                                      .userSettings?.email !=
-                                                  null
-                                          ? AppStrings.emailVerification.tr()
-                                          : AppStrings.updateEmail.tr(),
-                                      onPressed: () async {
-                                        if (UserSettingConst.userSettings
-                                                    ?.emailVerifiedAt ==
-                                                null &&
-                                            UserSettingConst.userSettings?.email !=
-                                                null) {
+                                              UserSettingConst.userSettings?.phone !=
+                                                  null) {
                                           await viewModel.getUUID(
-                                              context,"email");
-                                          viewModel.showEmailVerificationPopup(
-                                              context: context,
-                                              validate: true,
-                                              sendBy: "email",
-                                              newEmail: viewModel.emailController.text,
-                                              emailUuid: CacheHelper.getString("uuid"));
-                                        } else {
-                                          viewModel.updateProfileEmail(
-                                              context: context);
-                                        }
-                                      }),
-                                ),
-                                const CustomDivider(),
-                              ],
-                              ...[
-                                Row(
-                                  children: [
-                                    Text(
-                                      AppStrings.changePhoneNumber.tr(),
-                                      style: textStyle,
-                                    ),
-                                    gapW20,
-                                    //phone number
-                                    Expanded(
-                                      flex: 5,
-                                      child: PhoneNumberField(
-                                        controller: viewModel.phoneNumberController,
-                                        countryCodeController:
-                                        viewModel.countryCodeController,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                gapH18,
+                                                context,"sms");
+                                           viewModel.showPhoneVerificationPopup(
+                                                context: context,
+                                                validate: true,
+                                                sendBy: "sms",
+                                                newPhoneNumber: viewModel
+                                                    .phoneNumberController.text,
+                                                phoneUuid: CacheHelper.getString("uuid"));
+                                          } else {
+                                            viewModel.updateProfilePhoneNumber(
+                                                context: context);
+                                          }
+                                        }),
+                                  ),
+                                  gapH20,
+                                  const CustomDivider(),
+                                ],
+                                gapH12,
+                                Text(AppStrings.two_factor_auth.tr(), style: textStyle,),
+                                gapH20,
                                 Center(
-                                  child: CustomElevatedButton(
-                                      titleSize: AppSizes.s14,
-                                      radius: AppSizes.s10,
-                                      backgroundColor: UserSettingConst.userSettings
-                                                      ?.phoneVerifiedAt ==
-                                                  null &&
-                                              UserSettingConst
-                                                      .userSettings?.phone !=
-                                                  null
-                                          ? Colors.yellow
-                                          : const Color(AppColors.primary),
-                                      title: UserSettingConst.userSettings
-                                                      ?.phoneVerifiedAt ==
-                                                  null &&
-                                              UserSettingConst
-                                                      .userSettings?.phone !=
-                                                  null
-                                          ? AppStrings.phoneVerification.tr()
-                                          : AppStrings.updatePhone.tr(),
-                                      onPressed: () async {
-                                        if (UserSettingConst.userSettings?.phoneVerifiedAt ==
-                                                null &&
-                                            UserSettingConst.userSettings?.phone !=
-                                                null) {
-                                        await viewModel.getUUID(
-                                              context,"sms");
-                                         viewModel.showPhoneVerificationPopup(
-                                              context: context,
-                                              validate: true,
-                                              sendBy: "sms",
-                                              newPhoneNumber: viewModel
-                                                  .phoneNumberController.text,
-                                              phoneUuid: CacheHelper.getString("uuid"));
-                                        } else {
-                                          viewModel.updateProfilePhoneNumber(
-                                              context: context);
-                                        }
-                                      }),
+                                  child: CustomElevatedButton( isOutlined: true,titleColor: Color(AppColors.primary),
+                                    titleSize: AppSizes.s14,
+                                    width: LayoutService.getWidth(context),
+                                    radius: AppSizes.s10,
+                                    backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                                    title: AppStrings.enable2fa.tr(),
+                                    onPressed: () async =>
+                                    await viewModel.activate2FA(
+                                        context: context),
+                                  ),
                                 ),
                                 gapH20,
                                 const CustomDivider(),
+                                Text(AppStrings.delete_account.tr(), style: textStyle,),
+                                gapH20,
+                                // Enable 2FA
+                                Center(
+                                  child: CustomElevatedButton(
+                                    titleSize: AppSizes.s14,
+                                    width: LayoutService.getWidth(context),
+                                    radius: AppSizes.s10,
+                                    backgroundColor: const Color(0xffFF0000),
+                                    title: AppStrings.deleteYourAccount.tr(),
+                                    onPressed: () async => await viewModel
+                                        .removeAccount(context: context),
+                                  ),
+                                ),
+                                SizedBox(height: 25,)
                               ],
-
-                              gapH12,
-                              Center(
-                                child: CustomElevatedButton(
-                                  titleSize: AppSizes.s14,
-                                  width: LayoutService.getWidth(context),
-                                  radius: AppSizes.s10,
-                                  backgroundColor: const Color(0xffFF0000),
-                                  title: AppStrings.deleteYourAccount.tr(),
-                                  onPressed: () async => await viewModel
-                                      .removeAccount(context: context),
-                                ),
-                              ),
-                              gapH20,
-                              const CustomDivider(),
-                              // Enable 2FA
-                              Center(
-                                child: CustomElevatedButton(
-                                  titleSize: AppSizes.s14,
-                                  width: LayoutService.getWidth(context),
-                                  radius: AppSizes.s10,
-                                  backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                                  title: AppStrings.enable2fa.tr(),
-                                  onPressed: () async =>
-                                  await viewModel.activate2FA(
-                                      context: context),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ),

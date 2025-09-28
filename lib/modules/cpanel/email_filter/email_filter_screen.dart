@@ -9,7 +9,9 @@ import 'package:cpanal/modules/cpanel/email_filter/filter_email_screen.dart';
 import 'package:cpanal/modules/cpanel/logic/email_account_provider.dart';
 import 'package:cpanal/modules/cpanel/widget/email_account/search_account_bottomsheet.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +19,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../../common_modules_widgets/template_page.widget.dart';
 import '../../../../constants/app_sizes.dart';
 import '../../../routing/app_router.dart';
+import '../../../utils/componentes/general_components/gradient_bg_image.dart';
 import '../../choose_domain/choose_domin_screen.dart';
 import '../../more/views/more_screen.dart';
 
@@ -33,6 +36,7 @@ class _EmailFilterScreenState extends State<EmailFilterScreen> {
   List<Email> emails = [];
   List<Email> selectedEmails = [];
   bool isSelectionMode = false;
+  var searchTitle;
   late ScrollController _scrollController;
   late final EmailAccountProvider emailProvider;
   List<String> get selectedAccountsDeleted =>
@@ -147,6 +151,7 @@ class _EmailFilterScreenState extends State<EmailFilterScreen> {
                           }
 
                           setState(() {
+                            searchTitle = query.toString();
                             emails = AppConstants.accountsEmailsFilter!
                                 .map((e) => Email(e['email'], "Unrestricted", "${e['humandiskquota']} / ${e['humandiskused']}"))
                                 .toList();
@@ -213,68 +218,123 @@ class _EmailFilterScreenState extends State<EmailFilterScreen> {
                 ],
               ),
             ),
-            body: SizedBox(
-              height: MediaQuery.sizeOf(context).height * 0.8,
-              child: ListView(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(AppSizes.s12),
-                children: [
-                   Text(
-                    AppStrings.filterEmailMessage.tr(),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(AppColors.dark)),
-                  ),
-                  const SizedBox(height: 15),
-                  ListView.separated(
-                    itemCount: value.isLoading && value.pageNumber == 1 ? 3 : AppConstants.accountsEmailsFilter!.length,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    separatorBuilder: (_, __) => const SizedBox(height: 15),
-                    itemBuilder: (context, index) {
-                      final safeContext = context;
-                      if (value.isLoading && value.pageNumber == 1) {
-                        return Shimmer.fromColors(
-                          baseColor: Colors.grey.shade300,
-                          highlightColor: Colors.grey.shade100,
-                          child: Container(height: 100, width: double.infinity, color: Colors.white),
-                        );
-                      }
-                      final email = AppConstants.accountsEmailsFilter![index];
-                      return GestureDetector(
-                        // onLongPress: () => onLongPress(index),
-                         onTap: () {
-                           context.pushNamed(
-                             AppRoutes.FilterEmail.name,
-                             pathParameters: {
-                               'lang': context.locale.languageCode,
-                               'id': widget.dominId.toString(),
-                               'name': widget.name!,
-                               'email': AppConstants.accountsEmailsFilter![index]['email'],
-                             },
-                           );
-                         },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: const [BoxShadow(color: Color(0x0C000000), blurRadius: 10, offset: Offset(0, 1))],
-                          ),
-                          child: Text(
-                            AppConstants.accountsEmailsFilter![index]['email'],
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(AppColors.dark)),
+            body: GradientBgImage(
+              padding: EdgeInsets.all(0),
+              child: SizedBox(
+                height: MediaQuery.sizeOf(context).height * 0.8,
+                child: ListView(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(AppSizes.s12),
+                  children: [
+                    if(searchTitle != null)Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: ()async{
+                            searchTitle = null;
+                            await emailcickle();
+                          },
+                          child: Container(
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                color: Color(AppColors.dark),
+                                borderRadius: BorderRadius.circular(20)),
+                            padding: EdgeInsetsGeometry.symmetric(vertical: 4, horizontal: 10),
+                            child:  Row(
+                              children: [
+                                Text(
+                                  searchTitle,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+                                ),
+                                const SizedBox(width: 10,),
+                                Icon(Icons.close, color: Colors.white,)
+                              ],
+                            ),
                           ),
                         ),
-                      );
-                    },
-                  ),
-
-                  if (value.isLoading && value.pageNumber != 1)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20),
-                      child: Center(child: CircularProgressIndicator()),
+                      ],
                     ),
-                ],
+                    if(searchTitle != null) const SizedBox(height: 15),
+                     Text(
+                      AppStrings.filterEmailMessage.tr(),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(AppColors.dark)),
+                    ),
+                    const SizedBox(height: 15),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: kIsWeb ? 1100 : double.infinity,
+                        ),
+                        child: ListView.separated(
+                          itemCount: value.isLoading && value.pageNumber == 1 ? 3 : AppConstants.accountsEmailsFilter!.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          separatorBuilder: (_, __) => const SizedBox(height: 15),
+                          itemBuilder: (context, index) {
+                            final safeContext = context;
+                            if (value.isLoading && value.pageNumber == 1) {
+                              return Shimmer.fromColors(
+                                baseColor: Colors.grey.shade300,
+                                highlightColor: Colors.grey.shade100,
+                                child: Container(height: 100, width: double.infinity, color: Colors.white),
+                              );
+                            }
+                            final email = AppConstants.accountsEmailsFilter![index];
+                            return GestureDetector(
+                              // onLongPress: () => onLongPress(index),
+                               onTap: () {
+                                 context.pushNamed(
+                                   AppRoutes.FilterEmail.name,
+                                   pathParameters: {
+                                     'lang': context.locale.languageCode,
+                                     'id': widget.dominId.toString(),
+                                     'name': widget.name!,
+                                     'email': AppConstants.accountsEmailsFilter![index]['email'],
+                                   },
+                                 );
+                               },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: const [BoxShadow(color: Color(0x0C000000), blurRadius: 10, offset: Offset(0, 1))],
+                                ),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      AppConstants.accountsEmailsFilter![index]['email'],
+                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(AppColors.dark)),
+                                    ),
+                                    Spacer(),
+                                    GestureDetector(
+                                        onTap: () async {
+                                          final obj = AppConstants.accountsEmailsFilter![index];
+                                          final jsonString = const JsonEncoder.withIndent('  ').convert(obj); // تحويل object ل JSON مرتب
+                                          await Clipboard.setData(ClipboardData(text: jsonString));
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text("${AppStrings.copied.tr()}")),
+                                          );
+                                        },
+                                        child: const Icon(Icons.copy, color: Color(AppColors.primary)))
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+
+                    if (value.isLoading && value.pageNumber != 1)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                  ],
+                ),
               ),
             ),
             // floatingActionButton: Column(

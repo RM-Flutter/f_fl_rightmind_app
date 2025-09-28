@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/shared.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import 'dart:html' as html;
+
 class WebViewStack extends StatefulWidget {
   const WebViewStack({super.key});
 
@@ -13,7 +15,8 @@ class WebViewStack extends StatefulWidget {
 
 class _WebViewStackState extends State<WebViewStack> {
   var loadingPercentage = 0;
-  late WebViewController controller;
+  WebViewController? controller;
+  late String url;
 
   @override
   void initState() {
@@ -24,19 +27,19 @@ class _WebViewStackState extends State<WebViewStack> {
     if (jsonString != null && jsonString.isNotEmpty) {
       gCache = json.decode(jsonString) as Map<String, dynamic>;
     }
-
-    final url = gCache?['company_structure_url'] ?? "https://www.google.com/";
-
-    controller = WebViewController();
+    url = gCache?['company_structure_url'] ?? "https://www.google.com/";
 
     if (!kIsWeb) {
-      controller
-        ..setJavaScriptMode(JavaScriptMode.unrestricted) // ✅ شغالة على موبايل بس
+      // ✅ موبايل
+      controller = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
         ..setNavigationDelegate(
           NavigationDelegate(
             onPageStarted: (_) => setState(() => loadingPercentage = 0),
-            onProgress: (progress) => setState(() => loadingPercentage = progress),
-            onPageFinished: (_) => setState(() => loadingPercentage = 100),
+            onProgress: (progress) =>
+                setState(() => loadingPercentage = progress),
+            onPageFinished: (_) =>
+                setState(() => loadingPercentage = 100),
           ),
         )
         ..addJavaScriptChannel(
@@ -46,33 +49,40 @@ class _WebViewStackState extends State<WebViewStack> {
               SnackBar(content: Text(message.message)),
             );
           },
-        );
+        )
+        ..loadRequest(Uri.parse(url));
+    } else {
+      // ✅ ويب → افتح في تبويب جديد
+      html.window.open(url, "_blank");
     }
-
-    controller.loadRequest(Uri.parse(url));
   }
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb) {
-      // ✅ WebView supported via webview_flutter_web
-      return Scaffold(
-        body: Stack(
+    return Scaffold(
+      appBar: kIsWeb ? AppBar(title: const Text("فتح الرابط"))
+          : AppBar(toolbarHeight: 0.0),
+      body: kIsWeb
+          ? Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            WebViewWidget(controller: controller),
-            if (loadingPercentage < 100)
-              LinearProgressIndicator(value: loadingPercentage / 100.0),
+            const Icon(Icons.open_in_new, size: 60, color: Colors.blue),
+            const SizedBox(height: 16),
+            const Text("تم فتح الرابط في تبويب جديد"),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                html.window.open(url, "_blank");
+              },
+              child: const Text("إعادة فتح الرابط"),
+            )
           ],
         ),
-      );
-    }
-
-    // ✅ Mobile (Android/iOS)
-    return Scaffold(
-      appBar: AppBar(toolbarHeight: 0.0),
-      body: Stack(
+      )
+          : Stack(
         children: [
-          WebViewWidget(controller: controller),
+          WebViewWidget(controller: controller!), // للموبايل
           if (loadingPercentage < 100)
             LinearProgressIndicator(value: loadingPercentage / 100.0),
         ],

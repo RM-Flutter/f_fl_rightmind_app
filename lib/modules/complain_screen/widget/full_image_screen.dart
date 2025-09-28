@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cpanal/utils/custom_shimmer_loading/shimmer_animated_loading.dart';
 
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:go_router/go_router.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -72,9 +74,9 @@ class FullScreenImageViewer extends StatelessWidget {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        leading: GestureDetector(
+        leading:GestureDetector(
             onTap: (){
-              Navigator.pop(context);
+              context.pop(context);
             },
             child:const Icon(Icons.arrow_back, color: Color(0xffFFFFFF),)),
       ),
@@ -109,7 +111,7 @@ class FullScreenImageViewers extends StatelessWidget {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        leading: GestureDetector(
+        leading:GestureDetector(
             onTap: (){
               Navigator.pop(context);
             },

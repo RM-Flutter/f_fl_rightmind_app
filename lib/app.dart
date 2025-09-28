@@ -20,14 +20,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 class MyApp extends StatelessWidget {
   MyApp({super.key});
-
+  NotificationService? notificationService;
   @override
   Widget build(BuildContext context) {
     DioHelper.initail(context);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // مثال: startAll أو أي navigation
-      NotificationService().init(context);
-    });
+    notificationService = NotificationService();
+    notificationService!.init(context);
 
     if(CacheHelper.getString("lang") == ""){
       CacheHelper.setString(key: "lang", value: context.locale.languageCode);
@@ -40,7 +38,7 @@ class MyApp extends StatelessWidget {
     //   localizationsDelegates: context.localizationDelegates,
     //   supportedLocales: context.supportedLocales,
     //   locale: context.locale,
-    //   home: ChooseDomainScreen(),
+    //   home: CreateMultiAccountsScreen(),
     //   debugShowCheckedModeBanner: false,
     //   themeMode: ThemeMode.light,
     //   theme: AppThemeService.getTheme(isDark: false, context: context),

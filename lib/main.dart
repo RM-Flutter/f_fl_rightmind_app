@@ -1,5 +1,7 @@
+import 'dart:ui_web' as ui;
+import 'dart:html';
+import 'package:cpanal/common_modules_widgets/comments/logic/view_model.dart';
 import 'package:cpanal/controller/device_sys/device_controller.dart';
-import 'package:cpanal/controller/points_controller/points_controller.dart';
 import 'package:cpanal/modules/cpanel/logic/auto_response_provider.dart';
 import 'package:cpanal/modules/cpanel/logic/dns_provider.dart';
 import 'package:cpanal/modules/cpanel/logic/email_account_provider.dart';
@@ -31,8 +33,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'general_services/conditional_imports/change_url_strategy.service.dart';
 import 'general_services/internet_check.dart';
+import 'general_services/notification_service.dart';
 import 'modules/home/view_models/home.viewmodel.dart';
 import 'modules/main_screen/view_models/main_viewmodel.dart';
+import 'modules/points/logic/points_cubit/points_provider.dart';
 GlobalKey<NavigatorState>? navigatorKey = GlobalKey<NavigatorState>();
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 FlutterLocalNotificationsPlugin();
@@ -51,61 +55,17 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
-  if (await Permission.notification.isDenied) {
-    await Permission.notification.request();
-  }
-
-  if (await Permission.notification.isPermanentlyDenied) {
-    openAppSettings();
-  } else {
-    try {
-      if (PlatformIs.android || PlatformIs.iOS) {
-        try {
-          const platform = MethodChannel('notification_settings_channel');
-          await platform.invokeMethod('openNotificationSettings');
-        } catch (e) {
-          print("Error opening notification settings: $e");
-        }
-      }
-
-    } catch (e) {
-      print("Error opening notification settings: $e");
-    }
-  }
-  // Request notification permissions
-  if (await Permission.notification.isDenied) {
-    await Permission.notification.request();
-  }
-  // Initialize local notifications
-  var androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-  var iOSSettings = DarwinInitializationSettings();
-  var initializationSettings = InitializationSettings(
-    android: androidSettings,
-    iOS: iOSSettings,
-  );
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-    // onDidReceiveNotificationResponse: (NotificationResponse response) {
-    //   if (response.payload != null) {
-    //     final data = jsonDecode(response.payload!);
-    //     final type = data['type'];
-    //     final id = data['id'];
-    //     GeneralListener.linksAction(popup: data);
-    //   }
-    //
-    // },
+  // ignore: undefined_prefixed_name
+  ui.platformViewRegistry.registerViewFactory(
+    'iframeElement',
+        (int viewId) => IFrameElement()
+      ..src = CacheHelper.getString("webViewUrl") ?? "https://flutter.dev" // لينك افتراضي
+      ..style.border = 'none'
+      ..style.width = '100%'
+      ..style.height = '600px', // حط أي ارتفاع مناسب
   );
 
-  // Handle background messages
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-  /// Retrieve and print the FCM Token
-  String? token = await FirebaseMessaging.instance.getToken();
-  print("FCM Token: $token");
-  // if (!PlatformIs.android && !PlatformIs.iOS) {
-  //   changeUrlStrategyService();
-  // }
   GoRouter.optionURLReflectsImperativeAPIs = true;
   try {
     final appDocumentDirectory = await getApplicationDocumentsDirectory();
@@ -144,7 +104,9 @@ void main() async {
           ChangeNotifierProvider(create: (context) => ConnectionService()),
           ChangeNotifierProvider(create: (context) => EmailFilterProvider()),
           ChangeNotifierProvider(create: (context) => SqlProvider()),
+          ChangeNotifierProvider(create: (context) => HomeViewModel()),
           ChangeNotifierProvider(create: (context) => DNSProvider()),
+          ChangeNotifierProvider(create: (context) => CommentProvider()),
           ChangeNotifierProvider(create: (context) => NotificationProviderModel()),
           ChangeNotifierProvider(create: (context) => PointsProvider()),
           ChangeNotifierProvider(create: (context) => DeviceControllerProvider()),

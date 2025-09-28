@@ -33,7 +33,7 @@ class Item {
   List<PforValue>? pforValue;
   List<MainThum>? mainThum;
   Pfor? pstatus;
-  String? pType;
+  Ptype? pType;
   String? content;
   String? createdAt;
   Pfor? status;
@@ -80,9 +80,8 @@ class Item {
     }
     commentStatus = json['comment_status'] != null ? new CommentStatus.fromJson(json['comment_status']) : null;
     ticketPriority = json['ticket_priority'] != null ? new TicketPriority.fromJson(json['ticket_priority']) : null;
-    pstatus =
-    json['pstatus'] != null ? new Pfor.fromJson(json['pstatus']) : null;
-    pType =json['ptype'];
+    pstatus = json['pstatus'] != null ? new Pfor.fromJson(json['pstatus']) : null;
+    pType = json['ptype'] != null ? new Ptype.fromJson(json['ptype']) : null;
     content = json['content'];
     createdAt = json['created_at'];
     status = json['status'] != null ? new Pfor.fromJson(json['status']) : null;
@@ -192,6 +191,17 @@ class Pfor {
     data['key'] = this.key;
     data['value'] = this.value;
     return data;
+  }
+}
+class Ptype {
+  var id;
+  String? title;
+
+  Ptype({this.id, this.title});
+
+  Ptype.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    title = json['title'];
   }
 }
 class TicketPriority {

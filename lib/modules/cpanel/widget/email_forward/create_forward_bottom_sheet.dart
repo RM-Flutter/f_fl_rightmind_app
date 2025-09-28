@@ -68,7 +68,8 @@ class _CreateEmailFowardBottomSheetState extends State<CreateEmailFowardBottomSh
                     const SizedBox(height: 20),
                     Center(
                       child: Text(
-                       widget.domain == false? AppStrings.addANewEmailForwarder.tr().toUpperCase():AppStrings.addANewDomainForwarder.tr().toUpperCase(),
+                       widget.domain == false? AppStrings.addANewEmailForwarder.tr().toUpperCase():
+                       AppStrings.addANewDomainForwarder.tr().toUpperCase(),
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: Color(AppColors.primary),
@@ -81,7 +82,7 @@ class _CreateEmailFowardBottomSheetState extends State<CreateEmailFowardBottomSh
                     SizedBox(height: 15,),
                      Center(
                       child: Text(
-                        AppStrings.forwardMessage.tr(),
+                        widget.domain == false? "${AppStrings.forwardMessage.tr()} ${AppStrings.email.tr()}":"${AppStrings.forwardMessage.tr()} ${AppStrings.domain.tr()}",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Color(AppColors.dark),
@@ -94,18 +95,18 @@ class _CreateEmailFowardBottomSheetState extends State<CreateEmailFowardBottomSh
                     if(widget.actionType == "emails") TextFormField(
                       controller: emailController,
                       decoration: InputDecoration(
-                        hintText: "From User Name",
+                        hintText: AppStrings.fromUserName.tr(),
                       ),
                     ),
-                    if(widget.email == null) SizedBox(height: 15,),
+                     SizedBox(height: 15,),
                     if(widget.email == null) TextFormField(
                       controller: bodyController,
                       validator: (val) => widget.email == null? ValidationService.validateEmail(val):ValidationService.validateEmail(val),
                       decoration: InputDecoration(
-                        hintText: "to : forward Email/ Domain",
+                        hintText: widget.domain == true ?AppStrings.toForwardDomain.tr():AppStrings.toForwardEmail.tr(),
                       ),
                     ),
-                    if(widget.actionType == "emails")  const SizedBox(height: 30),
+                    if(widget.email == null)   const SizedBox(height: 30),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -148,12 +149,19 @@ class _CreateEmailFowardBottomSheetState extends State<CreateEmailFowardBottomSh
     );
   }
 
-  Widget _buildInputWithSuffix(String label, String suffixText, width, {controller}) {
+  Widget _buildInputWithSuffix(
+      String label,
+      String suffixText,
+      double width, {
+        TextEditingController? controller,
+        bool isNumber = false, // باراميتر جديد
+      }) {
     return TextFormField(
       controller: controller,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
       decoration: InputDecoration(
         fillColor: Colors.white,
-        hintText: label,
+        labelText: label,
         suffixIcon: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Container(
@@ -161,12 +169,18 @@ class _CreateEmailFowardBottomSheetState extends State<CreateEmailFowardBottomSh
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Color(0xffDFDFDF),
+              color: const Color(0xffDFDFDF),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
               suffixText,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: Color(AppColors.dark)),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                color: Color(AppColors.dark),
+              ),
             ),
           ),
         ),

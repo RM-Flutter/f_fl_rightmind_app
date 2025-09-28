@@ -4,6 +4,7 @@ import 'package:cpanal/constants/app_strings.dart';
 import 'package:cpanal/modules/cpanel/logic/email_account_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class CreateMultiEmailBottomSheet extends StatefulWidget {
@@ -151,21 +152,31 @@ class _CreateMultiEmailBottomSheetState extends State<CreateMultiEmailBottomShee
           ],
         ),
         const SizedBox(height: 5),
-        _buildInputWithSuffix(AppStrings.email.tr().toUpperCase(), "${widget.dominName}", 120.0, controller: acc.usernameController),
+        _buildInputWithSuffix(AppStrings.email.tr().toUpperCase(),
+            "${widget.dominName}", 120.0, controller: acc.usernameController, isNumber: false),
         const SizedBox(height: 10),
         _buildPasswordField(acc.passwordController),
         const SizedBox(height: 10),
-        _buildInputWithSuffix(AppStrings.storage.tr().toUpperCase(), "MB", 60.0, controller: acc.quotaController, keyboardType: TextInputType.number),
+        _buildInputWithSuffix(AppStrings.storage.tr().toUpperCase(), "MB", 60.0, controller: acc.quotaController,
+            isNumber: true),
         const Divider(height: 30),
       ],
     );
   }
 
-  Widget _buildInputWithSuffix(String label, String suffixText, double width,
-      {required TextEditingController controller, keyboardType}) {
+  Widget _buildInputWithSuffix(
+      String label,
+      String suffixText,
+      double width, {
+        TextEditingController? controller,
+        bool isNumber = false, // باراميتر جديد
+      }) {
     return TextFormField(
       controller: controller,
-      keyboardType: keyboardType ?? TextInputType.text,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      inputFormatters: isNumber
+          ? [FilteringTextInputFormatter.digitsOnly] // يمنع أي حاجة غير الأرقام
+          : [],
       decoration: InputDecoration(
         fillColor: Colors.white,
         labelText: label,
@@ -181,8 +192,13 @@ class _CreateMultiEmailBottomSheetState extends State<CreateMultiEmailBottomShee
             ),
             child: Text(
               suffixText,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                  fontWeight: FontWeight.w700, fontSize: 12, color: Color(AppColors.dark)),
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                color: Color(AppColors.dark),
+              ),
             ),
           ),
         ),

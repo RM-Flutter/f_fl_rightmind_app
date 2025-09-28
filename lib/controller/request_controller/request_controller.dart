@@ -18,6 +18,7 @@ class RequestController extends ChangeNotifier {
   bool isGetRequestLoading = false;
   bool empty = false;
   bool isAddCommentLoading = false;
+  bool getMore = false;
   bool isAddRequestLoading = false;
   bool isGetRequestCommentLoading = false;
   bool isGetRequestTypeLoading = false;
@@ -201,68 +202,75 @@ class RequestController extends ChangeNotifier {
     }
   }
   Future<void> getRequest(BuildContext context, {int? page}) async {
-    if(page != null){currentPage = page;}
-    print("currentPage is --> $currentPage}");
+    if (page != null) currentPage = page;
+
+    print("currentPage is --> $currentPage");
     isGetRequestLoading = true;
     notifyListeners();
+
     try {
       final response = await DioHelper.getData(
         url: "/csrequests/entities-operations",
-        context: context, // Pass this explicitly only if necessary
+        context: context,
         query: {
           "itemsCount": itemsCount,
           "page": page ?? currentPage,
         },
       );
-      if(response.data['status'] == false){
+
+      if (response.data['status'] == false) {
         Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
-        );
-      }else{
-        isGetRequestSuccess = true;
-        if(response.data['data'] == null || response.data['data'].isEmpty){
-          empty = true;
-        }
-        if (response.data['data'] != null && response.data['data'].isNotEmpty) {
-          List newRequest = response.data['data'];
-
-          // Remove duplicates based on ID
-          List uniqueRequests = newRequest.where((p) => !requestsIds.contains(p['id'])).toList();
-
-          if (hasMoreRequests == true) {
-            requests.addAll(uniqueRequests);
-          } else {
-            requests = uniqueRequests;
-            print("PRODUCTS SUCCESS");
-          }
-
-          // Update product ID tracker
-          requestsIds.addAll(uniqueRequests.map((p) => p['id']));
-
-          if (hasMoreRequests) currentPage++;
-        }
-      }
-      isGetRequestLoading = false;
-      notifyListeners();
-
-    } catch (error) {
-      getRequestErrorMessage = error is DioError
-          ? error.response?.data['message'] ?? 'Something went wrong'
-          : error.toString();
-      Fluttertoast.showToast(
-          msg: getRequestErrorMessage!,
+          msg: response.data['message'],
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 5,
           backgroundColor: Colors.red,
           textColor: Colors.white,
-          fontSize: 16.0
+          fontSize: 16.0,
+        );
+      } else {
+        isGetRequestSuccess = true;
+
+        List newRequest = response.data['data'] ?? [];
+
+        if (currentPage == 1) {
+          requests.clear();
+          requestsIds.clear();
+        }
+
+        if (newRequest.isNotEmpty) {
+          getMore = true;
+          // شيل التكرار
+          List uniqueRequests = newRequest
+              .where((p) => !requestsIds.contains(p['id']))
+              .toList();
+
+          requests.addAll(uniqueRequests);
+          requestsIds.addAll(uniqueRequests.map((p) => p['id']));
+
+          hasMoreRequests = uniqueRequests.isNotEmpty;
+          if (hasMoreRequests) currentPage++;
+        } else {
+          getMore = false;
+          hasMoreRequests = false;
+          if (currentPage == 1) empty = true;
+        }
+      }
+
+      isGetRequestLoading = false;
+      notifyListeners();
+    } catch (error) {
+      getRequestErrorMessage = error is DioError
+          ? error.response?.data['message'] ?? 'Something went wrong'
+          : error.toString();
+      Fluttertoast.showToast(
+        msg: getRequestErrorMessage!,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 5,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
       );
     } finally {
       isGetRequestLoading = false;
@@ -334,9 +342,9 @@ class RequestController extends ChangeNotifier {
     try {
       final response = await DioHelper.getData(
         url: "/csrequests/entities-operations/$id",
-        // query: {
-        //   "with" : "ptype_id"
-        // },
+        query: {
+          "with" : "ptype_id"
+        },
         context: context,
       );
       if(response.data['status'] == false){
@@ -373,6 +381,9 @@ class RequestController extends ChangeNotifier {
     }
   }
   Future<void> addRequest(BuildContext context, {List<XFile>? images}) async {
+   images = listAttachmentPersonalImage
+        .map((e) => XFile(e["upload"].path)) // تحويل File → XFile
+        .toList();
   isAddRequestLoading = true;
     notifyListeners();
     var response;

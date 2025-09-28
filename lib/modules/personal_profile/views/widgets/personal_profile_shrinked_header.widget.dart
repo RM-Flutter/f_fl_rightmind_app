@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -30,7 +31,7 @@ class PersonalProfileShrinkedHeaderWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(
+              Container(
                       decoration: BoxDecoration(
                         color: const Color(0xFFA3A3A3).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(AppSizes.s15),

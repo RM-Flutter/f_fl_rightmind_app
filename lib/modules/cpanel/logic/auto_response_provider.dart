@@ -73,8 +73,7 @@ class AutoResponseProvider extends ChangeNotifier {
           : error.toString();
     }
   }
-  addAutoRes(context, {email, domainId,
-    body, from, interval, domain, html, subject, start, stop}) async {
+  addAutoRes(context, {email, domainId, body, from, interval, domain, html, subject, start, stop}) async {
     isLoading = true;
     notifyListeners();
     try {
@@ -90,6 +89,58 @@ class AutoResponseProvider extends ChangeNotifier {
           "start" : start,
           "stop" : stop,
           "subject" : subject
+        },
+        context: context,
+      );
+      if(response.data['status'] == true){
+        Navigator.pop(context);
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.white,
+          builder: (context) {
+            return SuccessfulSendCpanalBottomsheet(response.data['message']);
+          },
+        );
+      }else{
+        Fluttertoast.showToast(
+            msg: response.data['message'],
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 5,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
+      }
+      isLoading = false;
+      notifyListeners();
+    } catch (error) {
+      isLoading = false;
+      notifyListeners();
+      if (error is DioError) {
+        errorMessage = error.response?.data['message'] ?? 'Something went wrong';
+      } else {
+        errorMessage = error.toString();
+      }
+    }
+  }
+  editAutoRes(context, {email, domainId, body, from, interval, domain, html, subject, start, stop}) async {
+    isLoading = true;
+    notifyListeners();
+    try {
+      final response = await DioHelper.putData(
+        url: "/rm_cpanel/v1/email_auto_responders/update",
+        data: {
+          if(email != null && email.isNotEmpty)"email" : email.toString().contains(domain) ? email.toString() : "$email@$domain",//
+          if(domainId != null&& domainId.isNotEmpty) "domain_id" : domainId,//
+          if(body != null&& body.isNotEmpty)"body" : body,//
+          if(from != null&& from.isNotEmpty)"from" : from,//
+          if(interval != null&& interval.isNotEmpty)"interval" : interval,
+          if(html != null)"is_html" : html == true? 1 : 0,
+          if(start != null&& start.isNotEmpty) "start" : start,
+          if(stop != null&& stop.isNotEmpty)"stop" : stop,
+          if(subject != null&& subject.isNotEmpty) "subject" : subject//
         },
         context: context,
       );

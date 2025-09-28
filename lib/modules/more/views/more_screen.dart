@@ -13,6 +13,7 @@ import 'package:cpanal/constants/user_consts.dart';
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/shared.dart';
 import 'package:cpanal/modules/more/widgets/customize_notification_screen.dart';
 import 'package:cpanal/utils/custom_shimmer_loading/shimmer_animated_loading.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 import '../../../constants/app_colors.dart';
 import '../../../constants/app_strings.dart';
 import '../../../constants/web_image.dart';
@@ -21,6 +22,7 @@ import '../../../general_services/app_config.service.dart';
 import '../../../routing/app_router.dart';
 import '../../home/view_models/home.viewmodel.dart';
 import '../../personal_profile/viewmodels/personal_profile.viewmodel.dart';
+import 'dart:html' as html;
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({super.key});
@@ -51,13 +53,15 @@ class _MoreScreenState extends State<MoreScreen> {
     isLogout.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     var jsonString;
     var gCache;
     jsonString = CacheHelper.getString("US1");
     if (jsonString != null && jsonString.isNotEmpty && jsonString != "") {
-      gCache = json.decode(jsonString) as Map<String, dynamic>; // Convert String back to JSON
+      gCache = json.decode(jsonString)
+          as Map<String, dynamic>; // Convert String back to JSON
       UserSettingConst.userSettings = UserSettingsModel.fromJson(gCache);
     }
 
@@ -71,17 +75,30 @@ class _MoreScreenState extends State<MoreScreen> {
             body: Stack(
               alignment: Alignment.center,
               children: [
-                Container(
-                  padding: EdgeInsets.zero,
-                  alignment: Alignment.topCenter,
-                  color: Color(AppColors.dark),
-                  child: SizedBox(
-                    height: MediaQuery.sizeOf(context).height * 0.25,
-                    child: Image.asset(
-                      "assets/images/png/more_back.png",
-                      fit: BoxFit.cover,
+                Stack(
+                  alignment: Alignment.topLeft,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.zero,
+                      alignment: Alignment.topCenter,
+                      color: Color(AppColors.dark),
+                      child: SizedBox(
+                        height: MediaQuery.sizeOf(context).height * 0.25,
+                        child: Image.asset(
+                          "assets/images/png/more_back.png",
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
-                  ),
+                    Padding(
+                      padding: EdgeInsetsGeometry.only(left: 16, top: 40),
+                      child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Icon(Icons.arrow_back, color: Colors.white)),
+                    )
+                  ],
                 ),
                 Positioned.fill(
                   top: MediaQuery.sizeOf(context).height * 0.25,
@@ -110,10 +127,27 @@ class _MoreScreenState extends State<MoreScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 15),
                             child: ListView(
                               children: [
-                                Text(AppStrings.more.tr().toUpperCase(),
-                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(AppColors.primary))
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: kIsWeb? 220 : 0),
+                                  child: Text(AppStrings.more.tr().toUpperCase(),
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(AppColors.primary))),
                                 ),
-                                const SizedBox(height : 15),
+                                const SizedBox(height: 15),
+                                DefaultListTile(
+                                  title: AppStrings.cpanal.tr(),
+                                  src: "assets/images/svg/h-cpanal.svg",
+                                  onTap: () {
+                                    context.pushNamed(
+                                      AppRoutes.chooseDomain.name,
+                                      pathParameters: {
+                                        "lang": context.locale.languageCode,
+                                      },
+                                    );
+                                  },
+                                ),
                                 DefaultListTile(
                                   title: AppStrings.ticketSystem.tr(),
                                   src: "assets/images/svg/mts.svg",
@@ -126,18 +160,85 @@ class _MoreScreenState extends State<MoreScreen> {
                                     );
                                   },
                                 ),
-          
+                                // DefaultListTile(
+                                //   title: AppStrings.companyStructure.tr(),
+                                //   src: "assets/images/svg/mcs.svg",
+                                //   onTap: () async{
+                                //     var loadingPercentage = 0;
+                                //     WebViewController? controller;
+                                //     late String url;
+                                //     final jsonString = CacheHelper.getString("USG");
+                                //     Map<String, dynamic>? gCache;
+                                //     if (jsonString != null && jsonString.isNotEmpty) {
+                                //       gCache = json.decode(jsonString) as Map<String, dynamic>;
+                                //     }
+                                //     url = gCache?['company_structure_url'] ?? "https://www.google.com/";
+                                //
+                                //     if (!kIsWeb) {
+                                //       // ✅ موبايل
+                                //       controller = WebViewController()
+                                //         ..setJavaScriptMode(JavaScriptMode.unrestricted)
+                                //         ..setNavigationDelegate(
+                                //           NavigationDelegate(
+                                //             onPageStarted: (_) => setState(() => loadingPercentage = 0),
+                                //             onProgress: (progress) =>
+                                //                 setState(() => loadingPercentage = progress),
+                                //             onPageFinished: (_) =>
+                                //                 setState(() => loadingPercentage = 100),
+                                //           ),
+                                //         )
+                                //         ..addJavaScriptChannel(
+                                //           'SnackBar',
+                                //           onMessageReceived: (message) {
+                                //             ScaffoldMessenger.of(context).showSnackBar(
+                                //               SnackBar(content: Text(message.message)),
+                                //             );
+                                //           },
+                                //         )
+                                //         ..loadRequest(Uri.parse(url));
+                                //     } else {
+                                //       html.window.open(url, "_blank");
+                                //     }
+                                //     if(kIsWeb){
+                                //       Center(
+                                //         child: Column(
+                                //           mainAxisAlignment: MainAxisAlignment.center,
+                                //           children: [
+                                //             const Icon(Icons.open_in_new, size: 60, color: Colors.blue),
+                                //             const SizedBox(height: 16),
+                                //             const Text("تم فتح الرابط في تبويب جديد"),
+                                //             const SizedBox(height: 16),
+                                //             ElevatedButton(
+                                //               onPressed: () {
+                                //                 html.window.open(url, "_blank");
+                                //               },
+                                //               child: const Text("إعادة فتح الرابط"),
+                                //             )
+                                //           ],
+                                //         ),
+                                //       );
+                                //     }else{
+                                //       Stack(
+                                //         children: [
+                                //           WebViewWidget(controller: controller!), // للموبايل
+                                //           if (loadingPercentage < 100)
+                                //             LinearProgressIndicator(value: loadingPercentage / 100.0),
+                                //         ],
+                                //       );
+                                //     }
+                                //   // await  Navigator.push(
+                                //   //       context,
+                                //   //       MaterialPageRoute(
+                                //   //         builder: (context) => WebViewStack(),
+                                //   //       ));
+                                //   //  Navigator.pop(context);
+                                //   },
+                                // ),
                                 DefaultListTile(
-                                  title: AppStrings.companyStructure.tr(),
-                                  src:  "assets/images/svg/mcs.svg",
-                                  onTap: () {
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewStack(),));
-                                  },
-                                ),DefaultListTile(
                                   title: AppStrings.notifications.tr(),
-                                  src:  "assets/images/svg/notification.svg",
+                                  src: "assets/images/svg/notification.svg",
                                   onTap: () {
-                                    if(kIsWeb) {
+                                    if (kIsWeb) {
                                       context.pushNamed(
                                         AppRoutes.defaultListPage.name,
                                         pathParameters: {
@@ -145,7 +246,7 @@ class _MoreScreenState extends State<MoreScreen> {
                                           "type": "rmnotifications"
                                         },
                                       );
-                                    }else{
+                                    } else {
                                       context.pushNamed(
                                         AppRoutes.defaultPage.name,
                                         pathParameters: {
@@ -154,32 +255,31 @@ class _MoreScreenState extends State<MoreScreen> {
                                         },
                                       );
                                     }
-
                                   },
                                 ),
-                                DefaultListTile(
-                                  title: AppStrings.articlesNew.tr(),
-                                  src:  "assets/images/svg/man.svg",
-                                  onTap: () {
-                                    if(kIsWeb) {
-                                      context.pushNamed(
-                                        AppRoutes.defaultListPage.name,
-                                        pathParameters: {
-                                          "lang": context.locale.languageCode,
-                                          "type": "blogs"
-                                        },
-                                      );
-                                    }else{
-                                      context.pushNamed(
-                                        AppRoutes.defaultPage.name,
-                                        pathParameters: {
-                                          "lang": context.locale.languageCode,
-                                          "type": "blogs"
-                                        },
-                                      );
-                                    }
-                                  },
-                                ),
+                                // DefaultListTile(
+                                //   title: AppStrings.articlesNew.tr(),
+                                //   src: "assets/images/svg/man.svg",
+                                //   onTap: () {
+                                //     if (kIsWeb) {
+                                //       context.pushNamed(
+                                //         AppRoutes.defaultListPage.name,
+                                //         pathParameters: {
+                                //           "lang": context.locale.languageCode,
+                                //           "type": "blogs"
+                                //         },
+                                //       );
+                                //     } else {
+                                //       context.pushNamed(
+                                //         AppRoutes.defaultPage.name,
+                                //         pathParameters: {
+                                //           "lang": context.locale.languageCode,
+                                //           "type": "blogs"
+                                //         },
+                                //       );
+                                //     }
+                                //   },
+                                // ),
                                 DefaultListTile(
                                   title: AppStrings.aboutComapny.tr(),
                                   src: "assets/images/svg/map.svg",
@@ -190,7 +290,6 @@ class _MoreScreenState extends State<MoreScreen> {
                                         "lang": context.locale.languageCode,
                                       },
                                     );
-          
                                   },
                                 ),
                                 DefaultListTile(
@@ -204,26 +303,31 @@ class _MoreScreenState extends State<MoreScreen> {
                                       },
                                     );
                                   },
-                                ), DefaultListTile(
-                                  title: AppStrings.faqs.tr(),
-                                  src: "assets/images/svg/faqqs.svg",
-                                  onTap: () {
-                                    context.pushNamed(
-                                      AppRoutes.faqScreen.name,
-                                      pathParameters: {
-                                        "lang": context.locale.languageCode,
-                                      },
-                                    );
-          
-                                  },
                                 ),
-                                const SizedBox(height : 15),
-                                Text(AppStrings.myAccount.tr().toUpperCase(),
-                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(AppColors.primary))
+                                // DefaultListTile(
+                                //   title: AppStrings.faqs.tr(),
+                                //   src: "assets/images/svg/faqqs.svg",
+                                //   onTap: () {
+                                //     context.pushNamed(
+                                //       AppRoutes.faqScreen.name,
+                                //       pathParameters: {
+                                //         "lang": context.locale.languageCode,
+                                //       },
+                                //     );
+                                //   },
+                                // ),
+                                const SizedBox(height: 15),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: kIsWeb? 220 : 0),
+                                  child: Text(AppStrings.myAccount.tr().toUpperCase(),
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(AppColors.primary))),
                                 ),
-                                const SizedBox(height : 15),
+                                const SizedBox(height: 15),
                                 DefaultListTile(
-                                  title:AppStrings.customizeNotifications.tr(),
+                                  title: AppStrings.customizeNotifications.tr(),
                                   src: "assets/images/svg/mcn.svg",
                                   onTap: () {
                                     showDialog(
@@ -232,17 +336,20 @@ class _MoreScreenState extends State<MoreScreen> {
                                           return CustomizeNotificationScreen();
                                         });
                                   },
-                                ),DefaultListTile(
-                                  title:AppStrings.languageSettings.tr(),
+                                ),
+                                DefaultListTile(
+                                  title: AppStrings.languageSettings.tr(),
                                   src: "assets/images/svg/mls.svg",
                                   onTap: () {
-                                    context.pushNamed(AppRoutes.langSettingScreen.name,
-                                        pathParameters: {'lang': context.locale.languageCode,
+                                    context.pushNamed(
+                                        AppRoutes.langSettingScreen.name,
+                                        pathParameters: {
+                                          'lang': context.locale.languageCode,
                                         });
-          
                                   },
-                                ),DefaultListTile(
-                                  title:AppStrings.updatePassword.tr(),
+                                ),
+                                DefaultListTile(
+                                  title: AppStrings.updatePassword.tr(),
                                   src: "assets/images/svg/mup.svg",
                                   onTap: () {
                                     context.pushNamed(
@@ -251,7 +358,6 @@ class _MoreScreenState extends State<MoreScreen> {
                                         "lang": context.locale.languageCode,
                                       },
                                     );
-          
                                   },
                                 ),
                                 DefaultListTile(
@@ -281,11 +387,17 @@ class _MoreScreenState extends State<MoreScreen> {
                                 DefaultListTile(
                                   title: AppStrings.logout.tr(),
                                   src: "assets/images/svg/mlo.svg",
-                                  onTap: ()async{
+                                  onTap: () async {
                                     final appConfigService =
-                                    Provider.of<AppConfigService>(context, listen: false);
-                                    appConfigService.logout().then((v){
-                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const SplashScreen(),));
+                                        Provider.of<AppConfigService>(context,
+                                            listen: false);
+                                    appConfigService.logout().then((v) {
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const SplashScreen(),
+                                          ));
                                     });
                                   },
                                 ),
@@ -301,78 +413,70 @@ class _MoreScreenState extends State<MoreScreen> {
                   top: MediaQuery.sizeOf(context).height * 0.15,
                   child: Column(
                     children: [
-                  ClipOval(
-                  child: GestureDetector(
-                  onTap: () {
-                context.pushNamed(
-                AppRoutes.personalProfile.name,
-                pathParameters: {
-                "lang": context.locale.languageCode,
-                },
-                );
-                },
-                  child: SizedBox(
-                    width: 124,
-                    height: 124,
-                    child: !kIsWeb
-                        ? CachedNetworkImage(
-                      imageUrl: (gCache != null)
-                          ? gCache['photo']
-                          : "https://th.bing.com/th/id/OIP.NV-x3Km5_nHK2ZcRuqV5OgHaHa?rs=1&pid=ImgDetMain",
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => const ShimmerAnimatedLoading(
-                        width: 124,
-                        height: 124,
-                        circularRaduis: 124,
+                      ClipOval(
+                        child: GestureDetector(
+                          onTap: () {
+                            context.pushNamed(
+                              AppRoutes.personalProfile.name,
+                              pathParameters: {
+                                "lang": context.locale.languageCode,
+                              },
+                            );
+                          },
+                          child: SizedBox(
+                            width: 124,
+                            height: 124,
+                            child:  CachedNetworkImage(
+                                    imageUrl: (gCache != null)
+                                        ? gCache['photo']
+                                        : "",
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) =>
+                                        const ShimmerAnimatedLoading(
+                                      width: 124,
+                                      height: 124,
+                                      circularRaduis: 124,
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(
+                                            Icons.image_not_supported_outlined),
+                                  )
+
+                          ),
+                        ),
                       ),
-                      errorWidget: (context, url, error) =>
-                      const Icon(Icons.image_not_supported_outlined),
-                    )
-                        : CustomImage(
-                      (gCache != null)
-                          ? gCache['photo']
-                          : "https://th.bing.com/th/id/OIP.NV-x3Km5_nHK2ZcRuqV5OgHaHa?rs=1&pid=ImgDetMain",
-                      width: 124,
-                      height: 124,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-          ),
-            const SizedBox(height: 15),
+                      const SizedBox(height: 15),
                       Container(
                         alignment: Alignment.center,
                         padding: const EdgeInsets.symmetric(horizontal: 50),
                         width: MediaQuery.sizeOf(context).width * 1,
                         child: Text(
-                          (gCache != null ?gCache['name'] ?? '' : "").toUpperCase(),
+                          (gCache != null ? gCache['name'] ?? '' : "")
+                              .toUpperCase(),
                           maxLines: 1,
                           textAlign: TextAlign.center,
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium
                               ?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                            // fontSize: 16,
-          
-                            // fontWeight: FontWeight.w700,
-                            // height: 0,
-                          ),
+                                color: Theme.of(context).colorScheme.primary,
+                                // fontSize: 16,
+
+                                // fontWeight: FontWeight.w700,
+                                // height: 0,
+                              ),
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        gCache != null ?gCache['job_title'] ?? "" : "",
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(
-                          color: Color(0xff4F4F4F),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          // height: 0,
-                        ),
-          
+                        gCache != null ? gCache['job_title'] ?? "" : "",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Color(0xff4F4F4F),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              // height: 0,
+                            ),
+
                         //      TextStyle(
                         // color: Color(0xFF4F4F4F),
                         // fontSize: 10,
@@ -407,24 +511,32 @@ class DefaultListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric( vertical: 8),
-      padding: EdgeInsets.zero,
-      child: ListTile(
-        leading: SvgPicture.asset(
-          src,
-          color: const Color(AppColors.primary),
-          fit: BoxFit.contain,
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: kIsWeb ? 1100 : double.infinity,
         ),
-        title: Text(
-          title.toUpperCase(),
-          style: Theme.of(context).textTheme.labelSmall,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: EdgeInsets.zero,
+          child: ListTile(
+            leading: SvgPicture.asset(
+              src,
+              color: const Color(AppColors.primary),
+              fit: BoxFit.scaleDown,
+              width: 20, height: 20,
+            ),
+            title: Text(
+              title.toUpperCase(),
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+            // trailing: Icon(
+            //   Icons.arrow_forward_ios,
+            //   color: Theme.of(context).colorScheme.primary,
+            // ),
+            onTap: onTap ?? () {}, // Add your onTap functionality here
+          ),
         ),
-        // trailing: Icon(
-        //   Icons.arrow_forward_ios,
-        //   color: Theme.of(context).colorScheme.primary,
-        // ),
-        onTap: onTap ?? () {}, // Add your onTap functionality here
       ),
     );
   }

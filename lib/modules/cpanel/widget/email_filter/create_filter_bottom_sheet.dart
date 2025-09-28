@@ -481,29 +481,41 @@ class _CreateEmailBottomSheetState extends State<CreateEmailBottomSheet> {
     );
   }
 
-  Widget _buildInputWithSuffix(String label, String suffixText, width,
-      {controller}) {
+  Widget _buildInputWithSuffix(
+      String label,
+      String suffixText,
+      double width, {
+        TextEditingController? controller,
+        bool isNumber = false, // باراميتر جديد
+      }) {
     return TextFormField(
       controller: controller,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
       decoration: InputDecoration(
         fillColor: Colors.white,
-        hintText: label,
-        // suffixIcon: Padding(
-        //   padding: const EdgeInsets.all(8.0),
-        //   child: Container(
-        //     width: width,
-        //     alignment: Alignment.center,
-        //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        //     decoration: BoxDecoration(
-        //       color: Color(0xffDFDFDF),
-        //       borderRadius: BorderRadius.circular(6),
-        //     ),
-        //     child: Text(
-        //       suffixText,
-        //       style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: Color(AppColors.dark)),
-        //     ),
-        //   ),
-        // ),
+        labelText: label,
+        suffixIcon: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            width: width,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xffDFDFDF),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              suffixText,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                color: Color(AppColors.dark),
+              ),
+            ),
+          ),
+        ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );

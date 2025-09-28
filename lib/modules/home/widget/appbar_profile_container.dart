@@ -49,7 +49,7 @@ class AppbarProfileContainer extends StatelessWidget {
         if(us1Cache['email_verified_at'] == null || us1Cache['phone_verified_at'] == null) GestureDetector(
           onTap: ()async{
             await context.pushNamed(
-                AppRoutes.personalProfile2.name,
+                AppRoutes.personalProfile.name,
                 pathParameters: {'lang': context.locale.languageCode});
           },
           child: Container(
@@ -118,7 +118,8 @@ class AppbarProfileContainer extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.only(
                     top: 0,
-                    right: LocalizationService.isArabic(context: context) ? 15 : 0, left: LocalizationService.isArabic(context: context) ? 0 : 15,
+                    right: LocalizationService.isArabic(context: context) ? 15 : 0,
+                    left: LocalizationService.isArabic(context: context) ? 0 : 15,
                   ),
                   child: Container(
                     width: MediaQuery.sizeOf(context!).width * 0.45,

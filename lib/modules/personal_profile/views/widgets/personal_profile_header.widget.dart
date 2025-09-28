@@ -117,7 +117,9 @@ class PersonalProfileHeaderWidget extends StatelessWidget {
                           ),
                           child: Center(
                             child: IconButton(
-                              onPressed: () => context.pop(),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
                               icon: const Icon(
                                 Icons.arrow_back_ios_new,
                                 color: Colors.white,
@@ -290,7 +292,7 @@ class CompanyInfoNotchedContainer extends StatelessWidget {
                               AppImages.logo,
                               fit: BoxFit.cover,
                             )
-                                : !kIsWeb ? CachedNetworkImage(
+                                : CachedNetworkImage(
                                 imageUrl: UserSettingConst.userSettings
                                     ?.photo ??
                                     '',
@@ -310,16 +312,7 @@ class CompanyInfoNotchedContainer extends StatelessWidget {
                                       .image_not_supported_outlined,
                                   size: AppSizes
                                       .s60,
-                                )) : ConstrainedBox(
-                              constraints: const BoxConstraints(
-                                maxHeight: 250, // أو أي رقم مناسب بدل Infinity
-                              ),
-                              child: CustomImage(
-                                UserSettingConst.userSettings
-                                    ?.photo?? "",
-                                fit: BoxFit.cover,
-                              ),
-                            ),
+                                ))
                           ),
                         ),
                       ),

@@ -10,8 +10,7 @@ import 'package:cpanal/modules/cpanel/email_forward/email_forward_screen.dart';
 import 'package:cpanal/modules/cpanel/ssl/ssl_controller_screen.dart';
 import 'package:cpanal/modules/dashboard/dashboard_screen.dart';
 import 'package:cpanal/modules/home/view/home_screen.dart';
-import 'package:cpanal/modules/points_screen/points_screen.dart';
-import 'package:cpanal/modules/points_screen/widgets/select_contact_screen.dart';
+import 'package:cpanal/modules/points/widgets/select_contact_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/shared.dart';
 import 'package:cpanal/modules/more/views/aboutus/view/aboutus_screen.dart';
@@ -29,6 +28,7 @@ import '../general_services/internet_check.dart';
 import '../modules/authentication/views/login_screen.dart';
 import '../modules/authentication/views/update_main_data.dart';
 import '../modules/complain_screen/add_complain_screen.dart';
+import '../modules/cpanel/email_account/create_multi_accounts_screen.dart';
 import '../modules/cpanel/ftp/ftp_account_screen.dart';
 import '../modules/cpanel/sql/sql_account_screen.dart';
 import '../modules/main_screen/views/main_screen.dart';
@@ -40,6 +40,10 @@ import '../modules/pages/default_details.dart';
 import '../modules/pages/default_list_page.dart';
 import '../modules/pages/default_page.dart';
 import '../modules/personal_profile/views/personal_profile_screen.dart';
+import '../modules/points/fawry_view/fawry_provider_screen.dart';
+import '../modules/points/points_categories_screen.dart';
+import '../modules/points/points_screen.dart';
+import '../modules/points/prize_screen.dart';
 import '../modules/splash_and_onboarding/views/onboarding_screen.dart';
 import '../modules/splash_and_onboarding/views/splash_screen.dart';
 import '../routing/app_router_transitions.dart';
@@ -65,8 +69,11 @@ enum AppRoutes {
   notification,
   personalProfile2,
   defaultSinglePage,
+  fawryProviderScreen,
+  CategoriesprizePointsViewScreen,
   defaultListPage,
   complainDetails,
+  homeComplainDetails,
   defaultPage,
   AutoResponse,
   langSettingScreen,
@@ -80,18 +87,24 @@ enum AppRoutes {
   EmailAccount,
   userDevices,
   EmailForward,
+  homeContactUs,
   FilterEmail,
   EmailFilter,
   SqlAccounts,
   FTPAccounts,
+  EmailMultiAccount,
   SslController,
+  homeNewComplainScreen,
+  HomeComplainScreen,
   DnsScreen,
   personalProfile,
+  personalProfiles,
   contactUs,
   faqScreen,
   aboutUsScreen,
   newComplainScreen,
   ComplainScreen,
+  prizePointsViewScreen,
   notificationDetails
 }
 
@@ -208,16 +221,11 @@ GoRouter goRouter(BuildContext context) => GoRouter(
               },
               routes: [
                 GoRoute(
-                  path: 'personal-profile',
+                  path: 'personal-profiles',
                   parentNavigatorKey: rootNavigatorKey,
                   name: AppRoutes.personalProfile2.name,
                   pageBuilder: (context, state) {
                     Offset? begin = state.extra as Offset?;
-                    final lang = state.uri.queryParameters['lang'];
-                    if (lang != null) {
-                      final locale = Locale(lang);
-                      context.setLocale(locale);
-                    }
                     final animationController = AnimationController(
                       vsync: ticker,
                     );
@@ -732,6 +740,124 @@ GoRouter goRouter(BuildContext context) => GoRouter(
                   ],
                 ),
                 GoRoute(
+                    path: 'homeComplainScreen',
+                    parentNavigatorKey: rootNavigatorKey,
+                    name: AppRoutes.HomeComplainScreen.name,
+                    pageBuilder: (context, state) {
+                      Offset? begin = state.extra as Offset?;
+                      final lang = state.uri.queryParameters['lang'];
+                      if (lang != null) {
+                        final locale = Locale(lang);
+                        context.setLocale(locale);
+                      }
+                      final animationController = AnimationController(
+                        vsync: ticker,
+                      );
+                      // Make sure to dispose the controller after the transition is complete
+                      animationController.addStatusListener((status) {
+                        if (status == AnimationStatus.completed ||
+                            status == AnimationStatus.dismissed) {
+                          animationController.dispose();
+                        }
+                      });
+                      return AppRouterTransitions.slideTransition(
+                        key: state.pageKey,
+                        child: ComplainScreen(),
+                        animation: animationController,
+                        begin: begin ?? const Offset(1.0, 0.0),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: 'HomeNewComplainScreen',
+                        parentNavigatorKey: rootNavigatorKey,
+                        name: AppRoutes.homeNewComplainScreen.name,
+                        pageBuilder: (context, state) {
+                          Offset? begin = state.extra as Offset?;
+                          final lang = state.uri.queryParameters['lang'];
+                          if (lang != null) {
+                            final locale = Locale(lang);
+                            context.setLocale(locale);
+                          }
+                          final animationController = AnimationController(
+                            vsync: ticker,
+                          );
+                          // Make sure to dispose the controller after the transition is complete
+                          animationController.addStatusListener((status) {
+                            if (status == AnimationStatus.completed ||
+                                status == AnimationStatus.dismissed) {
+                              animationController.dispose();
+                            }
+                          });
+                          return AppRouterTransitions.slideTransition(
+                            key: state.pageKey,
+                            child: NewComplainScreen(),
+                            animation: animationController,
+                            begin: begin ?? const Offset(1.0, 0.0),
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: 'HomecomplainDetailsScreen/:id',
+                        parentNavigatorKey: rootNavigatorKey,
+                        name: AppRoutes.homeComplainDetails.name,
+                        pageBuilder: (context, state) {
+                          Offset? begin = state.extra as Offset?;
+                          final lang = state.uri.queryParameters['lang'];
+                          final id = state.pathParameters['id'] ?? '';
+                          if (lang != null) {
+                            final locale = Locale(lang);
+                            context.setLocale(locale);
+                          }
+                          final animationController = AnimationController(
+                            vsync: ticker,
+                          );
+                          // Make sure to dispose the controller after the transition is complete
+                          animationController.addStatusListener((status) {
+                            if (status == AnimationStatus.completed ||
+                                status == AnimationStatus.dismissed) {
+                              animationController.dispose();
+                            }
+                          });
+                          return AppRouterTransitions.slideTransition(
+                            key: state.pageKey,
+                            child: ComplainDetailsScreen(id : id),
+                            animation: animationController,
+                            begin: begin ?? const Offset(1.0, 0.0),
+                          );
+                        },
+                      ),
+                    ]
+                ),
+                GoRoute(
+                  path: 'homeContact-us',
+                  parentNavigatorKey: rootNavigatorKey,
+                  name: AppRoutes.homeContactUs.name,
+                  pageBuilder: (context, state) {
+                    // Offset? begin = state.extra as Offset?;
+                    final lang = state.uri.queryParameters['lang'];
+                    if (lang != null) {
+                      final locale = Locale(lang);
+                      context.setLocale(locale);
+                    }
+                    final animationController = AnimationController(
+                      vsync: ticker,
+                    );
+                    animationController.addStatusListener((status) {
+                      if (status == AnimationStatus.completed ||
+                          status == AnimationStatus.dismissed) {
+                        animationController.dispose();
+                      }
+                    });
+                    return AppRouterTransitions.slideTransition(
+                      key: state.pageKey,
+                      child:  ContactScreen(),
+                      animation: animationController,
+                      begin: const Offset(1.0, 0.0),
+                    );
+                  },
+                ),
+                GoRoute(
                   path: 'chooseDomain',
                   parentNavigatorKey: rootNavigatorKey,
                   name: AppRoutes.chooseDomain.name,
@@ -800,6 +926,36 @@ GoRouter goRouter(BuildContext context) => GoRouter(
                               begin: extra?.begin ?? const Offset(1.0, 0.0),
                             );
                           },
+                          routes: [
+                            GoRoute(
+                              path: 'email-multi',
+                              parentNavigatorKey: rootNavigatorKey,
+                              name: AppRoutes.EmailMultiAccount.name,
+                              pageBuilder: (context, state) {
+                                Offset? begin = state.extra as Offset?;
+                                final id = state.pathParameters['id'] ?? '';
+                                final name = state.pathParameters['name'] ?? '';
+
+                                final animationController = AnimationController(vsync: ticker);
+                                animationController.addStatusListener((status) {
+                                  if (status == AnimationStatus.completed ||
+                                      status == AnimationStatus.dismissed) {
+                                    animationController.dispose();
+                                  }
+                                });
+
+                                return AppRouterTransitions.slideTransition(
+                                  key: state.pageKey,
+                                  child: CreateMultiAccountsScreen(
+                                    name: name,
+                                    dominId: id,
+                                  ),
+                                  animation: animationController,
+                                  begin: begin ?? const Offset(1.0, 0.0),
+                                );
+                              },
+                            ),
+                          ]
                         ),
                         GoRoute(
                           path: 'email-forward',
@@ -1036,7 +1192,212 @@ GoRouter goRouter(BuildContext context) => GoRouter(
                   path: 'points-screen',
                   parentNavigatorKey: rootNavigatorKey,
                   name: AppRoutes.pointsScreen.name,
-                  builder: (context, state) => PointsScreen(),
+                  builder: (context, state) => PointsScreen(arrow: true,),
+                  routes: [
+                    GoRoute(
+                        path: 'prize-point-screen/:id',
+                        parentNavigatorKey: rootNavigatorKey,
+                        name: AppRoutes.prizePointsViewScreen.name,
+                        pageBuilder: (context, state) {
+                          final lang = state.uri.queryParameters['lang'];
+                          final id = state.pathParameters['id'] ?? '';
+                          if (lang != null) {
+                            final locale = Locale(lang);
+                            context.setLocale(locale);
+                          }
+                          final animationController = AnimationController(
+                            vsync: ticker,
+                          );
+                          animationController.addStatusListener((status) {
+                            if (status == AnimationStatus.completed ||
+                                status == AnimationStatus.dismissed) {
+                              animationController.dispose();
+                            }
+                          });
+                          return AppRouterTransitions.slideTransition(
+                            key: state.pageKey,
+                            child: PrizeScreen(true,id),
+                            animation: animationController,
+                            begin: const Offset(1.0, 0.0),
+                          );
+                        }
+                    ),
+                    GoRoute(
+                        path: 'categories-prize-point-screen',
+                        parentNavigatorKey: rootNavigatorKey,
+                        name: AppRoutes.CategoriesprizePointsViewScreen.name,
+                        pageBuilder: (context, state) {
+                          final lang = state.uri.queryParameters['lang'];
+                          if (lang != null) {
+                            final locale = Locale(lang);
+                            context.setLocale(locale);
+                          }
+                          final animationController = AnimationController(
+                            vsync: ticker,
+                          );
+                          animationController.addStatusListener((status) {
+                            if (status == AnimationStatus.completed ||
+                                status == AnimationStatus.dismissed) {
+                              animationController.dispose();
+                            }
+                          });
+                          return AppRouterTransitions.slideTransition(
+                            key: state.pageKey,
+                            child: PointsCategoriesScreen(true,),
+                            animation: animationController,
+                            begin: const Offset(1.0, 0.0),
+                          );
+                        },
+                        routes: [
+                          GoRoute(
+                            path: 'fawryProviderScreen',
+                            parentNavigatorKey: rootNavigatorKey,
+                            name: AppRoutes.fawryProviderScreen.name,
+                            pageBuilder: (context, state) {
+                              //  Offset? begin = state.extra as Offset?;
+                              final lang = state.pathParameters['lang'];
+                              if (lang != null) {
+                                final locale = Locale(lang);
+                                context.setLocale(locale);
+                              }
+                              final animationController = AnimationController(
+                                vsync: ticker,
+                              );
+                              // Make sure to dispose the controller after the transition is complete
+                              animationController.addStatusListener((status) {
+                                if (status == AnimationStatus.completed ||
+                                    status == AnimationStatus.dismissed) {
+                                  animationController.dispose();
+                                }
+                              });
+                              return AppRouterTransitions.slideTransition(
+                                key: state.pageKey,
+                                child: FawryProviderScreen(),
+                                animation: animationController,
+                                begin: const Offset(1.0, 0.0),
+                              );
+                            },
+                          ),
+                          // GoRoute(
+                          //   path: 'billPaymentScreen',
+                          //   parentNavigatorKey: _rootNavigatorKey,
+                          //   name: AppRoutes.billPaymentScreen.name,
+                          //   pageBuilder: (context, state) {
+                          //     //  Offset? begin = state.extra as Offset?;
+                          //     final lang = state.pathParameters['lang'];
+                          //     if (lang != null) {
+                          //       final locale = Locale(lang);
+                          //       context.setLocale(locale);
+                          //     }
+                          //     final animationController = AnimationController(
+                          //       vsync: ticker,
+                          //     );
+                          //     // Make sure to dispose the controller after the transition is complete
+                          //     animationController.addStatusListener((status) {
+                          //       if (status == AnimationStatus.completed ||
+                          //           status == AnimationStatus.dismissed) {
+                          //         animationController.dispose();
+                          //       }
+                          //     });
+                          //     return AppRouterTransitions.slideTransition(
+                          //       key: state.pageKey,
+                          //       child: BillPaymentScreen(),
+                          //       animation: animationController,
+                          //       begin: const Offset(1.0, 0.0),
+                          //     );
+                          //   },
+                          // ),
+                          // GoRoute(
+                          //   path: 'chargePhoneScreen',
+                          //   parentNavigatorKey: _rootNavigatorKey,
+                          //   name: AppRoutes.chargePhoneScreen.name,
+                          //   pageBuilder: (context, state) {
+                          //     //  Offset? begin = state.extra as Offset?;
+                          //     final lang = state.pathParameters['lang'];
+                          //     if (lang != null) {
+                          //       final locale = Locale(lang);
+                          //       context.setLocale(locale);
+                          //     }
+                          //     final animationController = AnimationController(
+                          //       vsync: ticker,
+                          //     );
+                          //     // Make sure to dispose the controller after the transition is complete
+                          //     animationController.addStatusListener((status) {
+                          //       if (status == AnimationStatus.completed ||
+                          //           status == AnimationStatus.dismissed) {
+                          //         animationController.dispose();
+                          //       }
+                          //     });
+                          //     return AppRouterTransitions.slideTransition(
+                          //       key: state.pageKey,
+                          //       child: ChargePhoneScreen(),
+                          //       animation: animationController,
+                          //       begin: const Offset(1.0, 0.0),
+                          //     );
+                          //   },
+                          // ),
+                          // GoRoute(
+                          //   path: 'payBillScreen',
+                          //   parentNavigatorKey: _rootNavigatorKey,
+                          //   name: AppRoutes.payBillScreen.name,
+                          //   pageBuilder: (context, state) {
+                          //     //  Offset? begin = state.extra as Offset?;
+                          //     final lang = state.pathParameters['lang'];
+                          //     if (lang != null) {
+                          //       final locale = Locale(lang);
+                          //       context.setLocale(locale);
+                          //     }
+                          //     final animationController = AnimationController(
+                          //       vsync: ticker,
+                          //     );
+                          //     // Make sure to dispose the controller after the transition is complete
+                          //     animationController.addStatusListener((status) {
+                          //       if (status == AnimationStatus.completed ||
+                          //           status == AnimationStatus.dismissed) {
+                          //         animationController.dispose();
+                          //       }
+                          //     });
+                          //     return AppRouterTransitions.slideTransition(
+                          //       key: state.pageKey,
+                          //       child: PayBillScreen(),
+                          //       animation: animationController,
+                          //       begin: const Offset(1.0, 0.0),
+                          //     );
+                          //   },
+                          // ),
+                          // GoRoute(
+                          //   path: 'withdrawMoneyScreen',
+                          //   parentNavigatorKey: _rootNavigatorKey,
+                          //   name: AppRoutes.withdrawMoneyScreen.name,
+                          //   pageBuilder: (context, state) {
+                          //     //  Offset? begin = state.extra as Offset?;
+                          //     final lang = state.pathParameters['lang'];
+                          //     if (lang != null) {
+                          //       final locale = Locale(lang);
+                          //       context.setLocale(locale);
+                          //     }
+                          //     final animationController = AnimationController(
+                          //       vsync: ticker,
+                          //     );
+                          //     // Make sure to dispose the controller after the transition is complete
+                          //     animationController.addStatusListener((status) {
+                          //       if (status == AnimationStatus.completed ||
+                          //           status == AnimationStatus.dismissed) {
+                          //         animationController.dispose();
+                          //       }
+                          //     });
+                          //     return AppRouterTransitions.slideTransition(
+                          //       key: state.pageKey,
+                          //       child: WithdrawMoneyScreen(),
+                          //       animation: animationController,
+                          //       begin: const Offset(1.0, 0.0),
+                          //     );
+                          //   },
+                          // ),
+                        ]
+                    ),
+
+                  ]
                 ),
               ],
             ),

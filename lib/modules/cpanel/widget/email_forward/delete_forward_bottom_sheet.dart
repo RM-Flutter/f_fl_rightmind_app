@@ -16,7 +16,8 @@ class DeleteAccountBottomSheet extends StatefulWidget {
   var dest;
   var forward;
   var actionType;
-  DeleteAccountBottomSheet({this.dominId,this.dominName,this.actionType, this.dest, this.forward});
+  var type;
+  DeleteAccountBottomSheet({this.dominId,this.dominName,this.actionType, this.dest, this.forward, this.type});
 
   @override
   State<DeleteAccountBottomSheet> createState() => _DeleteAccountBottomSheetState();
@@ -66,7 +67,7 @@ class _DeleteAccountBottomSheetState extends State<DeleteAccountBottomSheet> {
                   const SizedBox(height: 20),
                   Center(
                     child: Text(
-                      AppStrings.areYouSureToDelete.tr().toUpperCase(),
+                     "${ AppStrings.areYouSureToDelete.tr().toUpperCase()} ${widget.type.toString().tr().toUpperCase()}",
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Color(AppColors.primary),
@@ -188,6 +189,8 @@ class _DeleteAccountBottomSheetState extends State<DeleteAccountBottomSheet> {
             ),
             child: Text(
               suffixText,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: Color(AppColors.dark)),
             ),
           ),

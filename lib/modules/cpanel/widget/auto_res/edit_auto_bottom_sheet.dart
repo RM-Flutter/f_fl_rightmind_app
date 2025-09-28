@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:cpanal/common_modules_widgets/custom_elevated_button.widget.dart';
 import 'package:cpanal/constants/app_colors.dart';
 import 'package:cpanal/constants/app_strings.dart';
+import 'package:cpanal/constants/string_convert.dart';
+import 'package:cpanal/general_services/localization.service.dart';
 import 'package:cpanal/modules/cpanel/logic/auto_response_provider.dart';
 import 'package:cpanal/modules/cpanel/logic/email_account_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -12,8 +14,10 @@ import 'package:provider/provider.dart';
 class EditEmailBottomSheet extends StatefulWidget {
   var dominId;
   var dominName;
+  var email;
+  var index;
   bool? multi = false;
-  EditEmailBottomSheet({this.dominId,this.dominName,this.multi});
+  EditEmailBottomSheet({this.dominId, this.dominName, this.multi, this.email, this.index});
 
   @override
   State<EditEmailBottomSheet> createState() => _EditEmailBottomSheetState();
@@ -24,12 +28,22 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
   TextEditingController fromController = TextEditingController();
   TextEditingController subjectController = TextEditingController();
   TextEditingController bodyController = TextEditingController();
+  TextEditingController intervalController = TextEditingController();
+  TextEditingController startController = TextEditingController();
+  TextEditingController stopController = TextEditingController();
   bool isContainsHtml = true;
   String generateRandomPassword({int length = 12}) {
     const String chars =
         'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#\$%^&*()-_=+[]{};:,.<>?/|';
     final rand = Random.secure();
-    return List.generate(length, (index) => chars[rand.nextInt(chars.length)]).join();
+    return List.generate(length, (index) => chars[rand.nextInt(chars.length)])
+        .join();
+  }
+  @override
+  void initState() {
+    emailController.text = widget.index['email'] ?? "";
+    subjectController.text = widget.index['subject'] ?? "";
+    super.initState();
   }
 
   @override
@@ -64,6 +78,7 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
                   Center(
                     child: Text(
                       "${AppStrings.update.tr().toUpperCase()} ${AppStrings.autoresponders.tr().toUpperCase()}",
+                      textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Color(AppColors.primary),
                         fontWeight: FontWeight.bold,
@@ -72,8 +87,10 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 15,),
-                   Center(
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Center(
                     child: Text(
                       AppStrings.autoResponseMessage.tr(),
                       textAlign: TextAlign.center,
@@ -85,8 +102,11 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
                     ),
                   ),
                   const SizedBox(height: 25),
-                  _buildInputWithSuffix(AppStrings.email.tr().toUpperCase(), "${widget.dominName}", 120.0, controller: emailController),
-                  const SizedBox(height: 15),
+                  if (widget.email == null)
+                    _buildInputWithSuffix(AppStrings.email.tr().toUpperCase(),
+                        "@${widget.dominName}", 120.0,
+                        controller: emailController),
+                  if (widget.email == null) const SizedBox(height: 15),
                   TextFormField(
                     controller: fromController,
                     decoration: InputDecoration(
@@ -99,6 +119,105 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
                     decoration: InputDecoration(
                       hintText: AppStrings.subject.tr().toUpperCase(),
                     ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    controller: intervalController,
+                    decoration: InputDecoration(
+                      hintText: AppStrings.interval.tr().toUpperCase(),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    readOnly: true,
+                    controller: startController,
+                    onTap: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime(2101),
+                        locale: Locale(
+                            LocalizationService.isArabic(context: context)
+                                ? 'ar'
+                                : 'en'),
+                        builder: (BuildContext context, Widget? child) {
+                          return Theme(
+                            data: ThemeData.light().copyWith(
+                              colorScheme: ColorScheme.light(
+                                primary: Colors.blue, // لون الرأس والأزرار
+                                onPrimary: Colors.white, // لون النص على الأزرار
+                                onSurface: Colors.black, // لون النص في باقي الأماكن
+                              ),
+                              dialogBackgroundColor: Colors.white, // خلفية النافذة نفسها
+                            ),
+                            child: child!,
+                          );
+                        },
+                      );
+                      if (picked != null) {
+                        final outputFormat = DateFormat('yyyy-MM-dd',LocalizationService.isArabic(context: context)
+                            ? 'ar'
+                            : 'en');
+                        final outputDate = outputFormat.format(picked);
+                        startController.text =
+                            outputDate;
+                      }
+                    },
+                    decoration:
+                    InputDecoration(hintText: AppStrings.startDate.tr()),
+                    validator: (val) {
+                      if (val == null || val.isEmpty) {
+                        return AppStrings.dataIsRequired.tr();
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    readOnly: true,
+                    controller: stopController,
+                    onTap: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime(2101),
+                        locale: Locale(
+                            LocalizationService.isArabic(context: context)
+                                ? 'ar'
+                                : 'en'),
+                        builder: (BuildContext context, Widget? child) {
+                          return Theme(
+                            data: ThemeData.light().copyWith(
+                              colorScheme: ColorScheme.light(
+                                primary: Colors.blue, // لون الرأس والأزرار
+                                onPrimary: Colors.white, // لون النص على الأزرار
+                                onSurface: Colors.black, // لون النص في باقي الأماكن
+                              ),
+                              dialogBackgroundColor: Colors.white, // خلفية النافذة نفسها
+                            ),
+                            child: child!,
+                          );
+                        },
+                      );
+                      if (picked != null) {
+                        final outputFormat = DateFormat('yyyy-MM-dd',LocalizationService.isArabic(context: context)
+                            ? 'ar'
+                            : 'en');
+                        final outputDate = outputFormat.format(picked);
+                        stopController.text =
+                            outputDate;
+                      }
+                    },
+                    decoration:
+                    InputDecoration(hintText: AppStrings.stopDate.tr(), ),
+                    validator: (val) {
+                      if (val == null || val.isEmpty) {
+                        return AppStrings.dataIsRequired.tr();
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 15),
                   TextFormField(
@@ -134,12 +253,16 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
                             height: 30,
                             padding: EdgeInsets.symmetric(horizontal: 4),
                             decoration: BoxDecoration(
-                              color: isContainsHtml ? Color(0xFFE91E63) : Colors.grey[400],
+                              color: isContainsHtml
+                                  ? Color(0xFFE91E63)
+                                  : Colors.grey[400],
                               borderRadius: BorderRadius.circular(30),
                             ),
                             child: AnimatedAlign(
                               duration: Duration(milliseconds: 200),
-                              alignment: isContainsHtml ? Alignment.centerRight : Alignment.centerLeft,
+                              alignment: isContainsHtml
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
                               child: Container(
                                 width: 22,
                                 height: 22,
@@ -178,26 +301,30 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
                           isPrimaryBackground: false,
                         ),
                       ),
-                      const SizedBox(width: 20,),
+                      const SizedBox(
+                        width: 20,
+                      ),
                       Expanded(
                           child: CustomElevatedButton(
                             width: null,
                             backgroundColor: const Color(AppColors.dark),
-                            title: AppStrings.update.tr().toUpperCase(),
+                            title: AppStrings.send.tr().toUpperCase(),
                             onPressed: () async {
-                              value.updateAutoRes(context,
+                              value.editAutoRes(context,
+                                  start: StringConvert.sanitizeDateString(startController.text),
+                                  stop: StringConvert.sanitizeDateString(stopController.text),
+                                  interval: StringConvert.sanitizeDateString(intervalController.text),
                                   domainId: widget.dominId.toString(),
                                   domain: widget.dominName.toString(),
                                   subject: subjectController.text,
                                   from: fromController.text,
                                   body: bodyController.text,
-                                  email: emailController.text,
+                                  email: widget.email ?? emailController.text,
                                   html: isContainsHtml
                               );
                             },
                             isPrimaryBackground: false,
-                          )
-                      ),
+                          )),
                     ],
                   )
                 ],
@@ -209,12 +336,19 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
     );
   }
 
-  Widget _buildInputWithSuffix(String label, String suffixText, width, {controller}) {
+  Widget _buildInputWithSuffix(
+      String label,
+      String suffixText,
+      double width, {
+        TextEditingController? controller,
+        bool isNumber = false, // باراميتر جديد
+      }) {
     return TextFormField(
       controller: controller,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
       decoration: InputDecoration(
         fillColor: Colors.white,
-        hintText: label,
+        labelText: label,
         suffixIcon: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Container(
@@ -222,12 +356,18 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Color(0xffDFDFDF),
+              color: const Color(0xffDFDFDF),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
               suffixText,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: Color(AppColors.dark)),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                color: Color(AppColors.dark),
+              ),
             ),
           ),
         ),
@@ -235,5 +375,4 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
       ),
     );
   }
-
 }

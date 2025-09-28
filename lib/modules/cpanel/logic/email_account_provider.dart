@@ -2,29 +2,23 @@ import 'package:cpanal/common_modules_widgets/success_send_complain.dart';
 import 'package:cpanal/constants/app_constants.dart';
 import 'package:cpanal/constants/app_strings.dart';
 import 'package:cpanal/general_services/alert_service/alerts.service.dart';
+import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/shared.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:spreadsheet_decoder/spreadsheet_decoder.dart';
-
+import 'dart:html' as html;
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:open_filex/open_filex.dart';
-import 'package:path/path.dart' as p;
-import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 import 'package:excel/excel.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:open_filex/open_filex.dart';
 import 'dart:typed_data';
-import 'package:media_store_plus/media_store_plus.dart';
-import 'dart:typed_data';
-import 'package:excel/excel.dart';
-import 'package:flutter/material.dart';
-import 'package:media_store_plus/media_store_plus.dart';
-import 'package:open_filex/open_filex.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class EmailAccountProvider extends ChangeNotifier {
   bool isLoading = false;
@@ -110,12 +104,26 @@ class EmailAccountProvider extends ChangeNotifier {
       if (response.data['status'] == true) {
         webViewUrl = response.data['url'];
         var uri = Uri.parse(webViewUrl!);
-        if(await canLaunchUrl(uri)){
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        }else{
+
+        CacheHelper.setString(key: "webViewUrl", value: webViewUrl.toString());
+
+        if (await canLaunchUrl(uri)) {
+          if (kIsWeb) {
+            // افتح في تاب جديدة
+            html.window.open(webViewUrl!, "_blank");
+          } else {
+            // افتح جوه WebView عادي للموبايل
+            WebViewWidget(
+              controller: WebViewController()
+                ..setJavaScriptMode(JavaScriptMode.unrestricted)
+                ..loadRequest(Uri.parse(webViewUrl!)),
+            );
+          }
+        } else {
           throw 'Could not launch $webViewUrl';
         }
-      }else{
+      }
+      else{
         Fluttertoast.showToast(
             msg: response.data['message'],
             toastLength: Toast.LENGTH_LONG,
@@ -269,6 +277,18 @@ class EmailAccountProvider extends ChangeNotifier {
   }
 
   updateEmail(context, {account, domainId, password, quota, suspend}) async {
+    if((password == null || password.toString().isEmpty) && suspend == null && (quota == null || quota.toString().isEmpty)){
+      Fluttertoast.showToast(
+          msg: AppStrings.noChangesDetectedProfileIsAlreadyUpToDate.tr(),
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 5,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
+      return;
+    }
     isLoading = true;
     notifyListeners();
     try {
@@ -490,42 +510,43 @@ class EmailAccountProvider extends ChangeNotifier {
     if (fileBytes == null) return;
 
     try {
-      if (Platform.isAndroid) {
-        // 1. create temporary file
-        final tempDir = await getApplicationDocumentsDirectory();
-        final tempPath = "${tempDir.path}/accounts.xlsx";
-        await File(tempPath).writeAsBytes(fileBytes);
-
-        // 2. initialize and set app folder first
-        await MediaStore.ensureInitialized();
-        MediaStore.appFolder = "MyApp"; // <-- must set a folder name
-
-        // 3. save file into Downloads/MyApp
-        await MediaStore().saveFile(
-          tempFilePath: tempPath,
-          dirType: DirType.download,
-          dirName: DirName.download,
-        );
+      if (kIsWeb) {
+        // 💻 Web: عمل ملف Blob وتنزيله
+        final blob = html.Blob([Uint8List.fromList(fileBytes)]);
+        final url = html.Url.createObjectUrlFromBlob(blob);
+        final anchor = html.AnchorElement(href: url)
+          ..setAttribute("download", "accounts.xlsx")
+          ..click();
+        html.Url.revokeObjectUrl(url);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("File saved in Downloads/MyApp")),
+          const SnackBar(content: Text("✅ File downloaded (Web)")),
         );
-
-        await OpenFilex.open(tempPath);
-      } else {
+      } else if (Platform.isAndroid || Platform.isIOS) {
+        // 📱 موبايل
         final dir = await getApplicationDocumentsDirectory();
         final path = "${dir.path}/accounts.xlsx";
         await File(path).writeAsBytes(fileBytes);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Saved at: $path")),
+          SnackBar(content: Text("✅ Saved at: $path")),
         );
 
+        await OpenFilex.open(path);
+      } else {
+        // 🖥️ Desktop
+        final dir = await getApplicationDocumentsDirectory();
+        final path = "${dir.path}/accounts.xlsx";
+        await File(path).writeAsBytes(fileBytes);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("✅ Saved at: $path")),
+        );
         await OpenFilex.open(path);
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Save error: $e")),
+        SnackBar(content: Text("❌ Save error: $e")),
       );
     }
   }
@@ -533,10 +554,26 @@ class EmailAccountProvider extends ChangeNotifier {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
+      withData: true, // 💡 مهم للويب عشان يرجع bytes
     );
 
     if (result != null) {
-      final bytes = File(result.files.single.path!).readAsBytesSync();
+      Uint8List? bytes;
+
+      if (kIsWeb) {
+        // 💻 Web: بناخد الـ bytes مباشرة
+        bytes = result.files.single.bytes;
+      } else {
+        // 📱 موبايل/ديسكتوب: نقرأ الملف من الـ path
+        final path = result.files.single.path;
+        if (path != null) {
+          bytes = await File(path).readAsBytes();
+        }
+      }
+
+      if (bytes == null) return;
+
+      // ✅ decode excel
       var decoder = SpreadsheetDecoder.decodeBytes(bytes);
 
       for (var table in decoder.tables.keys) {
@@ -548,7 +585,44 @@ class EmailAccountProvider extends ChangeNotifier {
           });
         }
       }
+
       notifyListeners();
       print("ACCOUNTS IS --> $accountsMulti");
     }
   }}
+
+class WebViewScreen extends StatelessWidget {
+  final String url;
+
+  const WebViewScreen({super.key, required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: const Text(""),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: kIsWeb
+          ? _buildWebIframe() // في الويب يستخدم iframe
+          : WebViewWidget(
+        controller: WebViewController()
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          ..loadRequest(Uri.parse(url)),
+      ),
+    );
+  }
+
+  /// بناء iframe في حالة Flutter Web
+  Widget _buildWebIframe() {
+    return HtmlElementView(
+      viewType: 'iframeElement',
+    );
+  }
+}

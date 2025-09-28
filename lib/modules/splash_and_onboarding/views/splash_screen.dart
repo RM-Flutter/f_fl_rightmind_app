@@ -12,6 +12,7 @@ import '../../../constants/app_sizes.dart';
 import '../../../constants/app_strings.dart';
 import '../../../general_services/device_info.service.dart';
 import '../../../general_services/localization.service.dart';
+import '../../../general_services/notification_service.dart';
 import '../view_models/splash_onboarding.viewmodel.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -32,11 +33,13 @@ class _SplashScreenState extends State<SplashScreen> {
       bool isArabic = LocalizationService.isArabic(context: context);
       if(isArabic == true){CacheHelper.setString(key: "lang", value: "ar");}
       if(isArabic == false){CacheHelper.setString(key: "lang", value: "en");}
+
       // Use `isArabic` to control any logic based on language
     });
     homeViewModel = HomeViewModel();
     viewModel = OnboardingViewModel();
     initializeHomeAndSplash();
+    NotificationService().init(context);
     //playTest();
   }
   Future<void> initializeHomeAndSplash() async {

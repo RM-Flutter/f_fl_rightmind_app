@@ -13,6 +13,7 @@ import 'package:cpanal/modules/cpanel/widget/email_filter/create_filter_bottom_s
 import 'package:cpanal/modules/cpanel/widget/email_filter/delete_filter_bottom_sheet.dart';
 import 'package:cpanal/modules/cpanel/widget/email_filter/edit_filter_bottom_sheet.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,7 @@ import '../../../../common_modules_widgets/template_page.widget.dart';
 import '../../../../constants/app_sizes.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
+import '../../../utils/componentes/general_components/gradient_bg_image.dart';
 import '../../choose_domain/choose_domin_screen.dart';
 import '../../more/views/more_screen.dart';
 
@@ -181,147 +183,163 @@ class _FilterEmailScreenState extends State<FilterEmailScreen> {
                 ],
               ),
             ),
-            body: SizedBox(
-              height: MediaQuery.sizeOf(context).height * 0.8,
-              child: ListView(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(AppSizes.s12),
-                children: [
-                   Text(
-                    AppStrings.email_filters_description.tr(),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(AppColors.dark)),
-                  ),
-                  const SizedBox(height: 15),
-                  ListView.separated(
-                    itemCount: value.isLoading && value.pageNumber == 1 ? 3 : value.emailFilter.length,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    separatorBuilder: (_, __) => const SizedBox(height: 15),
-                    itemBuilder: (context, index) {
-                      final safeContext = context;
-                      if (value.isLoading && value.pageNumber == 1) {
-                        return Shimmer.fromColors(
-                          baseColor: Colors.grey.shade300,
-                          highlightColor: Colors.grey.shade100,
-                          child: Container(height: 100, width: double.infinity, color: Colors.white),
-                        );
-                      }
-                      final email = value.emailFilter[index];
-                      return GestureDetector(
-                        // onLongPress: () => onLongPress(index),
-                        // onTap: () => onTap(index),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: const [BoxShadow(color: Color(0x0C000000), blurRadius: 10, offset: Offset(0, 1))],
-                          ),
-                          child: Slidable(
-                            key: ValueKey(value.emailFilter[index]['dest']),
-                            endActionPane: ActionPane(
-                              motion: const DrawerMotion(),
-                              extentRatio: 0.6,
-                              children: [
-                                CustomSlidableAction(
-                                  onPressed: (_) async{
-                                    await showModalBottomSheet(
-                                      context: safeContext,
-                                      isScrollControlled: true,
-                                      backgroundColor: Colors.transparent,
-                                      builder: (_) => Padding(
-                                        padding: EdgeInsets.only(bottom: MediaQuery.of(safeContext).viewInsets.bottom),
-                                        child: EditEmailBottomSheet(dominId: widget.dominId.toString(), object: value.emailFilter[index],dominName: widget.name.toString(), email: widget.email,),
-                                      ),
-                                    );
-                                    await emailcickle();
-                                  },
-                                  child: Container(
-                                    width: 50,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFFA372FF),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: SvgPicture.asset("assets/images/svg/swip_edit.svg", fit: BoxFit.scaleDown),
-                                  ),
-                                ),
-                                CustomSlidableAction(
-                                  onPressed: (_)async {
-                                   await showModalBottomSheet(
-                                      context: safeContext,
-                                      isScrollControlled: true,
-                                      backgroundColor: Colors.transparent,
-                                      builder: (_) => Padding(
-                                        padding: EdgeInsets.only(bottom: MediaQuery.of(safeContext).viewInsets.bottom),
-                                        child: DeleteAccountBottomSheet(
-                                          email: widget.email,
-                                            dominId: widget.dominId,dest: value.emailFilter[index]['filtername'],
-                                            actionType: "email_account"
-                                        ),
-                                      ),
-                                    );
-                                   await emailcickle();
-                                  },
-                                  child: Container(
-                                    width: 50,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFFE93F81),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: SvgPicture.asset("assets/images/svg/menu_delete.svg", fit: BoxFit.scaleDown, color: Colors.white,),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            child: GestureDetector(
-                              onTap: ()async{
-                                await showModalBottomSheet(
-                                  context: safeContext,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  builder: (_) => Padding(
-                                    padding: EdgeInsets.only(bottom: MediaQuery.of(safeContext).viewInsets.bottom),
-                                    child: EditEmailBottomSheet(dominId: widget.dominId.toString(), object: value.emailFilter[index],dominName: widget.name.toString(), email: widget.email,),
-                                  ),
-                                );
-                                await emailcickle();
-                              },
+            body: GradientBgImage(
+              padding: EdgeInsets.all(0),
+              child: SizedBox(
+                height: MediaQuery.sizeOf(context).height * 0.8,
+                child: ListView(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(AppSizes.s12),
+                  children: [
+                     Text(
+                      widget.email.toString(),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(AppColors.primary)),
+                    ),
+                    SizedBox(height: 15,),
+                    Text(
+                      AppStrings.email_filters_description.tr(),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(AppColors.dark)),
+                    ),
+                    const SizedBox(height: 15),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: kIsWeb ? 1100 : double.infinity,
+                        ),
+                        child: ListView.separated(
+                          itemCount: value.isLoading && value.pageNumber == 1 ? 3 : value.emailFilter.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          separatorBuilder: (_, __) => const SizedBox(height: 15),
+                          itemBuilder: (context, index) {
+                            final safeContext = context;
+                            if (value.isLoading && value.pageNumber == 1) {
+                              return Shimmer.fromColors(
+                                baseColor: Colors.grey.shade300,
+                                highlightColor: Colors.grey.shade100,
+                                child: Container(height: 100, width: double.infinity, color: Colors.white),
+                              );
+                            }
+                            final email = value.emailFilter[index];
+                            return GestureDetector(
+                              // onLongPress: () => onLongPress(index),
+                              // onTap: () => onTap(index),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(10),
                                   boxShadow: const [BoxShadow(color: Color(0x0C000000), blurRadius: 10, offset: Offset(0, 1))],
                                 ),
-                                child: Row(
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          value.emailFilter[index]['filtername'],
-                                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(AppColors.dark)),
+                                child: Slidable(
+                                  key: ValueKey(value.emailFilter[index]['dest']),
+                                  endActionPane: ActionPane(
+                                    motion: const DrawerMotion(),
+                                    extentRatio: 0.6,
+                                    children: [
+                                      CustomSlidableAction(
+                                        onPressed: (_) async{
+                                          await showModalBottomSheet(
+                                            context: safeContext,
+                                            isScrollControlled: true,
+                                            backgroundColor: Colors.transparent,
+                                            builder: (_) => Padding(
+                                              padding: EdgeInsets.only(bottom: MediaQuery.of(safeContext).viewInsets.bottom),
+                                              child: EditEmailBottomSheet(dominId: widget.dominId.toString(), object: value.emailFilter[index],dominName: widget.name.toString(), email: widget.email,),
+                                            ),
+                                          );
+                                          await emailcickle();
+                                        },
+                                        child: Container(
+                                          width: 50,
+                                          height: 50,
+                                          decoration: BoxDecoration(
+                                            color: Color(0xFFA372FF),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: SvgPicture.asset("assets/images/svg/swip_edit.svg", fit: BoxFit.scaleDown),
                                         ),
-                                      ],
+                                      ),
+                                      CustomSlidableAction(
+                                        onPressed: (_)async {
+                                         await showModalBottomSheet(
+                                            context: safeContext,
+                                            isScrollControlled: true,
+                                            backgroundColor: Colors.transparent,
+                                            builder: (_) => Padding(
+                                              padding: EdgeInsets.only(bottom: MediaQuery.of(safeContext).viewInsets.bottom),
+                                              child: DeleteAccountBottomSheet(
+                                                email: widget.email,
+                                                  dominId: widget.dominId,dest: value.emailFilter[index]['filtername'],
+                                                  actionType: "email_account"
+                                              ),
+                                            ),
+                                          );
+                                         await emailcickle();
+                                        },
+                                        child: Container(
+                                          width: 50,
+                                          height: 50,
+                                          decoration: BoxDecoration(
+                                            color: Color(0xFFE93F81),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: SvgPicture.asset("assets/images/svg/menu_delete.svg", fit: BoxFit.scaleDown, color: Colors.white,),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  child: GestureDetector(
+                                    onTap: ()async{
+                                      await showModalBottomSheet(
+                                        context: safeContext,
+                                        isScrollControlled: true,
+                                        backgroundColor: Colors.transparent,
+                                        builder: (_) => Padding(
+                                          padding: EdgeInsets.only(bottom: MediaQuery.of(safeContext).viewInsets.bottom),
+                                          child: EditEmailBottomSheet(dominId: widget.dominId.toString(), object: value.emailFilter[index],dominName: widget.name.toString(), email: widget.email,),
+                                        ),
+                                      );
+                                      await emailcickle();
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: const [BoxShadow(color: Color(0x0C000000), blurRadius: 10, offset: Offset(0, 1))],
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                value.emailFilter[index]['filtername'],
+                                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(AppColors.dark)),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-
-                  if (value.isLoading && value.pageNumber != 1)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20),
-                      child: Center(child: CircularProgressIndicator()),
+                      ),
                     ),
-                ],
+
+                    if (value.isLoading && value.pageNumber != 1)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                  ],
+                ),
               ),
             ),
             floatingActionButton: Column(

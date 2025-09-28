@@ -36,7 +36,7 @@ class _PhoneNumberFieldState extends State<PhoneNumberField> {
   @override
   void initState() {
     super.initState();
-    widget.countryCodeController.text = CacheHelper.getString("flagCode");
+    widget.countryCodeController.text = CacheHelper.getString("flagCode") ?? "";
   }
 
   @override

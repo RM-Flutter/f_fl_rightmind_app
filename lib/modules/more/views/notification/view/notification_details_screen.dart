@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpanal/modules/more/views/notification/logic/notification_provider.dart';
 import 'package:cpanal/modules/more/views/notification/view/notification_details_loading.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:cpanal/constants/app_colors.dart';
@@ -43,18 +44,20 @@ class SingleListDetailsScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.arrow_back, color: Color(0xff224982)),
-                                onPressed: () {
+                                icon: const Icon(Icons.arrow_back, color:Color(0xff224982)),
+                                onPressed: !kIsWeb?() {
                                   Navigator.pop(context);
-                                },
+                                } : (){},
                               ),
                               Text(
                                 AppStrings.notificationsDetails.tr().toUpperCase(),
                                 style: const TextStyle(color: Color(0xff224982), fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                               IconButton(
-                                  icon: const Icon(Icons.arrow_back, color: Colors.transparent),
-                                  onPressed: (){}
+                                icon: const Icon(Icons.arrow_back, color:Color(0xff224982)),
+                                onPressed: !kIsWeb?() {
+                                  Navigator.pop(context);
+                                } : (){},
                               ),
                             ],
                           ),

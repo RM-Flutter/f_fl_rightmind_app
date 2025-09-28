@@ -30,7 +30,7 @@ class CommentsWidget extends StatelessWidget {
       child: Column(
         children: [
           if(comments!.isNotEmpty)SizedBox(
-            height: MediaQuery.sizeOf(context).height * 0.33,
+            height: comments!.length >= 10 ?MediaQuery.sizeOf(context).height * 0.33 :MediaQuery.sizeOf(context).height * 0.4,
             child: ListView.separated(
                 controller: scrollController,
                 shrinkWrap: true,
@@ -189,7 +189,7 @@ class CommentsWidget extends StatelessWidget {
                },
                child: Container(
                  height: 50,
-                 width: MediaQuery.sizeOf(context).width * 0.3,
+                 width: MediaQuery.sizeOf(context).width * 0.32,
                  decoration: BoxDecoration(
                      color: Colors.transparent,
                      borderRadius: BorderRadius.circular(50),

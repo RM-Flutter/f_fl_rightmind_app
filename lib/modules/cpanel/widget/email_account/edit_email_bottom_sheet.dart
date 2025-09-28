@@ -7,6 +7,7 @@ import 'package:cpanal/modules/cpanel/email_account/create_multi_accounts_screen
 import 'package:cpanal/modules/cpanel/logic/email_account_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../utils/componentes/general_components/all_text_field.dart';
@@ -95,14 +96,13 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
                   ),
                   ),
                   if(widget.multi == true)GridView.count(
-                    crossAxisCount: 2, // عمودين
+                    crossAxisCount: 2,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
                     shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    reverse: false,
+                    physics: const NeverScrollableScrollPhysics(),
                     padding: EdgeInsets.zero,
-                    childAspectRatio: 4.5, // عرض العنصر نسبةً لطوله
+                    childAspectRatio: 8, // خلي القيمة أكبر عشان العناصر تبقى أقصر
                     children: (widget.emails['accounts'] as List<dynamic>).map((email) {
                       return Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -123,14 +123,16 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
                       );
                     }).toList(),
                   ),
+
                   const SizedBox(height: 15),
                   _buildPasswordField(passwordController),
                   const SizedBox(height: 15),
-                  _buildInputWithSuffix(AppStrings.storage.tr().toUpperCase(), AppStrings.mp.tr().toUpperCase(), 50.0, qoutaController, keyboardType: TextInputType.number),
+                  _buildInputWithSuffix(AppStrings.storage.tr().toUpperCase(), AppStrings.mp.tr().toUpperCase(), 50.0,
+                     controller: qoutaController, isNumber: true),
                   const SizedBox(height: 15),
                   defaultDropdownField(
                     value: selectBlock,
-                    title: selectBlock ?? AppStrings.type.tr(),
+                    title: selectBlock ?? AppStrings.accountStatus.tr(),
                     items: [AppStrings.blockAccount.tr(), AppStrings.unBlockAccount.tr()].map((e) => DropdownMenuItem(
                       value: e.toString(),
                       child: Text(e.toString(),  style: const TextStyle(
@@ -234,10 +236,19 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
     );
   }
 
-  Widget _buildInputWithSuffix(String label, String suffixText, width, controller, {keyboardType}) {
-    return TextField(
+  Widget _buildInputWithSuffix(
+      String label,
+      String suffixText,
+      double width, {
+        TextEditingController? controller,
+        bool isNumber = false, // باراميتر جديد
+      }) {
+    return TextFormField(
       controller: controller,
-      keyboardType: keyboardType?? TextInputType.text,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      inputFormatters: isNumber
+          ? [FilteringTextInputFormatter.digitsOnly] // يمنع أي حاجة غير الأرقام
+          : [],
       decoration: InputDecoration(
         fillColor: Colors.white,
         labelText: label,
@@ -248,12 +259,18 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Color(0xffDFDFDF),
+              color: const Color(0xffDFDFDF),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
               suffixText,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: Color(AppColors.dark)),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                color: Color(AppColors.dark),
+              ),
             ),
           ),
         ),

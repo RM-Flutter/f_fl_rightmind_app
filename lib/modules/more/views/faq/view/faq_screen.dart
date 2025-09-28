@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cpanal/constants/app_colors.dart';
@@ -7,6 +8,8 @@ import 'package:cpanal/constants/app_strings.dart';
 import 'package:cpanal/modules/more/views/faq/logic/faq_model.dart';
 import 'package:cpanal/modules/more/views/faq/logic/get_faq_model.dart';
 import 'package:cpanal/modules/more/views/faq/view/faq_loading_widget.dart';
+
+import '../../../../../utils/componentes/general_components/gradient_bg_image.dart';
 
 class FaqScreen extends StatefulWidget {
   @override
@@ -44,14 +47,24 @@ class _FaqScreenState extends State<FaqScreen> {
             ),
             backgroundColor: Colors.transparent,
           ),
-          body: (value.faqModel != null)?ListView.builder(
-            padding: const EdgeInsets.all(16.0),
-            itemCount: value.faqModel!.page!.questions!.length,
-            itemBuilder: (context, index) {
-              return FaqTile(
-                item: value.faqModel!.page!.questions![index],
-              );
-            },
+          body: (value.faqModel != null)?GradientBgImage(
+            padding: EdgeInsets.all(0),
+            child: Center(
+              child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: kIsWeb ? 1100 : double.infinity,
+                    ),
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16.0),
+                  itemCount: value.faqModel!.page!.questions!.length,
+                  itemBuilder: (context, index) {
+                    return FaqTile(
+                      item: value.faqModel!.page!.questions![index],
+                    );
+                  },
+                ),
+              ),
+            ),
           ):ListView.builder(
             padding: const EdgeInsets.all(16.0),
             itemCount: 3,

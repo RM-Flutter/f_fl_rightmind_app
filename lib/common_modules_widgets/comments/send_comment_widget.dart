@@ -80,9 +80,12 @@ class _SendCommentWidgetState extends State<SendCommentWidget> {
         if(value.isAddCommentSuccess == true){
           print("ADDED SUCCESS");
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            value.getComment(context, widget.slug,widget.id);
+            Future.delayed(const Duration(seconds: 1), () {
+              value.getComment(context, widget.slug, widget.id, pages: 1);
+            });
           });
           value.isAddCommentSuccess = false;
+
         }
         Future<void> _stopRecording() async {
           try {
@@ -93,7 +96,7 @@ class _SendCommentWidgetState extends State<SendCommentWidget> {
                 Duration? duration = await _getAudioDuration(path);
                 if (duration != null && duration.inSeconds > 0) {
                   print("Audio Duration: ${duration.inSeconds} seconds");
-                  value.addComment(context, id: widget.id, voicePath: path, slug: "emp-complains");
+                  value.addComment(context, id: widget.id, voicePath: path, slug: "csrequests");
                 } else {
                   print("Error: Recorded audio has zero duration!");
                 }
@@ -163,7 +166,7 @@ class _SendCommentWidgetState extends State<SendCommentWidget> {
                       if (value.listXAttachmentPersonalImage.isNotEmpty) {
                         value.addComment(context,
                             id: widget.id,
-                            slug: "emp-complains",
+                            slug: "csrequests",
                             images: value.listXAttachmentPersonalImage);
                       }
                     },
@@ -191,7 +194,7 @@ class _SendCommentWidgetState extends State<SendCommentWidget> {
               radius: 24,
               child: GestureDetector(
                 onTap: () {
-                  value.addComment(context, id: widget.id, slug: "emp-complains",);
+                  value.addComment(context, id: widget.id, slug: "csrequests",);
                 },
                 child: (value.isAddCommentLoading == false)
                     ? SvgPicture.asset("assets/images/svg/send.svg", color: Color(0xffFFFFFF))

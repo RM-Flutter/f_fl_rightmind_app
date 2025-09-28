@@ -13,6 +13,7 @@ import 'package:cpanal/modules/more/views/blog/controller/blog_controller.dart';
 import 'package:cpanal/utils/placeholder_no_existing_screen/no_existing_placeholder_screen.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../utils/componentes/general_components/gradient_bg_image.dart';
 import '../more/views/blog/widget/blog_list_view_item.dart';
 import 'default_page_list_view.dart';
 
@@ -77,71 +78,76 @@ class _DefaultPageState extends State<DefaultPage> {
           as Map<String, dynamic>; // Convert String back to JSON
           UserSettingConst.userSettings = UserSettingsModel.fromJson(gCache);
         }
+        print("TYPE -> ${widget.type}");
+
         return SafeArea(
           child: Scaffold(
             backgroundColor: const Color(0xffFFFFFF),
             appBar: AppBar(
               surfaceTintColor: Colors.transparent,
-              title:  Text(widget.type.toString().tr().toUpperCase(), style: const TextStyle(fontSize: 16,
+              title:  Text(widget.type == "rmnotifications" ? AppStrings.notifications.tr().toUpperCase() :widget.type.toString().tr().toUpperCase(), style: const TextStyle(fontSize: 16,
                   color: Color(AppColors.dark), fontWeight: FontWeight.w700),),
               backgroundColor: Colors.transparent,
             ),
-            body: RefreshIndicator.adaptive(
-              onRefresh: ()async{
-                setState(() {
-                  CacheHelper.setBool("value", false);
-                });
-                await provider.getBlog(context,"blogs", page: 1);
-              },
-              child: ListView(
-                controller: _scrollController,
-                children: [
-                  const SizedBox(height: 10,),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: ListView.builder(
-                      padding: EdgeInsets.zero,
-                      shrinkWrap: true,
-                      reverse: false,
-                      physics: const ClampingScrollPhysics(),
-                      itemCount: provider.isGetBlogLoading && provider.blogs.isEmpty
-                          ? 12 // Show 5 loading items initially
-                          : provider.blogs.length,
-                      itemBuilder: (context, index) {
-                        if (provider.isGetBlogLoading && provider.currentPage == 1) {
-                          return Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(vertical: AppSizes.s12),
-                              padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSizes.s15, vertical: AppSizes.s12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(AppSizes.s15),
+            body: GradientBgImage(
+              padding: EdgeInsets.all(0),
+              child: RefreshIndicator.adaptive(
+                onRefresh: ()async{
+                  setState(() {
+                    CacheHelper.setBool("value", false);
+                  });
+                  await provider.getBlog(context,"blogs", page: 1);
+                },
+                child: ListView(
+                  controller: _scrollController,
+                  children: [
+                    const SizedBox(height: 10,),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        reverse: false,
+                        physics: const ClampingScrollPhysics(),
+                        itemCount: provider.isGetBlogLoading && provider.blogs.isEmpty
+                            ? 12 // Show 5 loading items initially
+                            : provider.blogs.length,
+                        itemBuilder: (context, index) {
+                          if (provider.isGetBlogLoading && provider.currentPage == 1) {
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(vertical: AppSizes.s12),
+                                padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSizes.s15, vertical: AppSizes.s12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(AppSizes.s15),
+                                ),
+                                height: 100,
                               ),
-                              height: 100,
-                            ),
-                          );
-                        } else {
-                          return DefaultPageListView(
-                            blog: provider.blogs,
-                            index: index,
-                            type: widget.type,
-                          );
-                        }
-                      },
+                            );
+                          } else {
+                            return DefaultPageListView(
+                              blog: provider.blogs,
+                              index: index,
+                              type: widget.type,
+                            );
+                          }
+                        },
+                      ),
                     ),
-                  ),
-                  if(!provider.isGetBlogLoading && provider.blogs.isEmpty) Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child:  NoExistingPlaceholderScreen(
-                        height: LayoutService.getHeight(context) *
-                            0.6,
-                        title: AppStrings.thereIsNoNotifications.tr()),
-                  ),
-                  if (provider.isGetBlogLoading && provider.currentPage != 1)
-                    const Center(child: CircularProgressIndicator()),
-                ],
+                    if(!provider.isGetBlogLoading && provider.blogs.isEmpty) Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child:  NoExistingPlaceholderScreen(
+                          height: LayoutService.getHeight(context) *
+                              0.6,
+                          title: AppStrings.thereIsNoNotifications.tr()),
+                    ),
+                    if (provider.isGetBlogLoading && provider.currentPage != 1)
+                      const Center(child: CircularProgressIndicator()),
+                  ],
+                ),
               ),
             ),
           ),

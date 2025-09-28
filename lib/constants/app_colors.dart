@@ -10,7 +10,7 @@ abstract class AppColors {
   static const int black = 0xFF000000;
   static const int dark = 0xFF2A1C44;
   static const int red = 0xFFBD1316;
-  static const int grey50 = 0xFFDFDFDF;
+  static const int grey50 = 0xFF464646;
 // application background colors
   static const int bgC1 = 0xff1E2D74;
   static const int bgC2 = 0xffff1493;

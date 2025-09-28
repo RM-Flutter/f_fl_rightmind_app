@@ -9,6 +9,7 @@ import 'package:cpanal/modules/personal_profile/views/personal_profile_screen.da
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../general_services/general_listener.dart';
+import '../../../utils/componentes/general_components/gradient_bg_image.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -55,14 +56,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return Scaffold(
       backgroundColor: const Color(0xffFFFFFF),
-      body: RefreshIndicator.adaptive(
-        onRefresh: () async {
-        },
-        child: SafeArea(
-          child: Stack(
-            alignment: Alignment.topCenter,
-            children: [
-              CustomScrollView(
+      body: GradientBgImage(
+        padding: EdgeInsets.all(0),
+        child: RefreshIndicator.adaptive(
+          onRefresh: () async {
+          },
+          child: SafeArea(
+            child: Center(
+              child: CustomScrollView(
                 slivers: [
                   SliverAppBar(
                     expandedHeight: height * 0.2,
@@ -120,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const HomeGridView(),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),

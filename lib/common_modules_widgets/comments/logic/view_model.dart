@@ -65,7 +65,7 @@ class CommentProvider extends ChangeNotifier{
         });
 
         response = await DioHelper.postFormData(
-          url: "/tasks/entities-operations/$id/comments",
+          url: "/$slug/entities-operations/$id/comments",
           context: context,
           formdata: formData,
         );
@@ -124,33 +124,44 @@ class CommentProvider extends ChangeNotifier{
       notifyListeners();
     }
   }
-  Future<void> getComment(BuildContext context,slug, id, {pages, bool? isNewPage}) async {
-    if(pages != null){pageNumber = pages;}
+  Future<void> getComment(BuildContext context, slug, id, {pages, bool? isNewPage}) async {
+    if (pages != null) {
+      pageNumber = pages;
+    }
     isGetCommentLoading = true;
     notifyListeners();
     try {
       final response = await DioHelper.getData(
         url: "/$slug/entities-operations/$id/comments",
-        context: context, // Pass this explicitly only if necessary
+        context: context,
         query: {
           "page": pages ?? pageNumber,
-          "order_dir" : "desc"
+          "order_dir": "desc",
         },
       );
+
       newComments = response.data['comments'] ?? [];
+
       if (pages == 1) {
         comments.clear(); // Clear only when loading the first page
       }
+
       if (newComments.isNotEmpty) {
         comments.addAll(newComments);
-        print("LENGTH IS --> ${newComments.length}");
+
+        // ✅ إزالة التكرار بناءً على الـ id
+        final ids = <dynamic>{};
+        comments = comments.where((e) => ids.add(e['id'])).toList();
+
+        print("COMMENTS LENGTH --> ${comments.length}");
         hasMore = true;
         pageNumber++;
-        print("LENGTH IS --> ${pageNumber}");
-        print("LENGTH IS --> ${hasMore}");
+        print("PAGE NUMBER --> $pageNumber");
+        print("HAS MORE --> $hasMore");
       } else {
-        hasMore = false; // No more data to fetch
+        hasMore = false;
       }
+
       isGetCommentLoading = false;
       isGetCommentSuccess = true;
       notifyListeners();

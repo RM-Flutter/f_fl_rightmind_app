@@ -20,7 +20,7 @@ class SuccessfulSendRequestBottomsheet extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(height: 30),
-          SvgPicture.asset("assets/images/svg/success_meeting.svg"),
+          SvgPicture.asset("assets/images/svg/success.svg"),
           SizedBox(height: 15,),
           Text(AppStrings.success.tr().toUpperCase(), style: TextStyle(fontSize: 24,
               fontWeight: FontWeight.w700, color: Color(AppColors.primary))),

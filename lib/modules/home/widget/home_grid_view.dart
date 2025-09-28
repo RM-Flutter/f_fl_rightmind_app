@@ -47,7 +47,7 @@ class HomeGridView extends StatelessWidget {
           description: AppStrings.contactUsDescripe.tr(),
           onTap: (){
             context.pushNamed(
-                AppRoutes.contactUs.name,
+                AppRoutes.homeContactUs.name,
                 pathParameters: {
                   'lang':
                   context.locale.languageCode
@@ -61,7 +61,7 @@ class HomeGridView extends StatelessWidget {
           description: AppStrings.ticketSystemDescripe.tr(),
           onTap: (){
             context.pushNamed(
-                AppRoutes.ComplainScreen.name,
+                AppRoutes.HomeComplainScreen.name,
                 pathParameters: {
                   'lang':
                   context.locale.languageCode

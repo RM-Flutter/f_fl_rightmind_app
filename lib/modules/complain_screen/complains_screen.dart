@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +17,8 @@ import 'package:cpanal/models/settings/user_settings.model.dart';
 import 'package:cpanal/routing/app_router.dart';
 import 'package:cpanal/utils/placeholder_no_existing_screen/no_existing_placeholder_screen.dart';
 import 'package:shimmer/shimmer.dart';
+
+import '../../utils/componentes/general_components/gradient_bg_image.dart';
 
 class ComplainScreen extends StatefulWidget {
   @override
@@ -40,7 +43,7 @@ class _ComplainScreenState extends State<ComplainScreen> {
       print("Max scroll extent: ${_scrollController.position.maxScrollExtent}");
 
       if ((_scrollController.position.maxScrollExtent - _scrollController.position.pixels).abs() < 10 &&
-          !requestController.isGetRequestLoading && requestController.empty == false) {
+          !requestController.isGetRequestLoading && requestController.getMore == true) {
         print("BOTTOM BOTTOM");
         requestController.getRequest(context, page: requestController.currentPage);
       }
@@ -74,7 +77,7 @@ class _ComplainScreenState extends State<ComplainScreen> {
             onPressed: () async{
              await context.pushNamed(AppRoutes.newComplainScreen.name,
                   pathParameters: {'lang': context.locale.languageCode,});
-             await requestController.getRequest(context, page: requestController.currentPage);
+             await requestController.getRequest(context, page: 1, );
             },
             backgroundColor: const Color(AppColors.primary),
             child: const Icon(Icons.add, color: Colors.white),
@@ -99,75 +102,85 @@ class _ComplainScreenState extends State<ComplainScreen> {
                   height: 100,
                 ),
               ), ):
-               SafeArea(
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: (value.requests.isNotEmpty)? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: RefreshIndicator.adaptive(
-                  onRefresh: ()async{
-                    await requestController.getRequest(context, page: requestController.currentPage);
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 10,),
-                      ListView.builder(
-                        itemCount: value.requests.length,
-                        reverse: false,
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.zero,
-                        itemBuilder: (context, index) {
-                          var request = value.requests[index];
-                          var statusKey = request['pstatus']['key'];
-                          if (statusKey == "hold") {
-                            return defaultRequestContainer(
-                                context,
-                                "mine",
-                                id: request['id'],
-                                title: request['title'],
-                                containerColor: Color(AppColors.primary),
-                                date: DateFormat("dd/MM/yyyy", LocalizationService.isArabic(context: context) ? "ar" : "en")
-                                    .format(DateTime.parse(request['created_at'].toString()))
-                                    .toString(),
-                                status: request['pstatus']['key'].toString().tr(),
-                                statusColor: Color(0xffFFFFFF)
-                            );
-                          }else{
-                           return defaultRequestContainer(
-                                context,
-                               "mine",
-                                id: request['id'],
-                                containerColor: Color(0xffFFFFFF),
-                                title: request['title'],
-                                date: DateFormat("dd/MM/yyyy", LocalizationService.isArabic(context: context) ? "ar" : "en")
-                                    .format(DateTime.parse(request['created_at'].toString()))
-                                    .toString(),
-                                status: request['pstatus']['key'].toString().tr(),
-                                titleColor: Color(AppColors.primary),
-                                dateColor: Color(0xff5E5E5E),
-                                statusColor: statusKey == "closed"
-                                    ? Color(AppColors.red)
-                                    : Color(AppColors.primary)
-                            );
-                          }
-                          return SizedBox.shrink();  // Return nothing for non-hold items in this section
-                        },
-                      ),
-                      if(value.isGetRequestLoading == true && value.currentPage != 1)   const SizedBox(height: 15,),
-                      if(value.isGetRequestLoading == true && value.currentPage != 1)   const Center( child: CircularProgressIndicator(),),
-                      const SizedBox(height: 10,),
-                    ],
+          GradientBgImage(
+            padding: EdgeInsets.all(0),
+                 child: SafeArea(
+                             child: RefreshIndicator.adaptive(
+                               onRefresh: ()async{
+                  await requestController.getRequest(context, page: 1, );
+                               },
+                               child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: (value.requests.isNotEmpty)? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 10,),
+                        Center(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: kIsWeb ? 1100 : double.infinity,
+                            ),
+                            child: ListView.builder(
+                              itemCount: value.requests.length,
+                              reverse: false,
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              padding: EdgeInsets.zero,
+                              itemBuilder: (context, index) {
+                                var request = value.requests[index];
+                                var statusKey = request['pstatus']['key'];
+                                if (statusKey == "hold") {
+                                  return defaultRequestContainer(
+                                      context,
+                                      "mine",
+                                      id: request['id'],
+                                      title: request['title'],
+                                      containerColor: Color(AppColors.primary),
+                                      date: DateFormat("dd/MM/yyyy", LocalizationService.isArabic(context: context) ? "ar" : "en")
+                                          .format(DateTime.parse(request['created_at'].toString()))
+                                          .toString(),
+                                      status: request['pstatus']['key'].toString().tr(),
+                                      statusColor: Color(0xffFFFFFF)
+                                  );
+                                }else{
+                                 return defaultRequestContainer(
+                                      context,
+                                     "mine",
+                                      id: request['id'],
+                                      containerColor: Color(0xffFFFFFF),
+                                      title: request['title'],
+                                      date: DateFormat("dd/MM/yyyy", LocalizationService.isArabic(context: context) ? "ar" : "en")
+                                          .format(DateTime.parse(request['created_at'].toString()))
+                                          .toString(),
+                                      status: request['pstatus']['key'].toString().tr(),
+                                      titleColor: Color(AppColors.primary),
+                                      dateColor: Color(0xff5E5E5E),
+                                      statusColor: statusKey == "closed"
+                                          ? Color(AppColors.red)
+                                          : Color(AppColors.primary)
+                                  );
+                                }
+                                return SizedBox.shrink();  // Return nothing for non-hold items in this section
+                              },
+                            ),
+                          ),
+                        ),
+                        if(value.isGetRequestLoading == true && value.currentPage != 1)   const SizedBox(height: 15,),
+                        if(value.isGetRequestLoading == true && value.currentPage != 1)   const Center( child: CircularProgressIndicator(),),
+                        const SizedBox(height: 10,),
+                      ],
+                    ),
+                  ) : Center(
+                    child: NoExistingPlaceholderScreen(
+                        height: LayoutService.getHeight(context) * 0.6,
+                        title: AppStrings.thereIsNoComplains.tr()),
                   ),
-                ),
-              ) : Center(
-                child: NoExistingPlaceholderScreen(
-                    height: LayoutService.getHeight(context) * 0.6,
-                    title: AppStrings.thereIsNoComplains.tr()),
-              ),
-            ),
-          ),
+                               ),
+                             ),
+                           ),
+               ),
         );
       } ,
     );

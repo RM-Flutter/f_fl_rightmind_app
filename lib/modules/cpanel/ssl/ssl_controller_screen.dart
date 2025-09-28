@@ -5,13 +5,16 @@ import 'package:cpanal/constants/user_consts.dart';
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/shared.dart';
 import 'package:cpanal/models/settings/user_settings.model.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../common_modules_widgets/template_page.widget.dart';
 import '../../../../constants/app_sizes.dart';
 import '../../../common_modules_widgets/custom_elevated_button.widget.dart';
+import '../../../utils/componentes/general_components/gradient_bg_image.dart';
 import '../../more/views/more_screen.dart';
 import '../logic/ssl_provider.dart';
 
@@ -183,114 +186,125 @@ class _SSLControllerScreenState extends State<SSLControllerScreen> {
                 ],
               ),
             ),
-            body: SizedBox(
-              height: MediaQuery.sizeOf(context).height * 0.8,
-              child: ListView(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(AppSizes.s12),
-                children: [
-                  Text(
-                    AppStrings.sslMessage.tr(),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: Color(AppColors.dark)),
-                  ),
-                  const SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (!value.isLoadingRun)
-                        CustomElevatedButton(
-                          title: AppStrings.runAutoSSL.tr().toUpperCase(),
-                          onPressed: () async {
-                            value.runSSL(context, domainId: widget.dominId);
-                          },
-                          isPrimaryBackground: false,
-                        ),
-                      if (value.isLoadingRun) const CircularProgressIndicator()
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  ListView.separated(
-                    itemCount: value.isLoading && value.pageNumber == 1
-                        ? 3
-                        : value.SSLS.length,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    separatorBuilder: (_, __) => const SizedBox(height: 15),
-                    itemBuilder: (context, index) {
-                      final safeContext = context; // ✅ هذا هو الـ context الآمن
-
-                      if (value.isLoading && value.pageNumber == 1) {
-                        return Shimmer.fromColors(
-                          baseColor: Colors.grey.shade300,
-                          highlightColor: Colors.grey.shade100,
-                          child: Container(
-                              height: 100,
-                              width: double.infinity,
-                              color: Colors.white),
-                        );
-                      }
-                      return GestureDetector(
-                        // onLongPress: () => onLongPress(index),
-                        // onTap: () => onTap(index),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: const [
-                              BoxShadow(
-                                  color: Color(0x0C000000),
-                                  blurRadius: 10,
-                                  offset: Offset(0, 1))
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              defaultSSLContainer(
-                                  title1: AppStrings.name.tr(),
-                                  title2:
-                                      "${value.SSLS[index]['name'] ?? AppStrings.unKnown.tr()}"),
-                              const SizedBox(height: 5),
-                              defaultSSLContainer(
-                                  title1: AppStrings.certificate.tr(),
-                                  title2:
-                                      "${value.SSLS[index]['certificate'] ?? AppStrings.unKnown.tr()}"),
-                              const SizedBox(height: 5),
-                              defaultSSLContainer(
-                                  title1: AppStrings.isAutossl.tr(),
-                                  title2:
-                                      "${value.SSLS[index]['is_autossl'] ?? AppStrings.unKnown.tr()}"),
-                              const SizedBox(height: 5),
-                              defaultSSLContainer(
-                                  title1: AppStrings.safety.tr(),
-                                  title2:
-                                      "${value.SSLS[index]['safety'] ?? AppStrings.unKnown.tr()}"),
-                              const SizedBox(height: 5),
-                              defaultSSLContainer(
-                                  title1: AppStrings.expiration.tr(),
-                                  title2:
-                                      "${value.SSLS[index]['expiration'] ?? AppStrings.unKnown.tr()}"),
-                              const SizedBox(height: 5),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  if (value.isLoading && value.pageNumber != 1)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20),
-                      child: Center(child: CircularProgressIndicator()),
+            body: GradientBgImage(
+              padding: EdgeInsets.all(0),
+              child: SizedBox(
+                height: MediaQuery.sizeOf(context).height * 0.8,
+                child: ListView(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(AppSizes.s12),
+                  children: [
+                    Text(
+                      AppStrings.sslMessage.tr(),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(AppColors.dark)),
                     ),
-                ],
+                    const SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (!value.isLoadingRun)
+                          CustomElevatedButton(
+                            title: AppStrings.runAutoSSL.tr().toUpperCase(),
+                            onPressed: () async {
+                              value.runSSL(context, domainId: widget.dominId);
+                            },
+                            isPrimaryBackground: false,
+                          ),
+                        if (value.isLoadingRun) const CircularProgressIndicator()
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: kIsWeb ? 1100 : double.infinity,
+                        ),
+                        child: ListView.separated(
+                          itemCount: value.isLoading && value.pageNumber == 1
+                              ? 3
+                              : value.SSLS.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          separatorBuilder: (_, __) => const SizedBox(height: 15),
+                          itemBuilder: (context, index) {
+                            final safeContext = context; // ✅ هذا هو الـ context الآمن
+
+                            if (value.isLoading && value.pageNumber == 1) {
+                              return Shimmer.fromColors(
+                                baseColor: Colors.grey.shade300,
+                                highlightColor: Colors.grey.shade100,
+                                child: Container(
+                                    height: 100,
+                                    width: double.infinity,
+                                    color: Colors.white),
+                              );
+                            }
+                            return GestureDetector(
+                              // onLongPress: () => onLongPress(index),
+                              // onTap: () => onTap(index),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                        color: Color(0x0C000000),
+                                        blurRadius: 10,
+                                        offset: Offset(0, 1))
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    defaultSSLContainer(
+                                        title1: AppStrings.name.tr(),
+                                        index: value.SSLS[index],
+                                        title2:
+                                            "${value.SSLS[index]['name'] ?? AppStrings.unKnown.tr()}"),
+                                    const SizedBox(height: 5),
+                                    defaultSSLContainer(
+                                        title1: AppStrings.certificate.tr(),
+                                        title2:
+                                            "${value.SSLS[index]['certificate'] ?? AppStrings.unKnown.tr()}"),
+                                    const SizedBox(height: 5),
+                                    defaultSSLContainer(
+                                        title1: AppStrings.isAutossl.tr(),
+                                        title2:
+                                            "${value.SSLS[index]['is_autossl'] ?? AppStrings.unKnown.tr()}"),
+                                    const SizedBox(height: 5),
+                                    defaultSSLContainer(
+                                        title1: AppStrings.safety.tr(),
+                                        title2:
+                                            "${value.SSLS[index]['safety'] ?? AppStrings.unKnown.tr()}"),
+                                    const SizedBox(height: 5),
+                                    defaultSSLContainer(
+                                        title1: AppStrings.expiration.tr(),
+                                        title2:
+                                            "${value.SSLS[index]['expiration'] ?? AppStrings.unKnown.tr()}"),
+                                    const SizedBox(height: 5),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    if (value.isLoading && value.pageNumber != 1)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                  ],
+                ),
               ),
             ),
             // floatingActionButton: isSelectionMode
@@ -322,11 +336,11 @@ class _SSLControllerScreenState extends State<SSLControllerScreen> {
     );
   }
 
-  Widget defaultSSLContainer({title1, title2}) => Row(
+  Widget defaultSSLContainer({title1, title2, index}) => Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           SizedBox(
-            width: MediaQuery.sizeOf(context).width * 0.28,
+            width: MediaQuery.sizeOf(context).width * 0.25,
             child: Text(
               "$title1 : ",
               style: const TextStyle(
@@ -336,7 +350,7 @@ class _SSLControllerScreenState extends State<SSLControllerScreen> {
             ),
           ),
           SizedBox(
-            width: MediaQuery.sizeOf(context).width * 0.55,
+            width: kIsWeb? MediaQuery.sizeOf(context).width * 0.4:MediaQuery.sizeOf(context).width * 0.48,
             child: Text(
               title2,
               maxLines: 2,
@@ -347,6 +361,21 @@ class _SSLControllerScreenState extends State<SSLControllerScreen> {
                   color: Color(AppColors.primary)),
             ),
           ),
+          Spacer(),
+         if(index != null) GestureDetector(
+              onTap: () async {
+                final name = index['name'];
+                final certificate = index['certificate'];
+                final is_autossl = index['is_autossl'];
+                final expiration = index['expiration'];
+                await Clipboard.setData(ClipboardData(text:
+                "Name : $name \n Certificate : $certificate \n Auto SSL : $is_autossl \n Expiration : $expiration"
+                ));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("${AppStrings.copied.tr()}")),
+                );
+              },
+              child: const Icon(Icons.copy, color: Color(AppColors.primary)))
         ],
       );
 }

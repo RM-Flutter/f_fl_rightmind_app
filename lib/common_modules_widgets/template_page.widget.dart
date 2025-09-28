@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cpanal/constants/app_colors.dart';
@@ -50,21 +51,21 @@ class TemplatePage extends StatelessWidget {
         ),
         bottom: bottomAppbarWidget,
         leading: Padding(
-                padding: const EdgeInsets.all(AppSizes.s10),
-                child: InkWell(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(AppColors.dark)),
-                    child: const Icon(
-                      Icons.arrow_back_sharp,
-                      color: Colors.white,
-                      size: AppSizes.s18,
-                    ),
-                  ),
-                ),
-              )
+          padding: const EdgeInsets.all(AppSizes.s10),
+          child: InkWell(
+            onTap: () => context.pop(context),
+            child: Container(
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(AppColors.dark)),
+              child: const Icon(
+                Icons.arrow_back_sharp,
+                color: Colors.white,
+                size: AppSizes.s18,
+              ),
+            ),
+          ),
+        )
       ),
       body: onRefresh != null
           ? RefreshIndicator.adaptive(

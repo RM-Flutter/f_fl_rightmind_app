@@ -70,14 +70,13 @@ class DeleteAccountBottomSheet extends StatelessWidget {
               ),
               ),
               if(multi == true)GridView.count(
-                crossAxisCount: 2, // عمودين
+                crossAxisCount: 2,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                reverse: false,
+                physics: const NeverScrollableScrollPhysics(),
                 padding: EdgeInsets.zero,
-                childAspectRatio: 4.5, // عرض العنصر نسبةً لطوله
+                childAspectRatio: 8, // خلي القيمة أكبر عشان العناصر تبقى أقصر
                 children: (emails['accounts'] as List<dynamic>).map((email) {
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -98,6 +97,7 @@ class DeleteAccountBottomSheet extends StatelessWidget {
                   );
                 }).toList(),
               ),
+
               const SizedBox(height: 30),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,

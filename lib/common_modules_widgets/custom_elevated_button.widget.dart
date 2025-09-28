@@ -13,19 +13,24 @@ class CustomElevatedButton extends StatefulWidget {
   final Color? backgroundColor;
   final bool? isFuture;
   final bool? isPrimaryBackground;
+  final bool? isOutlined; // 👈 الجديد
+  final Color? titleColor;
 
-  const CustomElevatedButton(
-      {super.key,
-      required this.onPressed,
-      required this.title,
-      this.buttonStyle,
-      this.titleWidget,
-      this.titleSize,
-      this.backgroundColor,
-      this.radius,
-      this.width,
-      this.isFuture = true,
-      this.isPrimaryBackground = true});
+  const CustomElevatedButton({
+    super.key,
+    required this.onPressed,
+    this.titleColor,
+    required this.title,
+    this.buttonStyle,
+    this.titleWidget,
+    this.titleSize,
+    this.backgroundColor,
+    this.radius,
+    this.width,
+    this.isFuture = true,
+    this.isPrimaryBackground = true,
+    this.isOutlined = false, // 👈 default false
+  });
 
   @override
   CustomElevatedButtonState createState() => CustomElevatedButtonState();
@@ -75,41 +80,44 @@ class CustomElevatedButtonState extends State<CustomElevatedButton>
           child: ElevatedButton(
             style: widget.buttonStyle ??
                 ElevatedButton.styleFrom(
-                  backgroundColor: widget.backgroundColor ??
-                      Color(AppColors.primary),
-                  foregroundColor: Colors.white, // Text color
+                  backgroundColor: widget.isOutlined == true
+                      ? Colors.transparent // 👈 Transparent
+                      : widget.backgroundColor ?? Color(AppColors.primary),
+                  foregroundColor: widget.isOutlined == true
+                      ? Color(AppColors.primary) // 👈 Text بلون الـ primary
+                      : Colors.white,
                   disabledForegroundColor: Colors.white,
-                  elevation: 2,
+                  elevation: widget.isOutlined == true ? 0 : 2,
+                  side: widget.isOutlined == true
+                      ? BorderSide(color: Color(AppColors.primary), width: 2)
+                      : null,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(_isLoading
-                        ? AppSizes.s26
-                        : widget.radius ?? AppSizes.s28),
+                    borderRadius: BorderRadius.circular(
+                      _isLoading ? AppSizes.s26 : widget.radius ?? AppSizes.s28,
+                    ),
                   ),
                 ),
             onPressed: widget.isFuture == true
                 ? _isLoading
-                    ? () {}
-                    : _handlePressed
+                ? () {}
+                : _handlePressed
                 : widget.onPressed,
             child: widget.isFuture == true && _isLoading
                 ? const Center(
-                    child: CircularProgressIndicator.adaptive(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
+              child: CircularProgressIndicator.adaptive(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            )
                 : Center(
-                  child: widget.titleWidget ??
-                      Text(
-                        widget.title,
-                        style: widget.titleSize == null
-                            ? Theme.of(context).textTheme.headlineSmall
-                            : Theme.of(context)
-                                .textTheme
-                                .headlineSmall
-                                ?.copyWith(fontSize: widget.titleSize),
-                        textAlign: TextAlign.center,
-                      ),
-                ),
+              child: widget.titleWidget ??
+                  Text(
+                    widget.title,
+                    style: widget.titleSize == null
+                        ? widget.titleColor == null ? Theme.of(context).textTheme.headlineSmall:Theme.of(context).textTheme.headlineSmall!.copyWith(color:widget.titleColor  )
+                        : widget.titleColor == null ? Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: widget.titleSize):Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: widget.titleSize, color: widget.titleColor ),
+                    textAlign: TextAlign.center,
+                  ),
+            ),
           ),
         );
       },

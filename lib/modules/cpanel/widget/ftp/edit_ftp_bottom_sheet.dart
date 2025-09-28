@@ -140,6 +140,8 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
             ),
             child: Text(
               suffixText,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: Color(AppColors.dark)),
             ),
           ),
