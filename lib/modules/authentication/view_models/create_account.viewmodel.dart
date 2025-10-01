@@ -22,7 +22,6 @@ class CreateAccountViewModel extends ChangeNotifier {
   String? emailError;
   String? nameError;
   String? passwordError;
-
   @override
   void dispose() {
     phoneController.dispose();
@@ -52,7 +51,7 @@ class CreateAccountViewModel extends ChangeNotifier {
             mak: making,
             countryKey: countryCodeController.text.isEmpty
                 ? '+20'
-                : countryCodeController.text + phoneController.text,
+                : countryCodeController.text,
             context: context,
             departmentId: 1);}
         else{
@@ -63,7 +62,7 @@ class CreateAccountViewModel extends ChangeNotifier {
               name: nameController.text,
               countryKey: countryCodeController.text.isEmpty
                   ? '+20'
-                  : countryCodeController.text + phoneController.text,
+                  : countryCodeController.text,
               context: context,
               departmentId: 1);
 

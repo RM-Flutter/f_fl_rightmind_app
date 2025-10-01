@@ -24,7 +24,7 @@ class AddFriendBottomSheet extends StatelessWidget {
           builder: (context, value, child) {
             if(value.isAddFriendSuccess == true){
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                values.initializeHomeScreen(context);
+                values.initializeHomeScreen(context, null);
               });
               value.isAddFriendSuccess = false;
             }

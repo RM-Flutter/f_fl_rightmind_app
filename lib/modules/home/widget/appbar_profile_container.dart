@@ -54,7 +54,7 @@ class AppbarProfileContainer extends StatelessWidget {
           },
           child: Container(
             color: Colors.yellow,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+            padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
             child: Row(
               children: [
                 Icon(Icons.warning, color: Colors.red),
@@ -74,10 +74,14 @@ class AppbarProfileContainer extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: 15,),
+        if(us1Cache['email_verified_at'] == null || us1Cache['phone_verified_at'] == null) SizedBox(height: 15,),
         Container(
             color: Colors.transparent,
             alignment: Alignment.center,
+            padding: const EdgeInsets.only(
+              right: AppSizes.s24,
+              left: AppSizes.s24,
+            ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [

@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart' as locale;
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import '../../../constants/app_strings.dart';
 import '../../../general_services/alert_service/alerts.service.dart';
@@ -41,14 +42,14 @@ class ForgotPasswordViewModel extends ChangeNotifier {
   // First : prepare forgot password operation
   Future<void> prepeareForgotPassword(BuildContext context) async {
     final appConfigServiceProvider =
-        Provider.of<AppConfigService>(context, listen: false);
+    Provider.of<AppConfigService>(context, listen: false);
     if ((isPhoneLogin && phoneController.text.isNotEmpty) ||
         (!isPhoneLogin && emailController.text.isNotEmpty)) {
       final result = await ForgotPasswordService.prepareForgetPassword(
           context: context,
           username: isPhoneLogin ? phoneController.text : emailController.text,
           deviceUniqueId:
-              appConfigServiceProvider.deviceInformation.deviceUniqueId);
+          appConfigServiceProvider.deviceInformation.deviceUniqueId);
       if (result.success &&
           result.data != null &&
           result.data?['forgot_password_prepare'] == true &&
@@ -61,13 +62,16 @@ class ForgotPasswordViewModel extends ChangeNotifier {
         notifyListeners();
         return;
       } else {
-        AlertsService.error(
-          title: AppStrings.failed.tr(),
-          context: context,
-          message: result.message ??
-              AppStrings.failedPreparingToForgotPasswordPleaseTryAgain.tr(),
+        print("ERROR FROM ${result.message!}");
+        Fluttertoast.showToast(
+            msg: result.message!,
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 5,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
         );
-
         return;
       }
     } else {
@@ -84,7 +88,7 @@ class ForgotPasswordViewModel extends ChangeNotifier {
   Future<void> chooseForgotPasswordMethod(
       {required BuildContext context}) async {
     final appConfigServiceProvider =
-        Provider.of<AppConfigService>(context, listen: false);
+    Provider.of<AppConfigService>(context, listen: false);
     if (uuid == null ||
         (uuid?.isEmpty ?? true) ||
         sendType == null ||
@@ -98,8 +102,8 @@ class ForgotPasswordViewModel extends ChangeNotifier {
     }
     AlertsService.showLoading(context);
     final completePhoneNumber = (countryCodeController.text.isEmpty
-            ? '+02'
-            : countryCodeController.text + phoneController.text)
+        ? '+02'
+        : countryCodeController.text + phoneController.text)
         .trim();
     final result = await ForgotPasswordService.forgetPassword(
         context: context,
@@ -107,7 +111,7 @@ class ForgotPasswordViewModel extends ChangeNotifier {
         sendType: sendType!,
         uuid: uuid!,
         deviceUniqueId:
-            appConfigServiceProvider.deviceInformation.deviceUniqueId);
+        appConfigServiceProvider.deviceInformation.deviceUniqueId);
     Navigator.pop(context);
 
     if (result.success && result.data != null) {
@@ -115,13 +119,16 @@ class ForgotPasswordViewModel extends ChangeNotifier {
       notifyListeners();
       return;
     } else {
-      AlertsService.error(
-        title: AppStrings.failed.tr(),
-        context: context,
-        message: result.message ??
-            AppStrings.failedSendForgotPasswordCodePleaseTryAgain.tr(),
+      print("ERROR FROM HERE");
+      Fluttertoast.showToast(
+          msg: result.message!,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 5,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
       );
-
       return;
     }
   }
@@ -130,11 +137,11 @@ class ForgotPasswordViewModel extends ChangeNotifier {
   Future<void> resetNewPasswordWithCodeAndNewPassword(
       {required BuildContext context, mak}) async {
     final appConfigServiceProvider =
-        Provider.of<AppConfigService>(context, listen: false);
+    Provider.of<AppConfigService>(context, listen: false);
     if (codeFormKey.currentState?.validate() == true) {
       final completePhoneNumber = (countryCodeController.text.isEmpty
-              ? '+02'
-              : countryCodeController.text + phoneController.text)
+          ? '+02'
+          : countryCodeController.text + phoneController.text)
           .trim();
       final result = await ForgotPasswordService.codeNewPassword(
           context: context,
@@ -144,20 +151,20 @@ class ForgotPasswordViewModel extends ChangeNotifier {
           sendType: sendType!,
           uuid: uuid!,
           deviceUniqueId:
-              appConfigServiceProvider.deviceInformation.deviceUniqueId);
+          appConfigServiceProvider.deviceInformation.deviceUniqueId);
       if (result.success && result.data != null) {
-        Navigator.pop(context, result);
         if(mak == null) Navigator.pop(context, result);
-        if(mak != null){mak();}
-        return;
+        if(mak != null){ mak();}
       } else {
-        AlertsService.error(
-          title: AppStrings.failed.tr(),
-          context: context,
-          message: result.message ??
-              AppStrings.failedVerifingForgotPasswordCodePleaseTryAgain.tr(),
+        Fluttertoast.showToast(
+            msg: result.message!,
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 5,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
         );
-
         return;
       }
     }

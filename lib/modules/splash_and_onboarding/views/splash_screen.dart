@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cpanal/constants/user_consts.dart';
@@ -7,6 +8,7 @@ import 'package:cpanal/general_services/backend_services/api_service/dio_api_ser
 import 'package:cpanal/models/settings/user_settings.model.dart';
 import 'package:cpanal/models/settings/user_settings_2.model.dart';
 import 'package:cpanal/modules/home/view_models/home.viewmodel.dart';
+import '../../../common_modules_widgets/update_app.dart';
 import '../../../constants/app_images.dart';
 import '../../../constants/app_sizes.dart';
 import '../../../constants/app_strings.dart';
@@ -57,7 +59,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // }
     await DeviceInformationService.initializeAndSetDeviceInfo(context: context);
     await homeViewModel.initializeHomeScreen(context, null);
-    // await UpdateApp.checkForForceUpdate(context);
+    await UpdateApp.checkForForceUpdate(context);
     final jsonString = CacheHelper.getString("US1");
     final json2String = CacheHelper.getString("US2");
     var us1Cache;
@@ -107,7 +109,7 @@ class _SplashScreenState extends State<SplashScreen> {
             body: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(AppImages.splashScreenBackground,
+            Image.asset(kIsWeb ? "assets/images/png/splash_web.jpg":AppImages.splashScreenBackground,
                 fit: BoxFit.cover,
                 key: const ValueKey<String>(AppImages.splashScreenBackground)),
           //  const OverlayGradientWidget(),

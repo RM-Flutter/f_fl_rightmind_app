@@ -43,11 +43,11 @@ class UserSettings2Model extends AppSettingsModel {
       bookmark: (json['bookmark'] as List<dynamic>?)
           ?.map((e) => e.toString())
           .toList(),
-      balance: json['balance'] != null
-    ? (json['balance'] as Map<String, dynamic>).map(
-          (key, value) => MapEntry(key, Balance.fromJson(value)),
-    )
-        : {},
+    //   balance: json['balance'] != null
+    // ? (json['balance'] as Map<String, dynamic>).map(
+    //       (key, value) => MapEntry(key, Balance.fromJson(value)),
+    // )
+    //     : {},
       canUseHolidays: json['can_use_holidays'] == "1",
       weekend: (json['weekend'] as List<dynamic>?)
           ?.map((e) => e.toString())

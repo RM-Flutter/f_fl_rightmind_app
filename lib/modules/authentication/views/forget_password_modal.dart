@@ -27,130 +27,137 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
       ChangeNotifierProvider<ForgotPasswordViewModel>(create: (_) => ForgotPasswordViewModel()..init(widget.isPhoneLogin),),
       ChangeNotifierProvider<AuthenticationViewModel>(create: (_) => AuthenticationViewModel(),),
     ],
-    child: Consumer<AuthenticationViewModel>(
-      builder: (context, authenticationViewModel, child) {
-        return Consumer<ForgotPasswordViewModel>(
-          builder: (context, viewModel, child) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (!viewModel.goToChooseForgotMethod && !viewModel.codeSent) ...[
-                  SwitchRow(
-                    value: viewModel.isPhoneLogin,
-                    onChanged: (newValue) =>
-                        viewModel.toggleLoginMethod(newValue),
-                  ),
-                  gapH24,
-                  viewModel.isPhoneLogin
-                      ? PhoneNumberField(
-                    controller: viewModel.phoneController,
-                    countryCodeController: viewModel.countryCodeController,
-                  )
-                      : TextFormField(
-                    controller: viewModel.emailController,
-                    decoration: InputDecoration(
-                        hintText: AppStrings.yourEmail.tr()),
-                    validator: (value) =>
-                        ValidationService.validateEmail(value),
-                  ),
-                  gapH26,
-                  Center(
-                    child: CustomElevatedButton(
-                      isPrimaryBackground: false,
-                      title: AppStrings.send.tr(),
-                      onPressed: () => viewModel.prepeareForgotPassword(context),
+      child: Consumer<AuthenticationViewModel>(
+        builder: (context, authenticationViewModel, child) {
+          return Consumer<ForgotPasswordViewModel>(
+            builder: (context, viewModel, child) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (!viewModel.goToChooseForgotMethod && !viewModel.codeSent) ...[
+                    SwitchRow(
+                      value: viewModel.isPhoneLogin,
+                      onChanged: (newValue) =>
+                          viewModel.toggleLoginMethod(newValue),
                     ),
-                  ),
-                  gapH28,
-                ] else if (!viewModel.codeSent &&
-                    viewModel.goToChooseForgotMethod &&
-                    viewModel.forgotPasswordMethods != null &&
-                    (viewModel.forgotPasswordMethods?.isNotEmpty ?? false)) ...[
-                  ...viewModel.forgotPasswordMethods!.entries.map((m) {
-                    final method = {m.key: m.value};
-                    return VerificationTileWidget(
-                        method: method,
-                        onSelected: () async {
-                          viewModel.sendType = method.keys.first;
-                          await viewModel.chooseForgotPasswordMethod(
-                              context: context);
-                        });
-                  }),
-                ] else if (viewModel.codeSent) ...[
-                  Form(
+                    gapH24,
+                    Form(
                       key: viewModel.codeFormKey,
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            controller: viewModel.codeController,
-                            keyboardType: TextInputType.number,
-                            decoration:
-                            InputDecoration(hintText: AppStrings.enterVerificationCode.tr()),
-                            validator: (value) =>
-                                ValidationService.validateRequired(value, AppStrings.code.tr()),
-                          ),
-                          gapH20,
-                          TextFormField(
-                            controller: viewModel.newPasswordController,
-                            decoration: InputDecoration(
-                              hintText: AppStrings.newPassword.tr(),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscureText ? Icons.visibility : Icons.visibility_off,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _obscureText = !_obscureText;
-                                  });
-                                },
-                              ),
-                            ),
-                            obscureText: _obscureText,
-                            validator: (value) =>
-                                ValidationService.validatePassword(value, login: false),
-                          ),
-                        ],
-                      )),
-                  gapH20,
-                  Center(
-                    child: CustomElevatedButton(
-                        isPrimaryBackground: false,
-                        title: AppStrings.send.tr(),
-                        onPressed: () async {
-                          if(viewModel.codeFormKey.currentState!.validate()){
-                            await viewModel.resetNewPasswordWithCodeAndNewPassword(
-                                mak: (){
-                                  if(viewModel.phoneController.text.isEmpty || viewModel.phoneController.text == null){
-                                    setState(() {
-                                      authenticationViewModel.isPhoneLogin = false;
-                                    });
-                                  }else{
-                                    setState(() {
-                                      authenticationViewModel.isPhoneLogin = true;
-                                    });
-                                  }
-                                  authenticationViewModel.login(
-                                      context: context,
-                                      password: viewModel.newPasswordController.text,
-                                      email: viewModel.emailController.text,
-                                      phones: viewModel.phoneController,
-                                      cCode: viewModel.countryCodeController.text
-                                  );
-                                },
-                                context: context
-                            );
+                      child: viewModel.isPhoneLogin
+                          ? PhoneNumberField(
+                        controller: viewModel.phoneController,
+                        countryCodeController: viewModel.countryCodeController,
+                      )
+                          : TextFormField(
+                        controller: viewModel.emailController,
+                        decoration: InputDecoration(
+                            hintText: AppStrings.yourEmail.tr()),
+                        validator: (value) =>
+                            ValidationService.validateEmail(value),
+                      ),),
+                    gapH26,
+                    Center(
+                      child: CustomElevatedButton(
+                          isPrimaryBackground: false,
+                          title: AppStrings.send.tr(),
+                          onPressed: ()async {
+                            if (viewModel.codeFormKey.currentState!.validate()) {
+                              await viewModel.prepeareForgotPassword(context);
+                            }
                           }
-                        }
+
+                      ),
                     ),
-                  ),
-                  gapH28,
+                    gapH28,
+                  ] else if (!viewModel.codeSent &&
+                      viewModel.goToChooseForgotMethod &&
+                      viewModel.forgotPasswordMethods != null &&
+                      (viewModel.forgotPasswordMethods?.isNotEmpty ?? false)) ...[
+                    ...viewModel.forgotPasswordMethods!.entries.map((m) {
+                      final method = {m.key: m.value};
+                      return VerificationTileWidget(
+                          method: method,
+                          onSelected: () async {
+                            viewModel.sendType = method.keys.first;
+                            await viewModel.chooseForgotPasswordMethod(
+                                context: context);
+                          });
+                    }),
+                  ] else if (viewModel.codeSent) ...[
+                    Form(
+                        key: viewModel.codeFormKey,
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              controller: viewModel.codeController,
+                              keyboardType: TextInputType.number,
+                              decoration:
+                              InputDecoration(hintText: AppStrings.enterVerificationCode.tr()),
+                              validator: (value) =>
+                                  ValidationService.validateRequired(value, AppStrings.code.tr()),
+                            ),
+                            gapH20,
+                            TextFormField(
+                              controller: viewModel.newPasswordController,
+                              decoration: InputDecoration(
+                                hintText: AppStrings.newPassword.tr(),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscureText ? Icons.visibility : Icons.visibility_off,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _obscureText = !_obscureText;
+                                    });
+                                  },
+                                ),
+                              ),
+                              obscureText: _obscureText,
+                              validator: (value) =>
+                                  ValidationService.validatePassword(value, login: false),
+                            ),
+                          ],
+                        )),
+                    gapH20,
+                    Center(
+                      child: CustomElevatedButton(
+                          isPrimaryBackground: false,
+                          title: AppStrings.send.tr(),
+                          onPressed: () async {
+                            if(viewModel.codeFormKey.currentState!.validate()){
+                              await viewModel.resetNewPasswordWithCodeAndNewPassword(
+                                  mak: ()async{
+                                    if(viewModel.phoneController.text.isEmpty || viewModel.phoneController.text == null){
+                                      setState(() {
+                                        authenticationViewModel.isPhoneLogin = false;
+                                      });
+                                    }else{
+                                      setState(() {
+                                        authenticationViewModel.isPhoneLogin = true;
+                                      });
+                                    }
+                                    authenticationViewModel.login(
+                                        context: context,
+                                        password: viewModel.newPasswordController.text,
+                                        email: viewModel.emailController,
+                                        phones: viewModel.phoneController,
+                                        cCode: viewModel.countryCodeController.text
+                                    );
+                                  },
+                                  context: context
+                              );
+                            }
+                          }
+                      ),
+                    ),
+                    gapH28,
+                  ],
                 ],
-              ],
-            );
-          },
-        );
-      },
-    ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

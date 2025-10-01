@@ -7,6 +7,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:provider/provider.dart';
@@ -177,9 +178,9 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
                                     hintText:
                                     AppStrings.yourEmail.tr().toUpperCase(),
                                   ),
-                                  // validator: (value) =>
-                                  //     ValidationService.validateEmail(
-                                  //         value),
+                                  validator: (value) =>
+                                      ValidationService.validateEmail(
+                                          value),
                                 );
                               },
                             ),
@@ -227,8 +228,22 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
                             CustomElevatedButton(
                               title: AppStrings.login.tr(),
                               onPressed: () async {
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                await viewModel.login(context: context);
+                                if(viewModel.formKey.currentState!.validate()){
+                                  if(viewModel.isPhoneLogin && viewModel.phoneController.text.isEmpty){
+                                    Fluttertoast.showToast(
+                                        msg: AppStrings.phoneNumberIsRequired.tr(),
+                                        toastLength: Toast.LENGTH_LONG,
+                                        gravity: ToastGravity.BOTTOM,
+                                        timeInSecForIosWeb: 5,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0
+                                    );
+                                    return;
+                                  }else{
+                                    await viewModel.login(context: context);
+                                  }
+                                }
                               },
                               isPrimaryBackground: false,
                             ),

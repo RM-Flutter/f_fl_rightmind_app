@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -33,6 +34,8 @@ class PersonalProfileScreen extends StatefulWidget {
 
 class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
   late final PersonalProfileViewModel viewModel;
+  bool fa = CacheHelper.getBool("twoFa") ?? false;
+
   @override
   void initState() {
     super.initState();
@@ -70,11 +73,12 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                             headerImage: AppImages.companyInfoBackground,
                             backgroundHeight: viewModel.backgroundHeight,
                             notchedContainerHeight:
-                                viewModel.notchedContainerHeight,
+                            viewModel.notchedContainerHeight,
                             notchRadius: viewModel.notchRadius,
                             notchPadding: viewModel.notchPadding,
                             notchImage: AppImages.logo,
                             title: viewModel.nameController.text,
+                            photo: UserSettingConst.userSettings!.photo!,
                             subtitle: AppStrings.niceToMeetYou.tr()),
                   )),
             )
@@ -93,6 +97,12 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                     });
                     viewModel.isSuccessUpdate = false;
                     viewModel.isSuccessUpdateImage = false;
+                  }
+                  var jsonString;
+                  var us1Cache;
+                  jsonString = CacheHelper.getString("US1");
+                  if (jsonString != null && jsonString.isNotEmpty && jsonString != "") {
+                    us1Cache = json.decode(jsonString) as Map<String, dynamic>; // Convert String back to JSON
                   }
                   return GradientBgImage(
                     padding: EdgeInsets.all(0),
@@ -276,11 +286,34 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                               const CustomDivider(),
                             ],
                             gapH12,
-                            Text(AppStrings.two_factor_auth.tr(), style: textStyle,),
+                            Text(AppStrings.two_factor_auth.tr(), style: textStyle, textAlign: TextAlign.center,),
                             gapH20,
-                            Center(
+                            if(us1Cache != null)  Row(
+                              children: [
+                                Text(
+                                  AppStrings.enableAndDisable2fa.tr(),
+                                  style: textStyle.copyWith(fontSize: 18),
+                                ),
+                                const Spacer(),
+                                if(us1Cache != null) Switch(
+                                  inactiveTrackColor: Colors.white,
+                                  inactiveThumbColor: Colors.grey,
+                                  activeColor: Colors.white,
+                                  activeTrackColor: Color(AppColors.dark),
+                                  value: fa,
+                                  onChanged: (v) async{
+                                    setState(() {
+                                      fa = v;
+                                    });
+                                    await viewModel.activate2FA(context: context, tfa: fa == true ? "1" : "0", twoFa: false);
+                                    await value.initializeHomeScreen(context, ['user_settings']);
+                                  },
+                                ),
+
+                              ],
+                            ),
+                            if( us1Cache['tfa'] == true)Center(
                               child: CustomElevatedButton(
-                                isOutlined: true,titleColor: Color(AppColors.primary),
                                 titleSize: AppSizes.s14,
                                 width: LayoutService.getWidth(context),
                                 radius: AppSizes.s10,
@@ -289,12 +322,11 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                                 title: AppStrings.enable2fa.tr(),
                                 onPressed: () async =>
                                 await viewModel.activate2FA(
-                                    context: context),
+                                    context: context, twoFa: true, tfa: "1"),
                               ),
                             ),
-                            gapH20,
                             const CustomDivider(),
-                            Text(AppStrings.delete_account.tr(), style: textStyle,),
+                            Text(AppStrings.delete_account.tr(), style: textStyle, textAlign: TextAlign.center),
                             gapH20,
                             // Enable 2FA
                             Center(
@@ -513,7 +545,45 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                                   const CustomDivider(),
                                 ],
                                 gapH12,
-                                Text(AppStrings.two_factor_auth.tr(), style: textStyle,),
+                                Text(AppStrings.two_factor_auth.tr(), style: textStyle, textAlign: TextAlign.center,),
+                                gapH20,
+                                if(us1Cache != null)  Row(
+                                  children: [
+                                    Text(
+                                      AppStrings.enableAndDisable2fa.tr(),
+                                      style: textStyle.copyWith(fontSize: 18),
+                                    ),
+                                    const Spacer(),
+                                    if(us1Cache != null) Switch(
+                                      value: fa,
+                                      inactiveTrackColor: Colors.white,
+                                      inactiveThumbColor: Colors.grey,
+                                      activeColor: Colors.white,
+                                      activeTrackColor: Color(AppColors.dark),
+                                      onChanged: (v) async{
+                                        setState(() {
+                                          fa = v;
+                                        });
+                                        await viewModel.activate2FA(context: context, tfa: fa == true ? "1" : "0", twoFa: false);
+                                        await value.initializeHomeScreen(context, ['user_settings']);
+                                      },
+                                    ),
+
+                                  ],
+                                ),
+                                if( us1Cache['tfa'] == true)Center(
+                                  child: CustomElevatedButton(
+                                    titleSize: AppSizes.s14,
+                                    width: LayoutService.getWidth(context),
+                                    radius: AppSizes.s10,
+                                    backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                                    title: AppStrings.enable2fa.tr(),
+                                    onPressed: () async =>
+                                    await viewModel.activate2FA(
+                                        context: context, twoFa: true, tfa: "1"),
+                                  ),
+                                ),
                                 gapH20,
                                 Center(
                                   child: CustomElevatedButton( isOutlined: true,titleColor: Color(AppColors.primary),
@@ -530,7 +600,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                                 ),
                                 gapH20,
                                 const CustomDivider(),
-                                Text(AppStrings.delete_account.tr(), style: textStyle,),
+                                Text(AppStrings.delete_account.tr(), style: textStyle, textAlign: TextAlign.center),
                                 gapH20,
                                 // Enable 2FA
                                 Center(

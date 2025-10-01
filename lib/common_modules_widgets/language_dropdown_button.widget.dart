@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_sizes.dart';
+import '../constants/user_consts.dart';
+import '../general_services/backend_services/api_service/dio_api_service/shared.dart';
 import '../general_services/localization.service.dart';
 import '../general_services/settings.service.dart';
 import '../models/settings/general_settings.model.dart';
@@ -10,9 +14,15 @@ class LanguageDropdownButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<String>? supportedLocales = (AppSettingsService.getSettings(
-            context: context,
-            settingsType: SettingsType.generalSettings) as GeneralSettingsModel)
+    var jsonString;
+    GeneralSettingsModel generalSettingsModel;
+    var gCache;
+    jsonString = CacheHelper.getString("USG");
+    if (jsonString != null && jsonString.isNotEmpty && jsonString != "") {
+      gCache = json.decode(jsonString) as Map<String, dynamic>; // Convert String back to JSON
+    }
+    generalSettingsModel = GeneralSettingsModel.fromJson(gCache);
+    List<String>? supportedLocales = generalSettingsModel
         .availableLang;
     supportedLocales = (supportedLocales == null || supportedLocales.isEmpty)
         ? ['en', 'ar']
@@ -29,7 +39,7 @@ class LanguageDropdownButton extends StatelessWidget {
             return PopupMenuItem<String>(
               value: locale,
               child: Text(
-                locale,
+                locale == "ar" ? "عربي" : "English",
                 style: TextStyle(
                     color: context.locale.languageCode == locale
                         ? Theme.of(context).colorScheme.secondary

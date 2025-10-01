@@ -31,9 +31,6 @@ class HomeViewModel extends ChangeNotifier {
   UserSettings2Model? userSettings2;
   GeneralSettingsModel? generalSettings;
   List<RequestModel>? myRequests;
-  List<MyTeamRequestModel>? myTeamRequests;
-  List<AllCompanyRequestModel>? allCompanyRequests;
-  List<OtherDepartmentRequestModel>? otherDepartmentRequests;
   List<NotificationModel>? notifications;
   final ScrollController homeScrollController = ScrollController();
   bool isLoading = false;
@@ -74,7 +71,7 @@ class HomeViewModel extends ChangeNotifier {
     jsonString2 = CacheHelper.getString("US2");
     if (jsonString2 != null && jsonString2.isNotEmpty && jsonString2 != "") {
       gCache2 = json.decode(jsonString2) as Map<String, dynamic>; // Convert String back to JSON
-      UserSettingConst.userSettings2 = UserSettings2Model.fromJson(gCache2);
+      // UserSettingConst.userSettings2 = UserSettings2Model.fromJson(gCache2);
     }
     userSettingsModel = gCache != null ? UserSettingsModel.fromJson(gCache) : userSettingsModel;
     userSettings2Model = gCache2 != null ?UserSettings2Model.fromJson(gCache2) : userSettings2Model;
@@ -107,155 +104,155 @@ class HomeViewModel extends ChangeNotifier {
     updateLoadingStatus(laodingValue: false);
   }
 
-  Future<void> _getAllUserRequests(BuildContext context) async {
-    // get my Requests (all users)
-    try {
-      final result =
-          (await RequestsServices.getRequestsByTypeDependsOnUserPrivileges(
-              page: 1, context: context, reqType: GetRequestsTypes.mine));
-      if (result.success &&
-          result.data != null &&
-          result.data?.isNotEmpty == true) {
-        var requestsData = result.data?['requests'] as List<dynamic>?;
-        myRequests = requestsData?.map((item) => RequestModel.fromJson(item as Map<String, dynamic>))
-            .toList();
-        notifyListeners();
-        var prefs = await SharedPreferences.getInstance();
-        final jsonString = json.encode(result.data); // Convert JSON to String
-        await prefs.setString("mRequest", jsonString);
-      }
-    } catch (err, t) {
-      debugPrint("error while getting my requests ${err.toString()} at :- $t");
-    }
-
-    // get team request and other department requests if i manager (Manager || team leader)
-    if ((userSettings?.isManagerIn != null &&
-            (userSettings?.isManagerIn?.isNotEmpty ?? false)) ||
-        (userSettings?.isTeamleaderIn != null &&
-            (userSettings?.isTeamleaderIn?.isNotEmpty ?? false))) {
-      // get my Team Requests
-      try {
-        final result =
-            (await RequestsServices.getRequestsByTypeDependsOnUserPrivileges(
-                context: context, reqType: GetRequestsTypes.myTeam, page: 1));
-        if (result.success &&
-            result.data != null &&
-            result.data?.isNotEmpty == true) {
-          var requestsData = result.data?['requests'] as List<dynamic>?;
-          myTeamRequests = requestsData
-              ?.map(
-                  (item) => MyTeamRequestModel.fromJson(item as Map<String, dynamic>))
-              .toList();
-          notifyListeners();
-          var prefs = await SharedPreferences.getInstance();
-          final jsonString = json.encode(result.data); // Convert JSON to String
-          await prefs.setString("mtRequest", jsonString);
-        }
-      } catch (err, t) {
-        debugPrint(
-            "error while getting my Team requests ${err.toString()} at :- $t");
-      }
-      // get other Department Requests
-      try {
-        final result =
-            (await RequestsServices.getRequestsByTypeDependsOnUserPrivileges(
-                context: context,
-                reqType: GetRequestsTypes.otherDepartment,
-                page: 1));
-        if (result.success &&
-            result.data != null &&
-            result.data?.isNotEmpty == true) {
-          var requestsData = result.data?['requests'] as List<dynamic>?;
-          otherDepartmentRequests = requestsData
-              ?.map(
-                  (item) => OtherDepartmentRequestModel.fromJson(item as Map<String, dynamic>))
-              .toList();
-          var prefs = await SharedPreferences.getInstance();
-          final jsonString = json.encode(result.data); // Convert JSON to String
-          await prefs.setString("odRequest", jsonString);
-          notifyListeners();
-        }
-      } catch (err, t) {
-        debugPrint(
-            "error while getting other Departments requests ${err.toString()} at :- $t");
-      }
-    }
-
-    // get all Company Requests
-    if (userSettings?.topManagement == true) {
-      try {
-        final result =
-            (await RequestsServices.getRequestsByTypeDependsOnUserPrivileges(
-                context: context, reqType: GetRequestsTypes.allCompany));
-        if (result.success &&
-            result.data != null &&
-            result.data?.isNotEmpty == true) {
-          var requestsData = result.data?['requests'] as List<dynamic>?;
-          allCompanyRequests = requestsData
-              ?.map(
-                  (item) => AllCompanyRequestModel.fromJson(item as Map<String, dynamic>))
-              .toList();
-          var prefs = await SharedPreferences.getInstance();
-          final jsonString = json.encode(result.data); // Convert JSON to String
-          await prefs.setString("acRequest", jsonString);
-          notifyListeners();
-        }
-      } catch (err, t) {
-        debugPrint(
-            "error while getting all company requests ${err.toString()} at :- $t");
-      }
-    }
-    notifyListeners();
-  }
-  getHome(context)async{
-    notifyListeners();
-    isLoading = true;
-    DioHelper.getData(
-        url: "/emp_requests/v1/home",
-      context: context,
-    ).then((value)async{
-      if(value.data['status'] == true){
-        var prefs = await SharedPreferences.getInstance();
-        var requestsData = value.data?['my_requests'] as List<dynamic>?;
-        myRequests = requestsData?.map((item) => RequestModel.fromJson(item as Map<String, dynamic>))
-            .toList();
-        var requestsData2 = value.data?['team_requests'] as List<dynamic>?;
-        myTeamRequests = requestsData2?.map((item) => MyTeamRequestModel.fromJson(item as Map<String, dynamic>))
-            .toList();
-        var requestsData3 = value.data?['other_departments'] as List<dynamic>?;
-        otherDepartmentRequests = requestsData3?.map((item) => OtherDepartmentRequestModel.fromJson(item as Map<String, dynamic>))
-            .toList();
-        // final jsonString = json.encode({value.data}); // Convert JSON to String
-        // await prefs.setString("mRequest", jsonString);
-        // final jsonString2 = json.encode(value.data); // Convert JSON to String
-        // await prefs.setString("mtRequest", jsonString2);
-        // final jsonString3 = json.encode(value.data); // Convert JSON to String
-        // await prefs.setString("odRequest", jsonString3);
-        var notificationData = value.data['notifications']as List<dynamic>?;
-        notifications = notificationData
-            ?.map((item) =>
-            NotificationModel.fromJson(item as Map<String, dynamic>))
-            .toList();
-      }else{
-        AlertsService.error(
-            context: context,
-            message: value.data['message'],
-            title: AppStrings.failed.tr());
-      }
-      isLoading = false;
-      notifyListeners();
-    }).catchError((error){
-      isLoading = false;
-      notifyListeners();
-      if (error is DioError) {
-        errorMessage = error.response?.data['message'] ?? 'Something went wrong';
-      } else {
-        errorMessage = error.toString();
-      }
-      AlertsService.error(
-          context: context,
-          message: errorMessage,
-          title: AppStrings.failed.tr());
-    });
-  }
+  // Future<void> _getAllUserRequests(BuildContext context) async {
+  //   // get my Requests (all users)
+  //   try {
+  //     final result =
+  //         (await RequestsServices.getRequestsByTypeDependsOnUserPrivileges(
+  //             page: 1, context: context, reqType: GetRequestsTypes.mine));
+  //     if (result.success &&
+  //         result.data != null &&
+  //         result.data?.isNotEmpty == true) {
+  //       var requestsData = result.data?['requests'] as List<dynamic>?;
+  //       myRequests = requestsData?.map((item) => RequestModel.fromJson(item as Map<String, dynamic>))
+  //           .toList();
+  //       notifyListeners();
+  //       var prefs = await SharedPreferences.getInstance();
+  //       final jsonString = json.encode(result.data); // Convert JSON to String
+  //       await prefs.setString("mRequest", jsonString);
+  //     }
+  //   } catch (err, t) {
+  //     debugPrint("error while getting my requests ${err.toString()} at :- $t");
+  //   }
+  //
+  //   // get team request and other department requests if i manager (Manager || team leader)
+  //   if ((userSettings?.isManagerIn != null &&
+  //           (userSettings?.isManagerIn?.isNotEmpty ?? false)) ||
+  //       (userSettings?.isTeamleaderIn != null &&
+  //           (userSettings?.isTeamleaderIn?.isNotEmpty ?? false))) {
+  //     // get my Team Requests
+  //     try {
+  //       final result =
+  //           (await RequestsServices.getRequestsByTypeDependsOnUserPrivileges(
+  //               context: context, reqType: GetRequestsTypes.myTeam, page: 1));
+  //       if (result.success &&
+  //           result.data != null &&
+  //           result.data?.isNotEmpty == true) {
+  //         var requestsData = result.data?['requests'] as List<dynamic>?;
+  //         myTeamRequests = requestsData
+  //             ?.map(
+  //                 (item) => MyTeamRequestModel.fromJson(item as Map<String, dynamic>))
+  //             .toList();
+  //         notifyListeners();
+  //         var prefs = await SharedPreferences.getInstance();
+  //         final jsonString = json.encode(result.data); // Convert JSON to String
+  //         await prefs.setString("mtRequest", jsonString);
+  //       }
+  //     } catch (err, t) {
+  //       debugPrint(
+  //           "error while getting my Team requests ${err.toString()} at :- $t");
+  //     }
+  //     // get other Department Requests
+  //     try {
+  //       final result =
+  //           (await RequestsServices.getRequestsByTypeDependsOnUserPrivileges(
+  //               context: context,
+  //               reqType: GetRequestsTypes.otherDepartment,
+  //               page: 1));
+  //       if (result.success &&
+  //           result.data != null &&
+  //           result.data?.isNotEmpty == true) {
+  //         var requestsData = result.data?['requests'] as List<dynamic>?;
+  //         otherDepartmentRequests = requestsData
+  //             ?.map(
+  //                 (item) => OtherDepartmentRequestModel.fromJson(item as Map<String, dynamic>))
+  //             .toList();
+  //         var prefs = await SharedPreferences.getInstance();
+  //         final jsonString = json.encode(result.data); // Convert JSON to String
+  //         await prefs.setString("odRequest", jsonString);
+  //         notifyListeners();
+  //       }
+  //     } catch (err, t) {
+  //       debugPrint(
+  //           "error while getting other Departments requests ${err.toString()} at :- $t");
+  //     }
+  //   }
+  //
+  //   // get all Company Requests
+  //   if (userSettings?.topManagement == true) {
+  //     try {
+  //       final result =
+  //           (await RequestsServices.getRequestsByTypeDependsOnUserPrivileges(
+  //               context: context, reqType: GetRequestsTypes.allCompany));
+  //       if (result.success &&
+  //           result.data != null &&
+  //           result.data?.isNotEmpty == true) {
+  //         var requestsData = result.data?['requests'] as List<dynamic>?;
+  //         allCompanyRequests = requestsData
+  //             ?.map(
+  //                 (item) => AllCompanyRequestModel.fromJson(item as Map<String, dynamic>))
+  //             .toList();
+  //         var prefs = await SharedPreferences.getInstance();
+  //         final jsonString = json.encode(result.data); // Convert JSON to String
+  //         await prefs.setString("acRequest", jsonString);
+  //         notifyListeners();
+  //       }
+  //     } catch (err, t) {
+  //       debugPrint(
+  //           "error while getting all company requests ${err.toString()} at :- $t");
+  //     }
+  //   }
+  //   notifyListeners();
+  // }
+  // getHome(context)async{
+  //   notifyListeners();
+  //   isLoading = true;
+  //   DioHelper.getData(
+  //       url: "/emp_requests/v1/home",
+  //     context: context,
+  //   ).then((value)async{
+  //     if(value.data['status'] == true){
+  //       var prefs = await SharedPreferences.getInstance();
+  //       var requestsData = value.data?['my_requests'] as List<dynamic>?;
+  //       myRequests = requestsData?.map((item) => RequestModel.fromJson(item as Map<String, dynamic>))
+  //           .toList();
+  //       var requestsData2 = value.data?['team_requests'] as List<dynamic>?;
+  //       myTeamRequests = requestsData2?.map((item) => MyTeamRequestModel.fromJson(item as Map<String, dynamic>))
+  //           .toList();
+  //       var requestsData3 = value.data?['other_departments'] as List<dynamic>?;
+  //       otherDepartmentRequests = requestsData3?.map((item) => OtherDepartmentRequestModel.fromJson(item as Map<String, dynamic>))
+  //           .toList();
+  //       // final jsonString = json.encode({value.data}); // Convert JSON to String
+  //       // await prefs.setString("mRequest", jsonString);
+  //       // final jsonString2 = json.encode(value.data); // Convert JSON to String
+  //       // await prefs.setString("mtRequest", jsonString2);
+  //       // final jsonString3 = json.encode(value.data); // Convert JSON to String
+  //       // await prefs.setString("odRequest", jsonString3);
+  //       var notificationData = value.data['notifications']as List<dynamic>?;
+  //       notifications = notificationData
+  //           ?.map((item) =>
+  //           NotificationModel.fromJson(item as Map<String, dynamic>))
+  //           .toList();
+  //     }else{
+  //       AlertsService.error(
+  //           context: context,
+  //           message: value.data['message'],
+  //           title: AppStrings.failed.tr());
+  //     }
+  //     isLoading = false;
+  //     notifyListeners();
+  //   }).catchError((error){
+  //     isLoading = false;
+  //     notifyListeners();
+  //     if (error is DioError) {
+  //       errorMessage = error.response?.data['message'] ?? 'Something went wrong';
+  //     } else {
+  //       errorMessage = error.toString();
+  //     }
+  //     AlertsService.error(
+  //         context: context,
+  //         message: errorMessage,
+  //         title: AppStrings.failed.tr());
+  //   });
+  // }
 }

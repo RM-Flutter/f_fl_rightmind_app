@@ -25,6 +25,12 @@ class DefaultDetails extends StatelessWidget {
         builder: (context, value, child) {
           return Scaffold(
             backgroundColor: const Color(0xffFFFFFF),
+            appBar: AppBar(
+              surfaceTintColor: Colors.transparent,
+              title:  Text(type == "rmnotifications" ? AppStrings.notifications.tr().toUpperCase() :type.toString().tr().toUpperCase(), style: const TextStyle(fontSize: 16,
+                  color: Color(AppColors.dark), fontWeight: FontWeight.w700),),
+              backgroundColor: Colors.transparent,
+            ),
             body: GradientBgImage(
               padding: EdgeInsets.zero,
               child: Container(
@@ -36,33 +42,6 @@ class DefaultDetails extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: kIsWeb? CrossAxisAlignment.center:CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          color: Colors.transparent,
-                          height: 90,
-                          width: double.infinity,
-                          alignment: Alignment.bottomCenter,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.arrow_back, color:Color(0xff224982)),
-                                onPressed: !kIsWeb?() {
-                                  Navigator.pop(context);
-                                } : (){},
-                              ),
-                              Text(
-                                type.toString().tr().toUpperCase(),
-                                style: const TextStyle(color: Color(0xff224982), fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.arrow_back, color:!kIsWeb? Color(0xff224982): Colors.transparent),
-                                onPressed: !kIsWeb?() {
-                                  Navigator.pop(context);
-                                } : (){},
-                              ),
-                            ],
-                          ),
-                        ),
                         gapH16,
                         ConstrainedBox(
                             constraints: BoxConstraints(

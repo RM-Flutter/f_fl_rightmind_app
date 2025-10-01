@@ -1,7 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:cpanal/constants/app_strings.dart';
 import 'package:cpanal/general_services/validation_service.dart';
+import '../../common_modules_widgets/custom_elevated_button.widget.dart';
 import '../../constants/app_sizes.dart';
 import '../../platform/platform_is.dart';
 import 'custom_alert.dart';
@@ -9,7 +11,8 @@ import 'custom_alert.dart';
 enum DialogAnimationTypes { none, feedIn, open, opacity }
 
 abstract class AlertsService {
-  static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+  static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+  GlobalKey<ScaffoldMessengerState>();
 
   static success({
     required String title,
@@ -108,7 +111,8 @@ abstract class AlertsService {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  static Future<void> showLoading(BuildContext context, {String title = ''}) async {
+  static Future<void> showLoading(BuildContext context,
+      {String title = ''}) async {
     var loadingWidget = Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0.0,
@@ -121,7 +125,8 @@ abstract class AlertsService {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).primaryColor),
               ),
               const SizedBox(width: AppSizes.s15),
               Text(title.isEmpty ? 'Loading ...' : '$title, please wait')
@@ -138,16 +143,20 @@ abstract class AlertsService {
     );
   }
 
-  static Future<bool> confirmMessage(BuildContext context, String title, {
-    String? message,
-    form3Key,
-    passwordForRemoveAccountController,
-    String? imageAssert,
-    DialogAnimationTypes animationType = DialogAnimationTypes.feedIn,
-    Widget? icon,
-    bool? viewPassword = false,
-    bool? isArabic,
-  }) async {
+  static Future<bool> confirmMessage(
+      BuildContext context,
+      String title, {
+        onTap,
+        String? message,
+        form3Key,
+        passwordForRemoveAccountController,
+        String? imageAssert,
+        DialogAnimationTypes animationType = DialogAnimationTypes.feedIn,
+        Widget? icon,
+        bool? viewPassword = false,
+        bool? isArabic,
+      }) async {
+    var formKey = GlobalKey<FormState>();
     var result = await showGeneralDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -156,88 +165,122 @@ abstract class AlertsService {
       transitionBuilder: (dialogContext, a1, a2, _) => _dialogAnimated(
         animation: a1,
         type: animationType,
-        body: Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
-          color: Colors.white,
-          child: SizedBox(
-            width: PlatformIs.mobile ? AppSizes.s320 : AppSizes.s600,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                if (imageAssert != null) const SizedBox(height: AppSizes.s60),
-                if (imageAssert == null) const SizedBox(height: AppSizes.s50),
-                imageAssert != null
-                    ? Image.asset(imageAssert, width: AppSizes.s150, height: AppSizes.s90)
-                    : icon != null
-                    ? SizedBox(
-                  width: AppSizes.s150,
-                  height: AppSizes.s90,
-                  child: icon,
-                )
-                    : const SizedBox(),
-                if (imageAssert != null) const SizedBox(height: AppSizes.s25),
-                Text(
-                  title,
-                  style: const TextStyle(fontSize: AppSizes.s25, color: Colors.black),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSizes.s20),
-                message != null
-                    ? Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.s30),
-                  child: Text(
-                    message,
-                    style: const TextStyle(fontSize: AppSizes.s18, color: Colors.black45),
+        body: Form(
+          key: formKey,
+          child: Card(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0)),
+            color: Colors.white,
+            child: SizedBox(
+              width: PlatformIs.mobile ? AppSizes.s320 : AppSizes.s600,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  if (imageAssert != null) const SizedBox(height: AppSizes.s60),
+                  if (imageAssert == null) const SizedBox(height: AppSizes.s50),
+                  imageAssert != null
+                      ? Image.asset(imageAssert,
+                      width: AppSizes.s150, height: AppSizes.s90)
+                      : icon != null
+                      ? SizedBox(
+                    width: AppSizes.s150,
+                    height: AppSizes.s90,
+                    child: icon,
+                  )
+                      : const SizedBox(),
+                  if (imageAssert != null) const SizedBox(height: AppSizes.s25),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                        fontSize: AppSizes.s25, color: Colors.black),
                     textAlign: TextAlign.center,
-                    softWrap: true,
-                    maxLines: 4,
                   ),
-                )
-                    : const SizedBox(),
-                const SizedBox(height: AppSizes.s10),
-                if (viewPassword == true)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: Form(
-                      key: form3Key,
-                      child: TextFormField(
-                        controller: passwordForRemoveAccountController,
-                        keyboardType: TextInputType.visiblePassword,
-                        decoration: InputDecoration(hintText: AppStrings.password.tr()),
-                        validator: (value) => ValidationService.validatePassword(value),
+                  const SizedBox(height: AppSizes.s20),
+                  message != null
+                      ? Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSizes.s30),
+                    child: Text(
+                      message,
+                      style: const TextStyle(
+                          fontSize: AppSizes.s18, color: Colors.black45),
+                      textAlign: TextAlign.center,
+                      softWrap: true,
+                      maxLines: 4,
+                    ),
+                  )
+                      : const SizedBox(),
+                  const SizedBox(height: AppSizes.s10),
+                  if (viewPassword == true)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Form(
+                        key: form3Key,
+                        child: TextFormField(
+                          controller: passwordForRemoveAccountController,
+                          keyboardType: TextInputType.visiblePassword,
+                          decoration: InputDecoration(
+                              hintText: AppStrings.password.tr()),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return AppStrings.pleaseEnterAPassword.tr();
+                            }
+                            return null;
+                          },
+                        ),
                       ),
                     ),
+                  const SizedBox(height: AppSizes.s10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      ButtonTheme(
+                          minWidth: AppSizes.s100,
+                          height: AppSizes.s60,
+                          child: CustomElevatedButton(
+                            width: AppSizes.s100,
+                            backgroundColor:
+                            Theme.of(context).colorScheme.primary,
+                            titleSize: AppSizes.s18,
+                            title: AppStrings.yes.tr().toUpperCase(),
+                            onPressed: onTap ??
+                                    () async {
+                                  if (viewPassword == true) {
+                                    if (form3Key != null &&
+                                        form3Key.currentState?.validate() ==
+                                            true) {
+                                      Navigator.of(dialogContext)
+                                          .pop(true); // بيرجع موافقة
+                                    }
+                                  } else {
+                                    Navigator.of(dialogContext)
+                                        .pop(true); // بيرجع موافقة
+                                  }
+                                },
+                          )),
+                      const SizedBox(width: 15.0),
+                      ButtonTheme(
+                        minWidth: AppSizes.s100,
+                        height: AppSizes.s60,
+                        child: MaterialButton(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50.0)),
+                          color: Colors.white,
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop(false);
+                            return;
+                          },
+                          child: Text(AppStrings.no.tr(),
+                              style:
+                              const TextStyle(color: Color(0xff0FF3389EE))),
+                        ),
+                      ),
+                    ],
                   ),
-                const SizedBox(height: AppSizes.s10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    ButtonTheme(
-                      minWidth: AppSizes.s100,
-                      height: AppSizes.s60,
-                      child: MaterialButton(
-                        color: Theme.of(context).colorScheme.primary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
-                        onPressed: () => Navigator.of(dialogContext).pop(true),
-                        child: Text(AppStrings.yes.tr(), style: const TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                    const SizedBox(width: 15.0),
-                    ButtonTheme(
-                      minWidth: AppSizes.s100,
-                      height: AppSizes.s60,
-                      child: MaterialButton(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
-                        color: Colors.white,
-                        onPressed: () => Navigator.of(dialogContext).pop(false),
-                        child: Text(AppStrings.no.tr(), style: const TextStyle(color: Color(0xff0FF3389EE))),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSizes.s50),
-              ],
+                  const SizedBox(height: AppSizes.s50),
+                ],
+              ),
             ),
           ),
         ),
@@ -256,7 +299,9 @@ abstract class AlertsService {
       case DialogAnimationTypes.feedIn:
         return Column(children: <Widget>[
           Spacer(flex: (animation.value * 100).toInt() + 1),
-          Opacity(opacity: animation.value, child: Transform.scale(scale: animation.value, child: body)),
+          Opacity(
+              opacity: animation.value,
+              child: Transform.scale(scale: animation.value, child: body)),
           const Spacer(flex: 100),
         ]);
       case DialogAnimationTypes.opacity:

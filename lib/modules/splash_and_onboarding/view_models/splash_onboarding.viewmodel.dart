@@ -129,15 +129,15 @@ class OnboardingViewModel extends ChangeNotifier {
     }
   }
 
-    List? getAllOnboardingData({required BuildContext context}) {
-      final jsonString = CacheHelper.getString("USG");
-      if (jsonString != null && jsonString.isNotEmpty) {
-        final gCache = json.decode(jsonString) as Map<String,
-            dynamic>; // Convert String back to JSON
+  List? getAllOnboardingData({required BuildContext context}) {
+    final jsonString = CacheHelper.getString("USG");
+    if (jsonString != null && jsonString.isNotEmpty) {
+      final gCache = json.decode(jsonString) as Map<String,
+          dynamic>; // Convert String back to JSON
 
-        return gCache['features']['items'];
-      }
+      return gCache['features']['items'];
     }
+  }
   List<Map<String, dynamic>>? _getOnboardingDataFromCache() {
     final jsonString = CacheHelper.getString("USG");
     if (jsonString == null || jsonString.isEmpty) {
@@ -164,146 +164,140 @@ class OnboardingViewModel extends ChangeNotifier {
     return null;
   }
 
-    // var userSettings;
-    Future<void> _initializeAppServices(BuildContext context, AppConfigService appConfigService) async {
-      try {
-        // Precache logo image
-        await precacheImage(const AssetImage(AppImages.logo), context);
+  // var userSettings;
+  Future<void> _initializeAppServices(BuildContext context, AppConfigService appConfigService) async {
+    try {
+      // Precache logo image
+      await precacheImage(const AssetImage(AppImages.logo), context);
 
-        // Initialize application services
-        await appConfigService.init();
-        // Initialize and set device information in local storage
+      // Initialize application services
+      await appConfigService.init();
+      // Initialize and set device information in local storage
 
-        // Set base API URL
-        appConfigService.apiURL = AppConstants.baseUrl;
+      // Set base API URL
+      appConfigService.apiURL = AppConstants.baseUrl;
 
-        // Optional: Enable or disable checking for token expiration
-        appConfigService.checkOnTokenExpiration = false;
+      // Optional: Enable or disable checking for token expiration
+      appConfigService.checkOnTokenExpiration = false;
 
-        // Optional: Set refresh token API URL
-        appConfigService.refreshTokenApiUrl =
-            AppConstants.refreshTokenBaseUrl;
+      // Optional: Set refresh token API URL
+      appConfigService.refreshTokenApiUrl =
+          AppConstants.refreshTokenBaseUrl;
 
-        // Optional: Set application name
-        appConfigService.appName =
-        await ApplicationInformationService.getAppName();
+      // Optional: Set application name
+      appConfigService.appName =
+      await ApplicationInformationService.getAppName();
 
-        // Optional: Set application version
-        appConfigService.appVersion =
-        await ApplicationInformationService.getAppVersion();
+      // Optional: Set application version
+      appConfigService.appVersion =
+      await ApplicationInformationService.getAppVersion();
 
-        // Optional: Set application build number
-        appConfigService.buildNumber =
-        await ApplicationInformationService.getAppBuildNumber();
+      // Optional: Set application build number
+      appConfigService.buildNumber =
+      await ApplicationInformationService.getAppBuildNumber();
 
-        // Optional: Set application package name
-        appConfigService.packageName =
-        await ApplicationInformationService.getAppPackageName();
+      // Optional: Set application package name
+      appConfigService.packageName =
+      await ApplicationInformationService.getAppPackageName();
 
-        // await ConnectionsService.init();
-      } catch (e) {
-        debugPrint('Error initializing app services: $e');
-      }
+      // await ConnectionsService.init();
+    } catch (e) {
+      debugPrint('Error initializing app services: $e');
     }
-    Future<List<dynamic>> loadJson() async {
-      const filepath = 'assets/json/routes.json';
-      final content = await rootBundle.loadString(filepath);
-      return jsonDecode(content);
-    }
-    Future<Map<String, dynamic>?> analyzeRoute(String url) async {
-      // Decode JSON into an array
-      final allRoute = await loadJson();
+  }
+  Future<List<dynamic>> loadJson() async {
+    const filepath = 'assets/json/routes.json';
+    final content = await rootBundle.loadString(filepath);
+    return jsonDecode(content);
+  }
+  Future<Map<String, dynamic>?> analyzeRoute(String url) async {
+    // Decode JSON into an array
+    final allRoute = await loadJson();
 
-      // Parse URL and extract path and query parameters
-      final uri = Uri.parse(url);
-      final path = uri.path.trim().replaceAll(
-          RegExp(r'^/|/$'), ''); // Trim leading/trailing slashes
-      final queryParams = uri.queryParameters;
+    // Parse URL and extract path and query parameters
+    final uri = Uri.parse(url);
+    final path = uri.path.trim().replaceAll(
+        RegExp(r'^/|/$'), ''); // Trim leading/trailing slashes
+    final queryParams = uri.queryParameters;
 
-      // Iterate through routes to find a match
-      for (final route in allRoute) {
-        final routePattern = route['route'];
+    // Iterate through routes to find a match
+    for (final route in allRoute) {
+      final routePattern = route['route'];
 
-        // Extract placeholder names (e.g., {id})
-        final keys = RegExp(r'\{([^\}]+)\}')
-            .allMatches(routePattern)
-            .map((match) => match.group(1)!)
-            .toList();
+      // Extract placeholder names (e.g., {id})
+      final keys = RegExp(r'\{([^\}]+)\}')
+          .allMatches(routePattern)
+          .map((match) => match.group(1)!)
+          .toList();
 
-        // Convert route pattern to regex
-        final pattern = '^' +
-            routePattern
-                .replaceAll(RegExp(r'\{[^\}]+\}'), '([^/]+)')
-                .replaceAll('/', r'\/') +
-            r'$';
+      // Convert route pattern to regex
+      final pattern = '^' +
+          routePattern
+              .replaceAll(RegExp(r'\{[^\}]+\}'), '([^/]+)')
+              .replaceAll('/', r'\/') +
+          r'$';
 
-        // Check if the path matches the pattern
-        final matches = RegExp(pattern).allMatches(path);
-        if (matches.isNotEmpty) {
-          final match = matches.first;
-          final params = <String, String>{};
+      // Check if the path matches the pattern
+      final matches = RegExp(pattern).allMatches(path);
+      if (matches.isNotEmpty) {
+        final match = matches.first;
+        final params = <String, String>{};
 
-          for (var i = 0; i < keys.length; i++) {
-            params[keys[i]] = match.group(i + 1)!;
-          }
-
-          // Add query parameters to the values
-          params.addAll(queryParams);
-
-          // Return the matching route key and parameters
-          return {
-            'key': route['key'],
-            'values': params,
-          };
+        for (var i = 0; i < keys.length; i++) {
+          params[keys[i]] = match.group(i + 1)!;
         }
+
+        // Add query parameters to the values
+        params.addAll(queryParams);
+
+        // Return the matching route key and parameters
+        return {
+          'key': route['key'],
+          'values': params,
+        };
       }
-      // Return null if no match is found
-      return null;
     }
-    Future<void> initializeSplashScreen({required BuildContext context, role}) async {
-      final appConfigService =
-      Provider.of<AppConfigService>(context, listen: false);
-      late final HomeViewModel homeViewModel;
-      homeViewModel = HomeViewModel();
-      try {
-        await _initializeAppServices(context, appConfigService);
-        if (appConfigService.isLogin && appConfigService.token.isNotEmpty) {
-          // try {
-          //   // await PushNotificationService.init(
-          //   //   context: context,
-          //   //   apiUrlThatReciveUserToken:
-          //   //   EndpointServices
-          //   //       .getApiEndpoint(EndpointsNames.deviceSys)
-          //   //       .url,
-          //   // );
-          // } catch (ex) {
-          //   debugPrint(
-          //       'Failed to send notification device token to server $ex');
-          // }
-          final features = getAllOnboardingData(context: context);
-          final jsonString = CacheHelper.getString("USG");
-          var gCache;
-          if (jsonString != null && jsonString != "") {
-            gCache = json.decode(jsonString) as Map<String, dynamic>;
-          }
-          var dateToCheck = safeParseDateTime(CacheHelper.getString("dateWatchScreen"));
-          final referenceDate = safeParseDateTime(gCache['features']['date']);
-          print("dateWatchScreen is ${CacheHelper.getString("dateWatchScreen") ?? ""}");
-          if (CacheHelper.getString("dateWatchScreen") == null ||
-              CacheHelper.getString("dateWatchScreen") == "" ||
-              gCache['features']['date'] == null ||
-              referenceDate!.isAfter(dateToCheck!)) {
-            await _precacheImages(context);
-            if (gCache['features'] != null ||
-                gCache['features']['items'].isNotEmpty) {
-              context.goNamed(AppRoutes.onboarding.name,
-                  pathParameters: {'lang': context.locale.languageCode});
-            } else {
-              context.goNamed(
-                AppRoutes.home.name,
-                pathParameters: {'lang': context.locale.languageCode},
-              );
-            }
+    // Return null if no match is found
+    return null;
+  }
+  Future<void> initializeSplashScreen({required BuildContext context, role}) async {
+    final appConfigService =
+    Provider.of<AppConfigService>(context, listen: false);
+    late final HomeViewModel homeViewModel;
+    homeViewModel = HomeViewModel();
+    try {
+      await _initializeAppServices(context, appConfigService);
+      if (appConfigService.isLogin && appConfigService.token.isNotEmpty) {
+        // try {
+        //   // await PushNotificationService.init(
+        //   //   context: context,
+        //   //   apiUrlThatReciveUserToken:
+        //   //   EndpointServices
+        //   //       .getApiEndpoint(EndpointsNames.deviceSys)
+        //   //       .url,
+        //   // );
+        // } catch (ex) {
+        //   debugPrint(
+        //       'Failed to send notification device token to server $ex');
+        // }
+        final features = getAllOnboardingData(context: context);
+        final jsonString = CacheHelper.getString("USG");
+        var gCache;
+        if (jsonString != null && jsonString != "") {
+          gCache = json.decode(jsonString) as Map<String, dynamic>;
+        }
+        var dateToCheck = safeParseDateTime(CacheHelper.getString("dateWatchScreen"));
+        final referenceDate = safeParseDateTime(gCache['features']['date']);
+        print("dateWatchScreen is ${CacheHelper.getString("dateWatchScreen") ?? ""}");
+        if (CacheHelper.getString("dateWatchScreen") == null ||
+            CacheHelper.getString("dateWatchScreen") == "" ||
+            gCache['features']['date'] == null ||
+            referenceDate!.isAfter(dateToCheck!)) {
+          await _precacheImages(context);
+          if (gCache['features'] != null ||
+              gCache['features']['items'].isNotEmpty) {
+            context.goNamed(AppRoutes.onboarding.name,
+                pathParameters: {'lang': context.locale.languageCode});
           } else {
             context.goNamed(
               AppRoutes.home.name,
@@ -311,134 +305,149 @@ class OnboardingViewModel extends ChangeNotifier {
             );
           }
         } else {
-          print("WATCH 0");
-          final jsonString2 = CacheHelper.getString("USG");
-          var cache;
-          if (jsonString2 != null && jsonString2.isNotEmpty) {
-            cache = json.decode(jsonString2) as Map<String, dynamic>;
-          }
-          final features = cache['features']['items'];
-          print("WATCH 1");
-          final jsonString = CacheHelper.getString("USG");
-          var gCache;
-          var dateToCheck;
-          var referenceDate;
-          print("WATCH 2");
-          if (jsonString != null && jsonString != "") {
-            gCache = json.decode(jsonString) as Map<String,
-                dynamic>; // Convert String back to JSON
-            referenceDate = safeParseDateTime(gCache['features']['date']);
-          }
-          print("WATCH IN1 ${CacheHelper.getString("dateWatchScreen")}");
-          if (CacheHelper.getString("dateWatchScreen") != null &&
-              CacheHelper.getString("dateWatchScreen") != "") {
-            dateToCheck =
-                safeParseDateTime(CacheHelper.getString("dateWatchScreen"));
-          } else {
-            if (CacheHelper.getString("dateWatchScreen") == null ||
-                CacheHelper.getString("dateWatchScreen") == "" ||
-                gCache == null || gCache['features']['date'] == "" ||
-                dateToCheck.isAfter(referenceDate) == false){
-              print("WATCH IN IN");
-              await _precacheImages(context);
-              print("WATCH IN 2");
-              context.goNamed(AppRoutes.onboarding.name,
-                  pathParameters: {'lang': context.locale.languageCode});
-            }else{
-              print("login-1");
-              context.goNamed(
-                AppRoutes.login.name,
-                pathParameters: {'lang': context.locale.languageCode},
-              );
-            }
-          }
-          if (features == null || features.isEmpty) {
-            print("login-2");
-            context.goNamed(
-              AppRoutes.login.name,
-              pathParameters: {'lang': context.locale.languageCode,
-              },
-            );
-            return;
-          } else {
-            if (CacheHelper.getString("dateWatchScreen") == null ||
-                CacheHelper.getString("dateWatchScreen") == "" ||
-                gCache == null || gCache['features']['date'] == "" ||
-                dateToCheck.isAfter(referenceDate) == false) {
-              await _precacheImages(context);
-              print("WATCH IN 4");
-              context.goNamed(AppRoutes.onboarding.name,
-                  pathParameters: {'lang': context.locale.languageCode});
-            } else {
-              print("login-3");
-              context.goNamed(
-                AppRoutes.login.name,
-                pathParameters: {'lang': context.locale.languageCode},
-              );
-            }
-          }
-          // print("login-4");
-          // return context.goNamed(
-          //   AppRoutes.login.name,
-          //   pathParameters: {'lang': context.locale.languageCode},
-          // );
-        }
-      } catch (err, t) {
-        print("login-5");
-        return context.goNamed(
-          AppRoutes.login.name,
-          pathParameters: {'lang': context.locale.languageCode},
-        );
-      }
-    }
-      void goNext(BuildContext context) {
-        const int duration = 500;
-        final items = getAllOnboardingData(context: context);
-
-        if (items != null && _currentIndex < items.length - 1) {
-          pageController.nextPage(
-            duration: const Duration(milliseconds: duration),
-            curve: Curves.easeInOut,
-          );
-          pageController2.nextPage(
-            duration: const Duration(milliseconds: duration),
-            curve: Curves.easeInOut,
-          );
-          currentIndex = _currentIndex + 1;
-        } else {
-          final appConfigService =
-          Provider.of<AppConfigService>(context, listen: false);
-
-          if (appConfigService.isLogin && appConfigService.token.isNotEmpty) {
-            context.goNamed(
-              AppRoutes.home.name,
-              pathParameters: {'lang': context.locale.languageCode,},
-            );
-          } else {
-            context.goNamed(
-              AppRoutes.login.name,
-              pathParameters: {'lang': context.locale.languageCode,},
-            );
-          }
-        }
-      }
-      void skip(BuildContext context) {
-        final appConfigService =
-        Provider.of<AppConfigService>(context, listen: false);
-        if (appConfigService.isLogin && appConfigService.token.isNotEmpty) {
           context.goNamed(
             AppRoutes.home.name,
-            pathParameters: {'lang': context.locale.languageCode,},
+            pathParameters: {'lang': context.locale.languageCode},
           );
+        }
+        return;
+      } else {
+        print("WATCH 0");
+        final jsonString2 = CacheHelper.getString("USG");
+        var cache;
+        if (jsonString2 != null && jsonString2.isNotEmpty) {
+          cache = json.decode(jsonString2) as Map<String, dynamic>;
+        }
+        final features = cache['features']['items'];
+        print("WATCH 1");
+        final jsonString = CacheHelper.getString("USG");
+        var gCache;
+        var dateToCheck;
+        var referenceDate;
+        print("WATCH 2");
+        if (jsonString != null && jsonString != "") {
+          gCache = json.decode(jsonString) as Map<String,
+              dynamic>; // Convert String back to JSON
+          referenceDate = safeParseDateTime(gCache['features']['date']);
+        }
+        print("WATCH IN1 ${CacheHelper.getString("dateWatchScreen")}");
+        if (CacheHelper.getString("dateWatchScreen") != null &&
+            CacheHelper.getString("dateWatchScreen") != "") {
+          dateToCheck =
+              safeParseDateTime(CacheHelper.getString("dateWatchScreen"));
         } else {
+          if (CacheHelper.getString("dateWatchScreen") == null ||
+              CacheHelper.getString("dateWatchScreen") == "" ||
+              gCache == null || gCache['features']['date'] == "" ||
+              dateToCheck.isAfter(referenceDate) == false){
+            print("WATCH IN IN");
+            await _precacheImages(context);
+            print("WATCH IN 2");
+            context.goNamed(AppRoutes.onboarding.name,
+                pathParameters: {'lang': context.locale.languageCode});
+          }else{
+            print("login-1");
+            context.goNamed(
+              AppRoutes.login.name,
+              pathParameters: {'lang': context.locale.languageCode},
+            );
+          }
+        }
+        if (features == null || features.isEmpty) {
+          print("login-2");
           context.goNamed(
             AppRoutes.login.name,
             pathParameters: {'lang': context.locale.languageCode,
             },
           );
+          return;
+        } else {
+          if (CacheHelper.getString("dateWatchScreen") == null ||
+              CacheHelper.getString("dateWatchScreen") == "" ||
+              gCache == null || gCache['features']['date'] == "" ||
+              dateToCheck.isAfter(referenceDate) == false) {
+            await _precacheImages(context);
+            print("WATCH IN 4");
+            context.goNamed(AppRoutes.onboarding.name,
+                pathParameters: {'lang': context.locale.languageCode});
+          } else {
+            print("login-3");
+            context.goNamed(
+              AppRoutes.login.name,
+              pathParameters: {'lang': context.locale.languageCode},
+            );
+          }
         }
+        // print("login-4");
+        // return context.goNamed(
+        //   AppRoutes.login.name,
+        //   pathParameters: {'lang': context.locale.languageCode},
+        // );
+      }
+    } catch (err, t) {
+      print("login-5");
+      return context.goNamed(
+        AppRoutes.login.name,
+        pathParameters: {'lang': context.locale.languageCode},
+      );
+    }
+  }
+  void goNext(BuildContext context) {
+    const int duration = 500;
+    final items = getAllOnboardingData(context: context);
+
+    if (items != null && _currentIndex < items.length - 1) {
+      pageController.nextPage(
+        duration: const Duration(milliseconds: duration),
+        curve: Curves.easeInOut,
+      );
+      pageController2.nextPage(
+        duration: const Duration(milliseconds: duration),
+        curve: Curves.easeInOut,
+      );
+      currentIndex = _currentIndex + 1;
+    } else {
+      final appConfigService =
+      Provider.of<AppConfigService>(context, listen: false);
+      final jsonString = CacheHelper.getString("US1");
+      var us1Cache;
+      var role;
+      if (jsonString != "") {
+        us1Cache = json.decode(jsonString) as Map<String,
+            dynamic>; // Convert String back to JSON
+        print("S2 IS --> $us1Cache");
+        role = us1Cache['role'];
+      }
+      if (appConfigService.isLogin && appConfigService.token.isNotEmpty) {
+        context.goNamed(
+          AppRoutes.home.name,
+          pathParameters: {'lang': context.locale.languageCode,},
+        );
+      } else {
+        context.goNamed(
+          AppRoutes.login.name,
+          pathParameters: {'lang': context.locale.languageCode,},
+        );
       }
     }
+  }
+  void skip(BuildContext context) {
+    final appConfigService =
+    Provider.of<AppConfigService>(context, listen: false);
+    if (appConfigService.isLogin && appConfigService.token.isNotEmpty) {
+      context.goNamed(
+        AppRoutes.home.name,
+        pathParameters: {'lang': context.locale.languageCode,},
+      );
+    } else {
+      context.goNamed(
+        AppRoutes.login.name,
+        pathParameters: {'lang': context.locale.languageCode,
+        },
+      );
+    }
+  }
+}
 
 
 // void skip(BuildContext context) => context.goNamed(AppRoutes.stores.name,

@@ -1,3 +1,4 @@
+import 'package:cpanal/constants/app_colors.dart';
 import 'package:easy_localization/easy_localization.dart' as locale;
 import 'package:flutter/material.dart';
 import '../../../../constants/app_sizes.dart';
@@ -44,7 +45,7 @@ class SwitchRow extends StatelessWidget {
             height: AppSizes.s20,
             padding: AppSizes.s3,
             value: value,
-            inactiveColor: const Color(0xff2C376C),
+            inactiveColor: const Color(AppColors.dark),
             onChanged: onChanged,
           ),
           gapW8,

@@ -237,7 +237,7 @@ class _ListCommentsScreenState extends State<ListCommentsScreen> {
                     child:  NoExistingPlaceholderScreen(
                         height: LayoutService.getHeight(context) *
                             0.6,
-                        title: AppStrings.thereIsNoNotifications.tr()),
+                        title: AppStrings.thereIsNoComments.tr()),
                   ),
                   if (value.isGetCommentLoading && value.pageNumber != 1)
                     const Center(child: CircularProgressIndicator()),

@@ -3,6 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:flutter/foundation.dart';
@@ -117,67 +118,21 @@ class AuthenticationViewModel extends ChangeNotifier {
       debugPrint(e.toString());
     }
   }
-  getDeviceSysSet({context}) async {
-    print("Zzzzzzzzzzzzzzzzzzzz");
-    // notifyListeners();
-    // final response = await DioHelper.postData(
-    //   url: "/rm_users/v1/device_sys",
-    //   context: context,
-    //   data: {
-    //     "action": "set",
-    //     "key": "notification_token",
-    //     "value": await FirebaseMessaging.instance.getToken(),
-    //   },
-    // );
-    // if(response.data['status'] == true){
-    //   getDeviceSysSet2(context: context);
-    // }
-    // CacheHelper.setBool("status", true);
-    // notifyListeners();
-  }
-  getDeviceSysSet2({context}) async {
-    isLoading2 = true;
-    // notifyListeners();
-    // final response = await DioHelper.postData(
-    //   url: "/rm_users/v1/device_sys",
-    //   context: context,
-    //   data: {
-    //     "action": "set",
-    //     "key": "notification_token_status",
-    //     "value": true,
-    //   },
-    // );
-    // if(response.data['status'] == true){
-    //   isSuccess = true;
-    // }
-    // notificationStatus = true;
-    // CacheHelper.setBool("status", true);
-    // notifyListeners();
-  }
   Future<void> login({required BuildContext context, phones, cCode, email, password, loginType, bool noti = true}) async {
-    print("request login /////1221");
-    print("PHONES IS ${phones}");
-    print("PHONES IS ${isPhoneLogin}");
-    print("request login /////13333333");
-    await getDeviceSysSet(context: context);
     if (email == null && phones == null && formKey.currentState?.validate() == true) {
-      print("request login /////44444444");
       final appConfigServiceProvider =
       Provider.of<AppConfigService>(context, listen: false);
       final completePhoneNumber = (countryCodeController.text.isEmpty
-          ? '+20${phoneController.text}'
+          ? '${phoneController.text}'
           : countryCodeController.text + phoneController.text)
           .trim();
-      print("request login /////");
       OperationResult<Map<String, dynamic>> result =
       await AuthenticationService.login(
           context: context,
           username: isPhoneLogin ? completePhoneNumber :emailController.text,
           password: passwordController.text,
-          deviceInformation:
-          appConfigServiceProvider.deviceInformation.toMap());
+          deviceInformation: appConfigServiceProvider.deviceInformation.toMap());
 
-      print("response login /////");
       if (result.success &&
           result.data != null &&
           (result.data?.isNotEmpty ?? false)) {
@@ -195,19 +150,24 @@ class AuthenticationViewModel extends ChangeNotifier {
         // );
         // await getDeviceSys(context: context, status: 1);
       } else {
-        AlertsService.error(
-            title: AppStrings.failed.tr(),
-            context: context,
-            message: result.message ?? AppStrings.failedLoginingPleaseTryAgain.tr());
+        Fluttertoast.showToast(
+            msg: result.message!,
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 5,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
       }
     } else {
       print("request login REG");
       final appConfigServiceProvider =
       Provider.of<AppConfigService>(context, listen: false);
       final completePhoneNumber =
-      (cCode.isEmpty
-          ? '+20${phones.text}'
-          : cCode.text + phones.text)
+      (cCode != null && cCode.isEmpty
+          ? '${phones.text}'
+          : cCode + phones.text ?? "")
           .trim();
       print("request login /////");
       OperationResult<Map<String, dynamic>> result =
@@ -246,21 +206,27 @@ class AuthenticationViewModel extends ChangeNotifier {
 
   Future<void> showForgotPasswordModal({required BuildContext context}) async {
     OperationResult<Map<String, dynamic>>? result =
-        await ModalSheetHelper.showModalSheet(
-            context: context,
-            viewProfile: false,
-            modalContent: ForgotPasswordModal(
-              isPhoneLogin: isPhoneLogin,
-            ),
-            height: LayoutService.getHeight(context) * 0.45,
-            title: AppStrings.forgetPassword.tr());
+    await ModalSheetHelper.showModalSheet(
+        context: context,
+        viewProfile: false,
+        modalContent: ForgotPasswordModal(
+          isPhoneLogin: isPhoneLogin,
+        ),
+        height: LayoutService.getHeight(context) * 0.45,
+        title: AppStrings.forgetPassword.tr());
     if (result?.success ?? false) {
       Future.delayed(const Duration(seconds: 1));
       AlertsService.success(
           title: AppStrings.success.tr(),
           context: context,
           message:
-              result?.message ?? AppStrings.passwordResetedPleaseLogin.tr());
+          result?.message ?? AppStrings.passwordResetedPleaseLogin.tr());
+    }else{
+      AlertsService.error(
+          title: AppStrings.failed.tr(),
+          context: context,
+          message:
+          result?.message ?? AppStrings.passwordResetedPleaseLogin.tr());
     }
   }
   Future<void> showCreateAccountModal({required BuildContext context}) async {
@@ -283,51 +249,47 @@ class AuthenticationViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> _show2FAVerificationPopup(
-      {required BuildContext context,
-      required Map<String, dynamic> methods,
-      required String uuid}) async {
+  Future<void> _show2FAVerificationPopup({required BuildContext context, required Map<String, dynamic> methods, required String uuid}) async {
     PageController pageController = PageController();
     TextEditingController codeController = TextEditingController();
     final GlobalKey<FormState> codeFormKey = GlobalKey<FormState>();
     String? choosenMethod;
     final appConfigServiceProvider =
-        Provider.of<AppConfigService>(context, listen: false);
+    Provider.of<AppConfigService>(context, listen: false);
 
     return await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSizes.s12),
-          ),
-          backgroundColor: Colors.white,
-          insetPadding: const EdgeInsets.all(AppSizes.s16),
-          titlePadding: const EdgeInsets.all(AppSizes.s16),
-          contentPadding: const EdgeInsets.all(AppSizes.s12),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                AppStrings.twoFactorVerification.tr(),
-                style: Theme.of(context).textTheme.displayLarge,
+        return Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: kIsWeb ? 800 : double.infinity,
+            ),
+            child: AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSizes.s12),
               ),
-              IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(
-                    Icons.cancel_outlined,
-                    size: AppSizes.s32,
-                    color: Colors.red,
-                  ))
-            ],
-          ),
-          content: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxHeight: 500,
-                maxWidth: kIsWeb ? 800 : double.infinity,
+              backgroundColor: Colors.white,
+              insetPadding: const EdgeInsets.all(AppSizes.s16),
+              titlePadding: const EdgeInsets.all(AppSizes.s16),
+              contentPadding: const EdgeInsets.all(AppSizes.s12),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppStrings.twoFactorVerification.tr(),
+                    style: Theme.of(context).textTheme.displayLarge,
+                  ),
+                  IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(
+                        Icons.cancel_outlined,
+                        size: AppSizes.s32,
+                        color: Colors.red,
+                      ))
+                ],
               ),
-              child: SizedBox(
+              content: SizedBox(
                 width: LayoutService.getWidth(context),
                 height: AppSizes.s300,
                 child: PageView(
@@ -361,14 +323,14 @@ class AuthenticationViewModel extends ChangeNotifier {
                                   onSelected: () async {
                                     AlertsService.showLoading(context);
                                     final result =
-                                        await TwoFactorAuthenticationService
-                                            .send2FAVerificationCode(
-                                                context: context,
-                                                uuid: uuid,
-                                                sendType: method.keys.first);
-                                    Navigator.pop(context);
+                                    await TwoFactorAuthenticationService.send2FAVerificationCode(
+                                        context: context,
+                                        uuid: uuid,
+                                        sendType: method.keys.first);
 
                                     if (result.success && method.isNotEmpty) {
+                                      Navigator.pop(context);
+
                                       choosenMethod = method.keys.first;
                                       // Move to the next page
                                       pageController.nextPage(
@@ -376,14 +338,15 @@ class AuthenticationViewModel extends ChangeNotifier {
                                         curve: Curves.easeInOut,
                                       );
                                     } else {
-                                      Navigator.pop(context);
-                                      AlertsService.error(
-                                          title: AppStrings.failed.tr(),
-                                          context: context,
-                                          message: result.message ??
-                                              AppStrings
-                                                  .failed2FAVerificationPleaseTryAgain
-                                                  .tr());
+                                      Fluttertoast.showToast(
+                                          msg: result.message!,
+                                          toastLength: Toast.LENGTH_LONG,
+                                          gravity: ToastGravity.BOTTOM,
+                                          timeInSecForIosWeb: 5,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0
+                                      );
                                     }
                                   },
                                 );
@@ -409,8 +372,8 @@ class AuthenticationViewModel extends ChangeNotifier {
                                   .textTheme
                                   .displaySmall
                                   ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: AppSizes.s16),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: AppSizes.s16),
                               textAlign: TextAlign.center,
                             ),
                             gapH12,
@@ -447,27 +410,27 @@ class AuthenticationViewModel extends ChangeNotifier {
                                 }
                                 final result = await TwoFactorAuthenticationService
                                     .validate2FAVerificationCode(
-                                        uuid: uuid,
-                                        context: context,
-                                        code: codeController.text,
-                                        sendType: choosenMethod!,
-                                        deviceInformation: appConfigServiceProvider
-                                            .deviceInformation
-                                            .toMap());
+                                    uuid: uuid,
+                                    context: context,
+                                    code: codeController.text,
+                                    sendType: choosenMethod!,
+                                    deviceInformation: appConfigServiceProvider
+                                        .deviceInformation
+                                        .toMap());
                                 if (result.success &&
                                     (result.data?.isNotEmpty ?? false)) {
                                   return await _handleLoginResponse(
                                       result: result.data!, context: context);
                                 } else {
-                                  Navigator.of(context).pop(context);
-                                  AlertsService.error(
-                                      title: AppStrings.failed.tr(),
-                                      context: context,
-                                      message: result.message ??
-                                          AppStrings
-                                              .failed2FAVerificationPleaseTryAgain
-                                              .tr());
-
+                                  Fluttertoast.showToast(
+                                      msg: result.message!,
+                                      toastLength: Toast.LENGTH_LONG,
+                                      gravity: ToastGravity.BOTTOM,
+                                      timeInSecForIosWeb: 5,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0
+                                  );
                                   return;
                                 }
                               },
@@ -492,17 +455,17 @@ class AuthenticationViewModel extends ChangeNotifier {
                                     .textTheme
                                     .displaySmall
                                     ?.copyWith(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold),
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
                               ),
                               onPressed: () async {
                                 AlertsService.showLoading(context);
                                 final result = await TwoFactorAuthenticationService
                                     .send2FAVerificationCode(
-                                        context: context,
-                                        uuid: uuid,
-                                        sendType: choosenMethod ?? 'auth_app');
+                                    context: context,
+                                    uuid: uuid,
+                                    sendType: choosenMethod ?? 'auth_app');
                                 Navigator.pop(context);
                                 if (!result.success) {
                                   Navigator.pop(context);
@@ -530,16 +493,13 @@ class AuthenticationViewModel extends ChangeNotifier {
     );
   }
 
-  Future<void> _showAccountVerificationPopup(
-      {required BuildContext context,
-      required Map<String, dynamic> methods,
-      required String uuid}) async {
+  Future<void> _showAccountVerificationPopup({required BuildContext context, required Map<String, dynamic> methods, required String uuid}) async {
     PageController pageController = PageController();
     TextEditingController codeController = TextEditingController();
     final GlobalKey<FormState> codeFormKey = GlobalKey<FormState>();
     String? choosenMethod;
     final appConfigServiceProvider =
-        Provider.of<AppConfigService>(context, listen: false);
+    Provider.of<AppConfigService>(context, listen: false);
     return await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -603,11 +563,12 @@ class AuthenticationViewModel extends ChangeNotifier {
                                 AlertsService.showLoading(context);
                                 final result = await AccountVerificationService
                                     .accoutnVerification(
-                                        uuid: uuid,
-                                        method: method.keys.first,
-                                        context: context);
-                                Navigator.pop(context);
+                                    uuid: uuid,
+                                    method: method.keys.first,
+                                    context: context);
                                 if (result.success && method.isNotEmpty) {
+                                  Navigator.pop(context);
+
                                   choosenMethod = method.keys.first;
                                   // Move to the next page
                                   pageController.nextPage(
@@ -615,14 +576,15 @@ class AuthenticationViewModel extends ChangeNotifier {
                                     curve: Curves.easeInOut,
                                   );
                                 } else {
-                                  Navigator.pop(context);
-                                  AlertsService.error(
-                                      title: AppStrings.failed.tr(),
-                                      context: context,
-                                      message: result.message ??
-                                          AppStrings
-                                              .failedVerificationPleaseTryLater
-                                              .tr());
+                                  Fluttertoast.showToast(
+                                      msg: result.message!,
+                                      toastLength: Toast.LENGTH_LONG,
+                                      gravity: ToastGravity.BOTTOM,
+                                      timeInSecForIosWeb: 5,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0
+                                  );
                                 }
                               },
                             );
@@ -649,9 +611,9 @@ class AuthenticationViewModel extends ChangeNotifier {
                               .textTheme
                               .displaySmall
                               ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: AppSizes.s18,
-                                  color: Colors.black),
+                              fontWeight: FontWeight.bold,
+                              fontSize: AppSizes.s18,
+                              color: Colors.black),
                           textAlign: TextAlign.center,
                         ),
                         gapH16,
@@ -689,26 +651,27 @@ class AuthenticationViewModel extends ChangeNotifier {
                             }
                             final result = await AccountVerificationService
                                 .validateAccoutnVerificationCode(
-                                    uuid: uuid,
-                                    context: context,
-                                    code: codeController.text,
-                                    method: choosenMethod!,
-                                    deviceInformation: appConfigServiceProvider
-                                        .deviceInformation
-                                        .toMap());
+                                uuid: uuid,
+                                context: context,
+                                code: codeController.text,
+                                method: choosenMethod!,
+                                deviceInformation: appConfigServiceProvider
+                                    .deviceInformation
+                                    .toMap());
                             if (result.success &&
                                 (result.data?.isNotEmpty ?? false)) {
                               return await _handleLoginResponse(
                                   result: result.data!, context: context);
                             } else {
-                              Navigator.of(context).pop(context);
-                              AlertsService.error(
-                                  title: AppStrings.failed.tr(),
-                                  context: context,
-                                  message: result.message ??
-                                      AppStrings
-                                          .failedVerificationPleaseTryLater
-                                          .tr());
+                              Fluttertoast.showToast(
+                                  msg: result.message!,
+                                  toastLength: Toast.LENGTH_LONG,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 5,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0
+                              );
                               return;
                             }
                           },
@@ -733,27 +696,27 @@ class AuthenticationViewModel extends ChangeNotifier {
                                 .textTheme
                                 .displaySmall
                                 ?.copyWith(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold),
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                           ),
                           onPressed: () async {
                             AlertsService.showLoading(context);
                             final result = await AccountVerificationService
                                 .accoutnVerification(
-                                    uuid: uuid,
-                                    method: choosenMethod ?? 'email',
-                                    context: context);
-                            Navigator.pop(context);
+                                uuid: uuid,
+                                method: choosenMethod ?? 'email',
+                                context: context);
                             if (!result.success) {
-                              Navigator.pop(context);
-                              AlertsService.error(
-                                  title: AppStrings.failed.tr(),
-                                  context: context,
-                                  message: result.message ??
-                                      AppStrings
-                                          .failedVerificationPleaseTryLater
-                                          .tr());
+                              Fluttertoast.showToast(
+                                  msg: result.message!,
+                                  toastLength: Toast.LENGTH_LONG,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 5,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0
+                              );
                             }
                           },
                         )
@@ -769,14 +732,17 @@ class AuthenticationViewModel extends ChangeNotifier {
     );
   }
 
-  Future<void> _handleLoginResponse(
-      {required Map<String, dynamic> result,
-      required BuildContext context}) async {
-    final appConfigServiceProvider =
-        Provider.of<AppConfigService>(context, listen: false);
+  Future<void> _handleLoginResponse({required Map<String, dynamic> result, required BuildContext context}) async {
+    // await CacheHelper.deleteData(key: "update_url");
+    // CacheHelper.setString(key: "update_url", value: "" );
 
+    final appConfigServiceProvider =
+    Provider.of<AppConfigService>(context, listen: false);
     if (result['token'] != null &&
         (((result['token'] as String?)?.isNotEmpty) ?? false)) {
+      // if(result['update_url'] != null){
+      //   // CacheHelper.setString(key: "update_url", value:result['update_url'] );
+      // }
       return await appConfigServiceProvider.setAuthenticationStatusWithToken(
           isLogin: true, token: result['token']);
     }
@@ -827,7 +793,7 @@ class AuthenticationViewModel extends ChangeNotifier {
     }
     // Check on other login status
     AuthStatus authStatus =
-        _getAuthStatusFromString(status: result['login_status']);
+    _getAuthStatusFromString(status: result['login_status']);
     switch (authStatus) {
       case AuthStatus.active:
         appConfigServiceProvider.setAuthenticationStatusWithToken(
@@ -854,6 +820,7 @@ class AuthenticationViewModel extends ChangeNotifier {
           message: AppStrings.thisAccountHasBeenScheduledForDeletion.tr(),
           title: AppStrings.warning.tr(),
         );
+        context.goNamed(AppRoutes.home.name);
         return;
       default:
         return AlertsService.error(

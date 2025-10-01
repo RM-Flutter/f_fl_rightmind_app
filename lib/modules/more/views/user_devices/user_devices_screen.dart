@@ -61,20 +61,18 @@ class _UserDeviceScreenState extends State<UserDeviceScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.arrow_back, color:Color(0xff224982)),
+                                icon: const Icon(Icons.arrow_back, color:Color(AppColors.dark)),
                                 onPressed: !kIsWeb?() {
                                   Navigator.pop(context);
                                 } : (){},
                               ),
                               Text(
                                 AppStrings.userDevices.tr().toUpperCase(),
-                                style: const TextStyle(color: Color(0xff224982), fontWeight: FontWeight.bold, fontSize: 16),
+                                style: const TextStyle(color: Color(AppColors.dark), fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.arrow_back, color:Color(0xff224982)),
-                                onPressed: !kIsWeb?() {
-                                  Navigator.pop(context);
-                                } : (){},
+                                icon: const Icon(Icons.arrow_back, color:Colors.transparent),
+                                onPressed: (){},
                               ),
                             ],
                           ),

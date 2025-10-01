@@ -5,6 +5,8 @@
 abstract class AppStrings {
   static const fa_activated = "fa_activated";
   static const enterTheNumberOfPoints = "enterTheNumberOfPoints";
+  static const enableAndDisable2fa = "enableAndDisable2fa";
+  static const thereIsNoComments = "thereIsNoComments";
   static const sendPoints = "sendPoints";
   static const delete_account = "delete_account";
   static const two_factor_auth = "two_factor_auth";

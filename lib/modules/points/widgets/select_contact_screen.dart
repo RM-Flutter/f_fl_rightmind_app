@@ -98,7 +98,7 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
                 setState(() {
                   _selectedContacts['items'].clear();
                 });
-                values.initializeHomeScreen(context);
+                values.initializeHomeScreen(context, null);
               });
               value.isAddFriendContactSuccess = false;
             }

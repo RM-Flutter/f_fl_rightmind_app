@@ -30,10 +30,10 @@ abstract class PersonalProfileService {
 
   // Activate 2fa
   static Future<OperationResult<Map<String, dynamic>>> activateTfa(
-      {required BuildContext context, type, code}) async {
+      {required BuildContext context, type, code, tfa}) async {
     final url = EndpointServices.getApiEndpoint(EndpointsNames.activateTfa).url;
     return await DioApiService().post<Map<String, dynamic>>(
-        url, type == null ? {"type": "activate", "tfa": "1" } : {"type": type, "tfa": "1", "code" : code },
+        url, type == null ? {"type": "activate", "tfa": tfa } : {"type": type, "tfa": tfa, "code" : code },
         context: context, dataKey: 'data', allData: true);
   }
 
@@ -52,48 +52,49 @@ abstract class PersonalProfileService {
     required BuildContext context,
   }) async {
     print("AVATAR IS-->${avatar}");
-    if(avatar != null && avatar.isNotEmpty){
-      print("SERVER FORM DATA");
-      FormData formData = FormData.fromMap(
-          {
-            if (name != null) 'name' : name,
-            if (email != null) 'email' : email,
-            if (avatar.isNotEmpty) "avatar" : avatar != null
-                ? await Future.wait(avatar.map((file) async => await MultipartFile.fromFile(file.path, filename: file.name)).toList()) : null,
-            if (emailUuid != null) 'email_uuid' : emailUuid,
-            if (phoneUuid != null) 'phone_uuid' : phoneUuid,
-            if (emailCode != null) 'email_code' : emailCode,
-            if (countryKey != null) 'country_key' : countryKey,
-            if (phoneCode != null) 'phone_code' : phoneCode,
-            if (phone != null) 'phone' : phone,
-            if (birthDay != null) 'birth_day' : StringConvert.sanitizeDateString(birthDay),
-          }
-      );
-      var res = await DioHelper.postFormData(
-          url: "/rm_users/v1/update_profile",
-          context: context,
-          formdata: formData
-      );
-      return res;
-    }else{
-      print("SERVER POST DATA");
-      var res =  await DioHelper.postData(
-          url: "/rm_users/v1/update_profile",
-          context: context,
-          data: {
-            if (name != null) 'name' : name,
-            if (email != null) 'email' : email,
-            if (emailUuid != null) 'email_uuid' : emailUuid,
-            if (phoneUuid != null) 'phone_uuid' : phoneUuid,
-            if (emailCode != null) 'email_code' : emailCode,
-            if (countryKey != null) 'country_key' : countryKey,
-            if (phoneCode != null) 'phone_code' : phoneCode,
-            if (phone != null) 'phone' : phone,
-            if (birthDay != null) 'birth_day' : birthDay,
-          }
-      );
-      return res;
-    }
+    print("SERVER FORM DATA");
+    FormData formData = FormData.fromMap(
+        {
+          if (name != null) 'name' : name,
+          if (email != null) 'email' : email,
+          "avatar" : avatar != null
+              ? await Future.wait(avatar.map((file) async => await MultipartFile.fromFile(file.path, filename: file.name)).toList()) : null,
+          if (emailUuid != null) 'email_uuid' : emailUuid,
+          if (phoneUuid != null) 'phone_uuid' : phoneUuid,
+          if (emailCode != null) 'email_code' : emailCode,
+          if (countryKey != null) 'country_key' : countryKey,
+          if (phoneCode != null) 'phone_code' : phoneCode,
+          if (phone != null) 'phone' : phone,
+          if (birthDay != null) 'birth_day' : StringConvert.sanitizeDateString(birthDay),
+        }
+    );
+    var res = await DioHelper.postFormData(
+        url: "/rm_users/v1/update_profile",
+        context: context,
+        formdata: formData
+    );
+    return res;
+    // if(avatar != null && avatar.isNotEmpty){
+    //
+    // }else{
+    //   print("SERVER POST DATA");
+    //   var res =  await DioHelper.postData(
+    //       url: "/rm_users/v1/update_profile",
+    //       context: context,
+    //       data: {
+    //         if (name != null) 'name' : name,
+    //         if (email != null) 'email' : email,
+    //         if (emailUuid != null) 'email_uuid' : emailUuid,
+    //         if (phoneUuid != null) 'phone_uuid' : phoneUuid,
+    //         if (emailCode != null) 'email_code' : emailCode,
+    //         if (countryKey != null) 'country_key' : countryKey,
+    //         if (phoneCode != null) 'phone_code' : phoneCode,
+    //         if (phone != null) 'phone' : phone,
+    //         if (birthDay != null) 'birth_day' : birthDay,
+    //       }
+    //   );
+    //   return res;
+    // }
 
     // Send request
     // return await DioApiService().postWithFormData<Map<String, dynamic>>(

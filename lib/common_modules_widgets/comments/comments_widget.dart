@@ -62,8 +62,7 @@ class CommentsWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ClipOval(
-                          child: !kIsWeb
-                              ? CachedNetworkImage(
+                          child: CachedNetworkImage(
                             width: 63,
                             height: 63,
                             fit: BoxFit.cover,
@@ -76,12 +75,6 @@ class CommentsWidget extends StatelessWidget {
                               color: Colors.white,
                             ),
                           )
-                              : CustomImage(
-                            comments![index]['user']['avatar'] ?? "",
-                            width: 63,
-                            height: 63,
-                            fit: BoxFit.cover,
-                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(

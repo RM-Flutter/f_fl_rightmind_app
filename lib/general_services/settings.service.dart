@@ -228,7 +228,6 @@ abstract class AppSettingsService {
       if((need == null || need.contains('user_settings')) && result.data!['user_settings'] != null){
         if ((need == null || need.contains('user_settings')) &&result.data!['user_settings']['data'] != null){
           CacheHelper.setString(key: "s1Date", value: result.data!['user_settings']['data']['last_update_date']);
-          CacheHelper.setInt("id", int.parse(result.data!['user_settings']['data']['employee_profile_id'].toString()));
           prefs = await SharedPreferences.getInstance();
           final jsonString = json.encode(result.data!['user_settings']['data']); // Convert JSON to String
           await prefs.setString("US1", jsonString);

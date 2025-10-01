@@ -22,7 +22,7 @@ import '../../../general_services/app_config.service.dart';
 import '../../../routing/app_router.dart';
 import '../../home/view_models/home.viewmodel.dart';
 import '../../personal_profile/viewmodels/personal_profile.viewmodel.dart';
-import 'dart:html' as html;
+//import 'dart:html' as html;
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({super.key});

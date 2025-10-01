@@ -29,6 +29,7 @@ class PersonalProfileHeaderWidget extends StatelessWidget {
   final double notchRadius;
   final double notchPadding;
   final String notchImage;
+  final String photo;
   final String title;
   final String subtitle;
   final double circleBorderWidth;
@@ -36,6 +37,7 @@ class PersonalProfileHeaderWidget extends StatelessWidget {
       {super.key,
         required this.viewModel,
         required this.notchImage,
+        required this.photo,
         required this.notchPadding,
         required this.headerImage,
         required this.notchedContainerHeight,
@@ -68,6 +70,7 @@ class PersonalProfileHeaderWidget extends StatelessWidget {
             right: 0,
             child: CompanyInfoNotchedContainer(
               viewModel:viewModel ,
+              photo: photo,
               notchedContainerHeight: notchedContainerHeight,
               notchRadius: notchRadius,
               notchPadding: notchPadding,
@@ -80,13 +83,12 @@ class PersonalProfileHeaderWidget extends StatelessWidget {
           Positioned(
             top: MediaQuery.of(context).padding.top + AppSizes.s12,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSizes.s12),
               width: LayoutService.getWidth(context),
               child: Column(
                 children: [
                   if(us1Cache['email_verified_at'] == null || us1Cache['phone_verified_at'] == null) Container(
+                    padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
                     color: Colors.yellow,
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                     child: Row(
                       children: [
                         Icon(Icons.warning, color: Colors.red),
@@ -106,53 +108,54 @@ class PersonalProfileHeaderWidget extends StatelessWidget {
                     ),
                   ),
                   if(us1Cache['email_verified_at'] == null || us1Cache['phone_verified_at'] == null)const SizedBox(height: 15,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFA3A3A3).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(AppSizes.s15),
-                          ),
-                          child: Center(
-                            child: IconButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              icon: const Icon(
-                                Icons.arrow_back_ios_new,
-                                color: Colors.white,
-                                size: AppSizes.s18,
-                              ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSizes.s12),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFA3A3A3).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(AppSizes.s15),
                             ),
-                          )),
-                       Text(
-                        AppStrings.accountAndSettings.tr(),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontSize: AppSizes.s14,
-                          letterSpacing: 1.4,
-                          color: Colors.white,
+                            child: Center(
+                              child: IconButton(
+                                onPressed: () => Navigator.pop(context),
+                                icon: const Icon(
+                                  Icons.arrow_back_ios_new,
+                                  color: Colors.white,
+                                  size: AppSizes.s18,
+                                ),
+                              ),
+                            )),
+                        Text(
+                          AppStrings.accountAndSettings.tr(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: AppSizes.s14,
+                            letterSpacing: 1.4,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFA3A3A3).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(AppSizes.s15),
-                          ),
-                          child: Center(
-                            child: IconButton(
-                              onPressed: () async =>
-                                  await viewModel.logout(context: context),
-                              icon: const Icon(
-                                Icons.logout_outlined,
-                                color: Colors.red,
-                                size: AppSizes.s18,
-                              ),
+                        Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFA3A3A3).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(AppSizes.s15),
                             ),
-                          )),
-                    ],
+                            child: Center(
+                              child: IconButton(
+                                onPressed: () async =>
+                                await viewModel.logout(context: context),
+                                icon: const Icon(
+                                  Icons.logout_outlined,
+                                  color: Colors.red,
+                                  size: AppSizes.s18,
+                                ),
+                              ),
+                            )),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -182,57 +185,59 @@ class PersonalProfileHeaderBackgroundWidget extends StatelessWidget {
           children: [
             Positioned.fill(
                 child: Column(
-              children: [
-                Container(
-                  height: backgroundHeight != null
-                      ? backgroundHeight! / 2
-                      : double.infinity,
-                  decoration: BoxDecoration(
-                    // gradient: LinearGradient(
-                    //   begin: Alignment.topCenter,
-                    //   end: Alignment.bottomCenter,
-                    //   colors: [
-                    //     Theme.of(context).colorScheme.primary,
-                    //     Colors.transparent,
-                    //   ],
-                    //   stops: const [0.0, 0.5],
-                    // ),
-                  ),
-                ),
-                Container(
-                    height: backgroundHeight != null
-                        ? backgroundHeight! / 2
-                        : double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [
-                          Theme.of(context).colorScheme.primary,
-                          Colors.transparent,
-                        ],
-                        stops: const [0.0, 0.5],
-                      ),
-                    )),
-              ],
-            ))
+                  children: [
+                    Container(
+                      height: backgroundHeight != null
+                          ? backgroundHeight! / 2
+                          : double.infinity,
+                      // decoration: BoxDecoration(
+                      //   gradient: LinearGradient(
+                      //     begin: Alignment.topCenter,
+                      //     end: Alignment.bottomCenter,
+                      //     colors: [
+                      //       Theme.of(context).colorScheme.primary,
+                      //       Colors.transparent,
+                      //     ],
+                      //     stops: const [0.0, 0.5],
+                      //   ),
+                      // ),
+                    ),
+                    Container(
+                        height: backgroundHeight != null
+                            ? backgroundHeight! / 2
+                            : double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              Theme.of(context).colorScheme.primary,
+                              Colors.transparent,
+                            ],
+                            stops: const [0.0, 0.5],
+                          ),
+                        )),
+                  ],
+                ))
           ],
         ));
   }
 }
 
-class CompanyInfoNotchedContainer extends StatelessWidget {
+class CompanyInfoNotchedContainer extends StatefulWidget {
   final double notchedContainerHeight;
   final double notchRadius;
   final double notchPadding;
   final String notchImage;
   final String title;
+  final String photo;
   var viewModel;
   final String subtitle;
   final double circleBorderWidth;
   CompanyInfoNotchedContainer(
       {super.key,
         required this.notchImage,
+        required this.photo,
         required this.viewModel,
         required this.notchPadding,
         required this.notchRadius,
@@ -241,6 +246,12 @@ class CompanyInfoNotchedContainer extends StatelessWidget {
         required this.circleBorderWidth,
         required this.subtitle});
 
+  @override
+  State<CompanyInfoNotchedContainer> createState() => _CompanyInfoNotchedContainerState();
+}
+
+class _CompanyInfoNotchedContainerState extends State<CompanyInfoNotchedContainer> {
+  bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
     var jsonString;
@@ -251,7 +262,7 @@ class CompanyInfoNotchedContainer extends StatelessWidget {
       UserSettingConst.userSettings = UserSettingsModel.fromJson(gCache);
     }
     return SizedBox(
-      height: notchedContainerHeight,
+      height: widget.notchedContainerHeight,
       width: LayoutService.getWidth(context),
       child: Stack(
         children: [
@@ -264,8 +275,8 @@ class CompanyInfoNotchedContainer extends StatelessWidget {
                     alignment: Alignment.center,
                     children: [
                       Container(
-                        width: (notchRadius - notchPadding) * 2.2,
-                        height: (notchRadius - notchPadding) * 2.2,
+                        width: (widget.notchRadius - widget.notchPadding) * 2.2,
+                        height: (widget.notchRadius - widget.notchPadding) * 2.2,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
@@ -275,13 +286,13 @@ class CompanyInfoNotchedContainer extends StatelessWidget {
                         child: GestureDetector(
                           onTap: () {},
                           child: ClipOval(
-                            child: viewModel
+                            child:widget.viewModel.deleteImage == false ? widget.viewModel
                                 .listProfileImage
                                 .isNotEmpty
                                 ? Image(
-                              image: CheckValuesFromApi.safeArray(viewModel.listProfileImage).isNotEmpty &&
-                                  CheckValuesFromApi.safeArray(viewModel.listProfileImage)[0]['compressed'] != null
-                                  ? FileImage(CheckValuesFromApi.safeArray(viewModel.listProfileImage)[0]['compressed'] as File)
+                              image: CheckValuesFromApi.safeArray(widget.viewModel.listProfileImage).isNotEmpty &&
+                                  CheckValuesFromApi.safeArray(widget.viewModel.listProfileImage)[0]['compressed'] != null
+                                  ? FileImage(CheckValuesFromApi.safeArray(widget.viewModel.listProfileImage)[0]['compressed'] as File)
                                   : const AssetImage("assets/images/default_avatar.png") as ImageProvider,
                               fit: BoxFit.cover,
                             )
@@ -293,8 +304,7 @@ class CompanyInfoNotchedContainer extends StatelessWidget {
                               fit: BoxFit.cover,
                             )
                                 : CachedNetworkImage(
-                                imageUrl: UserSettingConst.userSettings
-                                    ?.photo ??
+                                imageUrl: widget.photo ??
                                     '',
                                 fit: BoxFit.cover,
                                 placeholder: (context,
@@ -312,7 +322,10 @@ class CompanyInfoNotchedContainer extends StatelessWidget {
                                       .image_not_supported_outlined,
                                   size: AppSizes
                                       .s60,
-                                ))
+                                )) : Image.asset(
+                              AppImages.logo,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),
@@ -334,16 +347,16 @@ class CompanyInfoNotchedContainer extends StatelessWidget {
                                 size: AppSizes.s20,
                               ),
                               onPressed: () async {
-                                await viewModel.getImage(context,
-                                    image1: viewModel
+                                await widget.viewModel.getImage(context,
+                                    image1: widget.viewModel
                                         .profileImage,
-                                    image2: viewModel
+                                    image2: widget.viewModel
                                         .XImageFileProfile,
-                                    list2: viewModel
+                                    list2: widget.viewModel
                                         .listXProfileImage,
-                                    list: viewModel
+                                    list: widget.viewModel
                                         .listProfileImage);
-                                viewModel.updateProfileMainInfoImage(context: context);
+                                widget.viewModel.updateProfileMainInfoImage(context: context);
                               }),
                         ),
                       ),
@@ -355,13 +368,13 @@ class CompanyInfoNotchedContainer extends StatelessWidget {
             right: 0,
             child: ClipPath(
               clipper: PersonalProfileCustomNotchClipper(
-                  notchSize: (notchRadius * 2) + (notchPadding * 2)),
+                  notchSize: (widget.notchRadius * 2) + (widget.notchPadding * 2)),
               child: Container(
                 padding: EdgeInsets.only(
-                    top: notchRadius / 2,
+                    top: widget.notchRadius / 2,
                     left: AppSizes.s8,
                     right: AppSizes.s8),
-                height: notchedContainerHeight - (notchRadius + notchPadding),
+                height: widget.notchedContainerHeight - (widget.notchRadius + widget.notchPadding),
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(AppSizes.s32),
@@ -374,7 +387,7 @@ class CompanyInfoNotchedContainer extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     AutoSizeText(
-                      title,
+                      widget.title,
                       style: Theme.of(context).textTheme.displayLarge?.copyWith(
                           color: Theme.of(context).colorScheme.primary),
                       textAlign: TextAlign.center,
@@ -382,15 +395,48 @@ class CompanyInfoNotchedContainer extends StatelessWidget {
                     ),
                     gapH12,
                     AutoSizeText(
-                      subtitle,
+                      widget.subtitle,
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.labelMedium,
+                      style: Theme.of(context).textTheme.labelMedium!.copyWith(color: Color(AppColors.dark)),
                       maxLines: 2,
                     ),
                   ],
                 ),
               ),
             ),
+          ),
+          SizedBox(height: 5,),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: EdgeInsetsGeometry.only(top: 50, left: 95),
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  padding: EdgeInsets.all(0),
+                  decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle
+                  ),
+                  child: _isLoading == false ?IconButton(
+                      icon: const Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                        size: AppSizes.s15,
+                      ),
+                      onPressed: () async {
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        await widget.viewModel.updateProfileMainInfoImage(context: context);
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      }): CircularProgressIndicator(),
+                ),
+              ),
+            ],
           ),
         ],
       ),

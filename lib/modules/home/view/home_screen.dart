@@ -78,10 +78,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           FlexibleSpaceBar(
                             background: Container(
-                              padding: const EdgeInsets.only(
-                                right: AppSizes.s24,
-                                left: AppSizes.s24,
-                              ),
                               decoration:  BoxDecoration(
                                   borderRadius: BorderRadius.only(
                                       bottomLeft: Radius.circular(30),

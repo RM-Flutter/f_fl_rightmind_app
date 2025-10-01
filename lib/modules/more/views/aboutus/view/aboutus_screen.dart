@@ -35,7 +35,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
             children: [
               Positioned.fill(
                 child: Image.asset(
-                  "assets/images/png/contacts.png",
+                  kIsWeb?"assets/images/png/about_web.jpg":"assets/images/png/contacts.png",
                   fit: BoxFit.cover,
                 ),
               ),

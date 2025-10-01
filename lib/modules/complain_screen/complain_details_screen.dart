@@ -178,7 +178,7 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
                                                             )
                                                         );
                                                       },
-                                                      child: !kIsWeb? CachedNetworkImage(
+                                                      child: CachedNetworkImage(
                                                         width: MediaQuery.of(context).size.width,
                                                         fit: BoxFit.contain,
                                                         imageUrl: value.getOneRequestModel!.item!.mainThum![index].file ?? "",
@@ -189,11 +189,7 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
                                                           size: AppSizes.s32,
                                                           color: Colors.white,
                                                         ),
-                                                      ) : CustomImage(
-                                                        value.getOneRequestModel!.item!.mainThum![index].file ?? "",
-                                                        width: MediaQuery.of(context).size.width,
-                                                        fit: BoxFit.contain,
-                                                      ),
+                                                      )
                                                     );
                                                   },
                                                 ),
@@ -237,7 +233,7 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
                                                   )
                                               );
                                             },
-                                            child: !kIsWeb ? CachedNetworkImage(
+                                            child: CachedNetworkImage(
                                               fit: BoxFit.contain,
                                               imageUrl: value.getOneRequestModel!.item!.mainThum![0].file ?? "",
                                               placeholder: (context, url) =>
@@ -247,9 +243,6 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
                                                 size: AppSizes.s32,
                                                 color: Colors.white,
                                               ),
-                                            ) : CustomImage(
-                                              value.getOneRequestModel!.item!.mainThum![0].file ?? "",
-                                              fit: BoxFit.contain,
                                             ),
                                           ),
                                         ],
