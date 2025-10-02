@@ -1,3 +1,4 @@
+import 'package:cpanal/constants/app_constants.dart';
 import 'package:dio/dio.dart';
 import 'package:cpanal/general_services/app_config.service.dart';
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/shared.dart';
@@ -12,7 +13,7 @@ class ApiServicesImplementation implements ApiServices {
 
   ApiServicesImplementation() {
     BaseOptions baseOptions = BaseOptions(
-      baseUrl: EndPoints.baseUrl,
+      baseUrl: AppConstants.baseUrl,
       receiveDataWhenStatusError: true,
     );
     _dio = Dio(baseOptions);

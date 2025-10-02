@@ -54,12 +54,12 @@ class _DefaultPageState extends State<DefaultPage> {
         print("BOTTOM BOTTOM");
         if(CacheHelper.getBool("value") != null){
           if(CacheHelper.getBool("value") == false){
-            provider.getBlog(context,"blogs", page: provider.currentPage);
+            provider.getBlog(context,widget.type, page: provider.currentPage);
           }else{
-            provider.getBlog(context,"blogs", page: provider.currentPage);
+            provider.getBlog(context,widget.type, page: provider.currentPage);
           }
         }else{
-          provider.getBlog(context,"blogs", page: provider.currentPage);
+          provider.getBlog(context,widget.type, page: provider.currentPage);
         }
       }
     });
@@ -96,7 +96,7 @@ class _DefaultPageState extends State<DefaultPage> {
                   setState(() {
                     CacheHelper.setBool("value", false);
                   });
-                  await provider.getBlog(context,"blogs", page: 1);
+                  await provider.getBlog(context,widget.type, page: 1);
                 },
                 child: ListView(
                   controller: _scrollController,
