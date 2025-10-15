@@ -59,7 +59,7 @@ class _DeleteAccountBottomSheetState extends State<DeleteAccountBottomSheet> {
               const SizedBox(height: 15),
               Center(
                 child: Text(
-                  AppStrings.createEmailMessage.tr(),
+                  AppStrings.ftp_accounts_description.tr(),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.black54, fontSize: 13),
                 ),

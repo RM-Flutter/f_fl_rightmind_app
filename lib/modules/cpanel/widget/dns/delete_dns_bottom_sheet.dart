@@ -54,7 +54,7 @@ class DeleteAccountBottomSheet extends StatelessWidget {
               const SizedBox(height: 15),
               Center(
                 child: Text(
-                  AppStrings.createEmailMessage.tr(),
+                  AppStrings.dns_control_description.tr(),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.black54, fontSize: 13),
                 ),

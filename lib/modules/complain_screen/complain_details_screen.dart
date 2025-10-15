@@ -94,7 +94,7 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
-                                      Html(
+                                    Html(
                                           shrinkWrap: true,
                                           data: value.getOneRequestModel!.item!.content,
                                           style: {
@@ -150,6 +150,7 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
                                               fontWeight: FontWeight.w500,
                                             ),
                                           }),
+
                                       SizedBox(height: 10,),
                                       if(value.getOneRequestModel!.item!.mainThum != null &&value.getOneRequestModel!.item!.mainThum!.isNotEmpty)Column(
                                         crossAxisAlignment: CrossAxisAlignment.center,

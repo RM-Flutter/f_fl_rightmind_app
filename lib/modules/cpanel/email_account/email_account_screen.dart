@@ -69,7 +69,7 @@ class _EmailAccountScreenState extends State<EmailAccountScreen> with SingleTick
     await Clipboard.setData(ClipboardData(text: textToCopy));
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Copied")),
+       SnackBar(content: Text(AppStrings.copied.tr())),
     );
   }
   void printSelectedAccounts() {
@@ -337,90 +337,95 @@ class _EmailAccountScreenState extends State<EmailAccountScreen> with SingleTick
                           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(AppColors.dark)),
                         ),
                         const SizedBox(height: 15),
-                        if(CacheHelper.getString("show") != "show") SwipeIndicator(isRtl:  LocalizationService.isArabic(context: context)? false : true,   showFor: const Duration(seconds: 10), ),
-                        const SizedBox(height: 15),
                         if (selectedEmails.isNotEmpty) ...[
-                          Container(
-                            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                            decoration: BoxDecoration(
-                              color: const Color(AppColors.primary),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            width: double.infinity,
-                            child: Row(
-                              children: [
-                                Text(
-                                  "${AppStrings.select.tr().toUpperCase()} ${selectedEmails.length} ${AppStrings.email.tr().toUpperCase()}",
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+                          Center(
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: kIsWeb ? 1100 : double.infinity,
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                                decoration: BoxDecoration(
+                                  color: const Color(AppColors.primary),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                                const SizedBox(width: 15),
-                                GestureDetector(
-                                  onTap: () => clearSelection(),
-                                  child: const Icon(Icons.close, color: Colors.white),
-                                ),
-                                const Spacer(),
-                                GestureDetector(
-                                  onTap: ()async{
-                                    final emails = selectedEmails.map((e) => e.address).toList();
-                                    copyEmailsToClipboard(context, emails);
-                                  },
-                                  child: Container(
-                                    width: 40,
-                                    height: 40,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-                                    child: const Icon(Icons.copy, color: Color(0xff000000),),
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                GestureDetector(
-                                  onTap: ()async{
-                                    selectedEmails.clear();
-                                   await showModalBottomSheet(
-                                      context: context,
-                                      isScrollControlled: true,
-                                      backgroundColor: Colors.transparent,
-                                      builder: (_) => Padding(
-                                        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                                        child: EditEmailBottomSheet(emails:  accountsPayload, domainId: widget.dominId.toString(), multi: true,),
+                                width: double.infinity,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "${AppStrings.select.tr().toUpperCase()} ${selectedEmails.length} ${AppStrings.email.tr().toUpperCase()}",
+                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+                                    ),
+                                    const SizedBox(width: 15),
+                                    GestureDetector(
+                                      onTap: () => clearSelection(),
+                                      child: const Icon(Icons.close, color: Colors.white),
+                                    ),
+                                    const Spacer(),
+                                    GestureDetector(
+                                      onTap: ()async{
+                                        final emails = selectedEmails.map((e) => e.address).toList();
+                                        copyEmailsToClipboard(context, emails);
+                                      },
+                                      child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                                        child: const Icon(Icons.copy, color: Color(0xff000000),),
                                       ),
-                                    );
-                                   await emailcickle();
-                                  },
-                                  child: Container(
-                                    width: 40,
-                                    height: 40,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-                                    child: SvgPicture.asset("assets/images/svg/edit.svg"),
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                GestureDetector(
-                                  onTap: ()async{
-                                    selectedEmails.clear();
-                                    await showModalBottomSheet(
-                                      context: context,
-                                      isScrollControlled: true,
-                                      backgroundColor: Colors.transparent,
-                                      builder: (_) => Padding(
-                                        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                                        child: DeleteAccountBottomSheet(emails:  accountsPayload, domainId: widget.dominId.toString(),
-                                        multi: true,
-                                        ),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    GestureDetector(
+                                      onTap: ()async{
+                                        selectedEmails.clear();
+                                       await showModalBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          backgroundColor: Colors.transparent,
+                                          builder: (_) => Padding(
+                                            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                                            child: EditEmailBottomSheet(emails:  accountsPayload, domainId: widget.dominId.toString(), multi: true,),
+                                          ),
+                                        );
+                                       await emailcickle();
+                                      },
+                                      child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                                        child: SvgPicture.asset("assets/images/svg/edit.svg"),
                                       ),
-                                    );
-                                    await emailcickle();
-                                  },
-                                  child: Container(
-                                    width: 40,
-                                    height: 40,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-                                    child:   SvgPicture.asset("assets/images/svg/delete.svg") ,
-                                  ),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    GestureDetector(
+                                      onTap: ()async{
+                                        selectedEmails.clear();
+                                        await showModalBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          backgroundColor: Colors.transparent,
+                                          builder: (_) => Padding(
+                                            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                                            child: DeleteAccountBottomSheet(emails:  accountsPayload, domainId: widget.dominId.toString(),
+                                            multi: true,
+                                            ),
+                                          ),
+                                        );
+                                        await emailcickle();
+                                      },
+                                      child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                                        child:   SvgPicture.asset("assets/images/svg/delete.svg") ,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -800,7 +805,7 @@ class _EmailAccountScreenState extends State<EmailAccountScreen> with SingleTick
                   onPressed: () async{
                     value.accountsMulti.clear();
                     setState(() {});
-                    context.pushNamed(
+                    await context.pushNamed(
                       AppRoutes.EmailMultiAccount.name,
                       pathParameters: {
                         'lang': context.locale.languageCode,

@@ -106,55 +106,46 @@ class _DefaultListPageState extends State<DefaultListPage> {
                           height: LayoutService.getHeight(context) * 0.4,
                           title: AppStrings.noDataFounded.tr()),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Center(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(
-                              maxWidth: 1250,
-                            ),
-                            child: GridView.count(
-                              crossAxisCount: kIsWeb ? 4 : 2,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                              // 👇 في الموبايل الطول عادي، في الويب نخليه أقصر
-                              childAspectRatio: kIsWeb ? 1.3 : 1 / 1.3,
-
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              children: List.generate(
-                                (points.isGetBlogLoading && points.currentPage == 1) ? 8 : points.blogs.length,
-                                    (index) {
-                                  return (points.isGetBlogLoading && points.currentPage == 1)
-                                      ? Shimmer.fromColors(
-                                    baseColor: Colors.grey[300]!,
-                                    highlightColor: Colors.grey[100]!,
-                                    child: Container(
-                                      width: double.infinity,
-                                      height: 100,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  )
-                                      : defaultProjectCard(
-                                    points.blogs[index]['title'] ?? "",
-                                    id: points.blogs[index]['id'] ?? "",
-                                    type: widget.type,
-                                    (points.blogs[index]['main_thumbnail'] != null && points.blogs[index]['main_thumbnail'].isNotEmpty)
-                                        ? points.blogs[index]['main_thumbnail'][0]['file']
-                                        : "assets/images/png/default_noti.png",
-                                    onTap: () {},
-                                  );
-                                },
-                              ),
-                            ),
-
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: 1100,
+                        ),
+                        child: GridView.count(
+                          crossAxisCount: kIsWeb ? 4 : 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: kIsWeb ? 1.1 : 1 / 1.3,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: List.generate(
+                            (points.isGetBlogLoading && points.currentPage == 1) ? 8 : points.blogs.length,
+                                (index) {
+                              return (points.isGetBlogLoading && points.currentPage == 1)
+                                  ? Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              )
+                                  : defaultProjectCard(
+                                points.blogs[index]['title'] ?? "",
+                                id: points.blogs[index]['id'] ?? "",
+                                type: widget.type,
+                                (points.blogs[index]['main_thumbnail'] != null && points.blogs[index]['main_thumbnail'].isNotEmpty)
+                                    ? points.blogs[index]['main_thumbnail'][0]['file']
+                                    : "assets/images/png/default_noti.png",
+                                onTap: () {},
+                              );
+                            },
                           ),
-                        )
+                        ),
 
                       ),
                     ),
@@ -197,7 +188,7 @@ class _DefaultListPageState extends State<DefaultListPage> {
               ClipRRect(
                 borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
                 child: src.toString().startsWith("http") || src.toString().startsWith("https")?  CachedNetworkImage(
-                  height: 135,
+                  height: kIsWeb ? 200 : 135,
                   fit: BoxFit.cover,
                   width: double.infinity,
                   imageUrl: src,
@@ -209,7 +200,7 @@ class _DefaultListPageState extends State<DefaultListPage> {
                     color: Colors.white,
                   ),
                 ) : Image.asset(src,
-                  height: 135,
+                  height: kIsWeb ? 200 : 135,
                   fit: BoxFit.cover,
                   width: double.infinity,
                 ),

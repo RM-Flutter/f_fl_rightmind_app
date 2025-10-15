@@ -77,8 +77,8 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                             notchRadius: viewModel.notchRadius,
                             notchPadding: viewModel.notchPadding,
                             notchImage: AppImages.logo,
-                            title: viewModel.nameController.text,
-                            photo: UserSettingConst.userSettings!.photo!,
+                            title: viewModel.nameController.text.isNotEmpty ? viewModel.nameController.text : "",
+                            photo: UserSettingConst.userSettings != null ?UserSettingConst.userSettings!.photo ??"" : "",
                             subtitle: AppStrings.niceToMeetYou.tr()),
                   )),
             )
@@ -312,7 +312,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
 
                               ],
                             ),
-                            if( us1Cache['tfa'] == true)Center(
+                            if(us1Cache['tfa'] == true)Center(
                               child: CustomElevatedButton(
                                 titleSize: AppSizes.s14,
                                 width: LayoutService.getWidth(context),
@@ -438,30 +438,26 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                                   ),
                                   gapH18,
                                   Center(
-                                    child: CustomElevatedButton(titleColor: Color(AppColors.primary),
-                                      isOutlined: true,
-                                        radius: AppSizes.s10,
-                                        titleSize: AppSizes.s14,
-                                        backgroundColor: UserSettingConst.userSettings
-                                                        ?.emailVerifiedAt ==
-                                                    null &&
-                                                UserSettingConst
-                                                        .userSettings?.email !=
-                                                    null
+                                    child: CustomElevatedButton(
+                                        titleColor:UserSettingConst.userSettings?.emailVerifiedAt == null && UserSettingConst.userSettings?.email != null
                                             ? Colors.yellow
                                             : Color(AppColors.primary),
-                                        title: UserSettingConst.userSettings
-                                                        ?.emailVerifiedAt ==
-                                                    null &&
-                                                UserSettingConst
-                                                        .userSettings?.email !=
-                                                    null
+                                        outlineColor:UserSettingConst.userSettings?.emailVerifiedAt == null && UserSettingConst.userSettings?.email != null
+                                            ? Colors.yellow
+                                            : Color(AppColors.primary),
+                                        isOutlined: true,
+                                        radius: AppSizes.s10,
+                                        titleSize: AppSizes.s14,
+                                        backgroundColor: UserSettingConst.userSettings?.emailVerifiedAt == null && UserSettingConst.userSettings?.email != null
+                                            ? Colors.yellow
+                                            : Color(AppColors.primary),
+                                        title: UserSettingConst.userSettings?.emailVerifiedAt == null && UserSettingConst.userSettings?.email != null
                                             ? AppStrings.emailVerification.tr()
                                             : AppStrings.updateEmail.tr(),
                                         onPressed: () async {
                                           if (UserSettingConst.userSettings
-                                                      ?.emailVerifiedAt ==
-                                                  null &&
+                                              ?.emailVerifiedAt ==
+                                              null &&
                                               UserSettingConst.userSettings?.email !=
                                                   null) {
                                             await viewModel.getUUID(
@@ -501,7 +497,13 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                                   ),
                                   gapH18,
                                   Center(
-                                    child: CustomElevatedButton(titleColor: Color(AppColors.primary),
+                                    child: CustomElevatedButton(
+                                        titleColor:UserSettingConst.userSettings?.phoneVerifiedAt == null && UserSettingConst.userSettings?.phone != null
+                                            ? Colors.yellow
+                                            : Color(AppColors.primary),
+                                        outlineColor:UserSettingConst.userSettings?.phoneVerifiedAt == null && UserSettingConst.userSettings?.phone != null
+                                            ? Colors.yellow
+                                            : Color(AppColors.primary),
                                         isOutlined: true,
                                         titleSize: AppSizes.s14,
                                         radius: AppSizes.s10,
@@ -571,21 +573,8 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
 
                                   ],
                                 ),
-                                if( us1Cache['tfa'] == true)Center(
-                                  child: CustomElevatedButton(
-                                    titleSize: AppSizes.s14,
-                                    width: LayoutService.getWidth(context),
-                                    radius: AppSizes.s10,
-                                    backgroundColor:
-                                    Theme.of(context).colorScheme.primary,
-                                    title: AppStrings.enable2fa.tr(),
-                                    onPressed: () async =>
-                                    await viewModel.activate2FA(
-                                        context: context, twoFa: true, tfa: "1"),
-                                  ),
-                                ),
-                                gapH20,
-                                Center(
+
+                                if( us1Cache['tfa'] == true) Center(
                                   child: CustomElevatedButton( isOutlined: true,titleColor: Color(AppColors.primary),
                                     titleSize: AppSizes.s14,
                                     width: LayoutService.getWidth(context),

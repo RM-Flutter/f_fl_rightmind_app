@@ -346,6 +346,7 @@ class _AutoResponseScreenState extends State<AutoResponseScreen> {
                                             builder: (_) => Padding(
                                               padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                                               child: EditEmailBottomSheet(multi: false,dominName:  widget.name.toString(),
+                                                  email: value.autoRes[index]['email'],
                                                   dominId: widget.dominId.toString(),
                                                 index: value.autoRes[index]
                                               ),

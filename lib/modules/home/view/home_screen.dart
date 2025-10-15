@@ -62,61 +62,59 @@ class _HomeScreenState extends State<HomeScreen> {
           onRefresh: () async {
           },
           child: SafeArea(
-            child: Center(
-              child: CustomScrollView(
-                slivers: [
-                  SliverAppBar(
-                    expandedHeight: height * 0.2,
-                    pinned: true,
-                    backgroundColor: Colors.transparent,
-                    flexibleSpace: LayoutBuilder(builder:
-                        (BuildContext context, BoxConstraints constraints) {
-                      var top = constraints.biggest.height;
-                      return Stack(
-                        clipBehavior: Clip.none,
-                        alignment: Alignment.bottomCenter,
-                        children: [
-                          FlexibleSpaceBar(
-                            background: Container(
-                              decoration:  BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(30),
-                                      bottomRight: Radius.circular(30)),
-                                  image: DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: AssetImage(
-                                      "assets/images/home_images/appbar_images/home_top_background.png",
-                                    ),
-                                  )),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap:(){
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => const PersonalProfileScreen(),));
-                                         },
-                                      child: AppbarProfileContainer(
-                                          imageUrl:(us1Cache != null && us1Cache['photo'] != null)?
-                                          "${us1Cache['photo']}" : '',
-                                          userName:(us1Cache != null && us1Cache['name'] != null)?
-                                          "${us1Cache['name']}" : "",
-                                          userRole:(us1Cache != null && us1Cache['role'] != null)?(us1Cache['role'].isNotEmpty)?
-                                          "${us1Cache['role'][0]}".tr() : "" : "",
-                                          ),
-                                    ),
+            child: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  expandedHeight: height * 0.2,
+                  pinned: true,
+                  backgroundColor: Colors.transparent,
+                  flexibleSpace: LayoutBuilder(builder:
+                      (BuildContext context, BoxConstraints constraints) {
+                    var top = constraints.biggest.height;
+                    return Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        FlexibleSpaceBar(
+                          background: Container(
+                            decoration:  BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                    bottomLeft: Radius.circular(30),
+                                    bottomRight: Radius.circular(30)),
+                                image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: AssetImage(
+                                    "assets/images/home_images/appbar_images/home_top_background.png",
                                   ),
-                                ],
-                              ),
+                                )),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap:(){
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => const PersonalProfileScreen(),));
+                                       },
+                                    child: AppbarProfileContainer(
+                                        imageUrl:(us1Cache != null && us1Cache['photo'] != null)?
+                                        "${us1Cache['photo']}" : '',
+                                        userName:(us1Cache != null && us1Cache['name'] != null)?
+                                        "${us1Cache['name']}" : "",
+                                        userRole:(us1Cache != null && us1Cache['role'] != null)?(us1Cache['role'].isNotEmpty)?
+                                        "${us1Cache['role'][0]}".tr() : "" : "",
+                                        ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      );
-                    }),
-                  ),
-                  const HomeGridView(),
-                ],
-              ),
+                        ),
+                      ],
+                    );
+                  }),
+                ),
+                const HomeGridView(),
+              ],
             ),
           ),
         ),

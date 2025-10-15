@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cpanal/constants/app_images.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,7 @@ class CommentsWidget extends StatelessWidget {
     return Container(
       height: MediaQuery.sizeOf(context).height * 0.5,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if(comments!.isNotEmpty)SizedBox(
             height: comments!.length >= 10 ?MediaQuery.sizeOf(context).height * 0.33 :MediaQuery.sizeOf(context).height * 0.4,
@@ -62,7 +64,7 @@ class CommentsWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ClipOval(
-                          child: CachedNetworkImage(
+                          child: comments![index]['user']['avatar'] != ""? CachedNetworkImage(
                             width: 63,
                             height: 63,
                             fit: BoxFit.cover,
@@ -74,7 +76,9 @@ class CommentsWidget extends StatelessWidget {
                               size: AppSizes.s32,
                               color: Colors.white,
                             ),
-                          )
+                          ): Image.asset(AppImages.logo,    width: 63,
+                            height: 63,
+                            fit: BoxFit.cover, )
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -144,7 +148,7 @@ class CommentsWidget extends StatelessWidget {
                                     ),
                                   )
                               ),
-                              if(comments![index]['sounds'].isNotEmpty)VoiceMessageWidget(
+                              if(comments![index]['sounds'].isNotEmpty)VoiceMessageWidget(key:  ValueKey(comments![index]['sounds'][0]['file']),
                                 audioUrl: comments![index]['sounds'][0]['file'] ,
                               )
                             ],

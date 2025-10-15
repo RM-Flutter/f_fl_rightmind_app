@@ -434,6 +434,7 @@
   "updatePhoneNumber": "Update Phone Number",
   "pleaseProvideValidPhoneNumber": "Please Provide Valid Phone Number",
   "noChangesDetectedPhoneIsAlreadyUpToDate": "No changes detected, Phone Number is already up to date",
+  "noChangesDetected": "No changes detected",
   "failedToUpdateEmailPleaseTryLater": "Failed to update email , Please Try Later",
   "areYouSureYouWantToUpdateYourEmail": "Are you sure you want to update your email",
   "noChangesDetectedEmailIsAlreadyUpToDate": "No changes detected, Email is already up to date",

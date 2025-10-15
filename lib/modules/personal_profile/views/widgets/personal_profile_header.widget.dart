@@ -230,7 +230,7 @@ class CompanyInfoNotchedContainer extends StatefulWidget {
   final double notchPadding;
   final String notchImage;
   final String title;
-  final String photo;
+  final String? photo;
   var viewModel;
   final String subtitle;
   final double circleBorderWidth;
@@ -296,12 +296,11 @@ class _CompanyInfoNotchedContainerState extends State<CompanyInfoNotchedContaine
                                   : const AssetImage("assets/images/default_avatar.png") as ImageProvider,
                               fit: BoxFit.cover,
                             )
-                                : UserSettingConst.userSettings
-                                ?.photo ==
+                                : UserSettingConst.userSettings?.photo ==
                                 null
                                 ? Image.asset(
                               AppImages.logo,
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain,
                             )
                                 : CachedNetworkImage(
                                 imageUrl: widget.photo ??
@@ -324,7 +323,7 @@ class _CompanyInfoNotchedContainerState extends State<CompanyInfoNotchedContaine
                                       .s60,
                                 )) : Image.asset(
                               AppImages.logo,
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain,
                             ),
                           ),
                         ),

@@ -5,14 +5,19 @@ import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/dio.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
+import '../../../models/get_one_auto.dart';
 
 class AutoResponseProvider extends ChangeNotifier {
   bool isLoading = false;
   bool isSuccess = false;
   String? errorMessage;
   bool hasMore = true;
+  GetOneAuto? getOneAuto;
   int pageNumber = 1;
+  bool controllersFilled = false;
   final int expectedPageSize = 9;
   List autoRes = [];
   bool hasMoreData(int length) {
@@ -23,11 +28,7 @@ class AutoResponseProvider extends ChangeNotifier {
       return true; // More data available
     }
   }
-  Future<void> getAutoRes(
-      context, {
-        required dynamic domainId,
-        bool isNewPage = false,
-      }) async {
+  Future<void> getAutoRes(context, {required dynamic domainId, bool isNewPage = false,}) async {
     if (isLoading) return;
 
     isLoading = true;
@@ -55,6 +56,39 @@ class AutoResponseProvider extends ChangeNotifier {
         hasMore = newEmails.length == expectedPageSize;
         if (hasMore) pageNumber++;
 
+        isLoading = false;
+        notifyListeners();
+      }else{
+        isLoading = false;
+        AlertsService.error(
+            context: context,
+            message: response.data['message'],
+            title: AppStrings.failed.tr());
+        notifyListeners();
+      }
+    } catch (error) {
+      isLoading = false;
+      notifyListeners();
+      errorMessage = error is DioError
+          ? error.response?.data['message'] ?? 'Something went wrong'
+          : error.toString();
+    }
+  }
+  Future<void> getOneAutoRes(context, {required dynamic email, DomainId,}) async {
+    getOneAuto = null;
+    controllersFilled = false;
+    if (isLoading) return;
+
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await DioHelper.getData(
+        url: "/rm_cpanel/v1/email_auto_responders/get_single?domain_id=$DomainId&email=$email",
+        context: context,
+      );
+      if (response.data['status'] == true) {
+        getOneAuto = GetOneAuto.fromJson(response.data);
         isLoading = false;
         notifyListeners();
       }else{
@@ -103,14 +137,13 @@ class AutoResponseProvider extends ChangeNotifier {
           },
         );
       }else{
-        Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
+       showToast(
+          response.data['message'],
+          context: context,
+          backgroundColor: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          duration: const Duration(seconds: 5),
+          position: StyledToastPosition.bottom,
         );
       }
       isLoading = false;
@@ -129,8 +162,8 @@ class AutoResponseProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
     try {
-      final response = await DioHelper.putData(
-        url: "/rm_cpanel/v1/email_auto_responders/update",
+      final response = await DioHelper.postData(
+        url: "/rm_cpanel/v1/email_auto_responders/add",
         data: {
           if(email != null && email.isNotEmpty)"email" : email.toString().contains(domain) ? email.toString() : "$email@$domain",//
           if(domainId != null&& domainId.isNotEmpty) "domain_id" : domainId,//
@@ -145,6 +178,7 @@ class AutoResponseProvider extends ChangeNotifier {
         context: context,
       );
       if(response.data['status'] == true){
+
         Navigator.pop(context);
         showModalBottomSheet(
           context: context,
@@ -155,14 +189,13 @@ class AutoResponseProvider extends ChangeNotifier {
           },
         );
       }else{
-        Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
+       showToast(
+          response.data['message'],
+          context: context,
+          backgroundColor: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          duration: const Duration(seconds: 5),
+          position: StyledToastPosition.bottom,
         );
       }
       isLoading = false;
@@ -209,14 +242,13 @@ class AutoResponseProvider extends ChangeNotifier {
           },
         );
       }else{
-        Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
+       showToast(
+          response.data['message'],
+          context: context,
+          backgroundColor: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          duration: const Duration(seconds: 5),
+          position: StyledToastPosition.bottom,
         );
       }
       isLoading = false;
@@ -254,14 +286,13 @@ class AutoResponseProvider extends ChangeNotifier {
           },
         );
       }else{
-        Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
+       showToast(
+          response.data['message'],
+          context: context,
+          backgroundColor: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          duration: const Duration(seconds: 5),
+          position: StyledToastPosition.bottom,
         );
         AlertsService.error(
             context: context,

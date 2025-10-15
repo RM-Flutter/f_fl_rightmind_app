@@ -106,7 +106,7 @@ class _DeleteAccountBottomSheetState extends State<DeleteAccountBottomSheet> {
                   SizedBox(width: double.infinity,
                     child: Center(
                       child: Text(
-                        "To",
+                        AppStrings.to.tr().toUpperCase(),
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
@@ -154,7 +154,7 @@ class _DeleteAccountBottomSheetState extends State<DeleteAccountBottomSheet> {
                                   domainId: widget.dominId.toString(),
                                   dest: widget.dest,
                                   actionType: widget.actionType,
-                                  forwardTo: bodyController.text
+                                  forwardTo: widget.forward
                               );
                             },
                             isPrimaryBackground: false,

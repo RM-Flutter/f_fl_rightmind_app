@@ -1,7 +1,8 @@
 abstract class AppConstants {
   static  List? accountsEmailsFilter = [];
   static  List? accountsEmailsDNSFilter = [];
-  static const String base = "https://lab.r-m.dev";
+  static const String base = "https://rmd.r-m.dev";
+  // static const String base = "https://backend.orient-paints.com";
   static const String baseUrl = "$base/api";
   static const String refreshTokenBaseUrl = "http://refresh_token_test-api/";
   static const String appPackageName = "com.rightminddev.cpanal";

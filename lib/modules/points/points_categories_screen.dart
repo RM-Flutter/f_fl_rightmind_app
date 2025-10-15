@@ -103,9 +103,9 @@ class _PointsCategoriesScreenState extends State<PointsCategoriesScreen> {
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.arrow_back, color:Color(0xff224982)),
-                                onPressed: !kIsWeb?() {
+                                onPressed:() {
                                   Navigator.pop(context);
-                                } : (){},
+                                } ,
                               ),
                               Text(
                                 AppStrings.chooseTheCategory.tr().toUpperCase(),

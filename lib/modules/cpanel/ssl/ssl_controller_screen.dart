@@ -350,7 +350,7 @@ class _SSLControllerScreenState extends State<SSLControllerScreen> {
             ),
           ),
           SizedBox(
-            width: kIsWeb? MediaQuery.sizeOf(context).width * 0.4:MediaQuery.sizeOf(context).width * 0.48,
+            width: kIsWeb? MediaQuery.sizeOf(context).width * 0.24:MediaQuery.sizeOf(context).width * 0.48,
             child: Text(
               title2,
               maxLines: 2,

@@ -8,6 +8,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:spreadsheet_decoder/spreadsheet_decoder.dart';
 import 'dart:html' as html;
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/dio.dart';
@@ -124,14 +125,13 @@ class EmailAccountProvider extends ChangeNotifier {
         }
       }
       else{
-        Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
+        showToast(
+          response.data['message'],
+          context: context,
+          backgroundColor: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          duration: const Duration(seconds: 5),
+          position: StyledToastPosition.bottom,
         );
       }
       isWebLoading = false;
@@ -173,14 +173,13 @@ class EmailAccountProvider extends ChangeNotifier {
           },
         );
       }else{
-        Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
+        showToast(
+          response.data['message'],
+          context: context,
+          backgroundColor: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          duration: const Duration(seconds: 5),
+          position: StyledToastPosition.bottom,
         );
       }
       isLoading = false;
@@ -279,7 +278,7 @@ class EmailAccountProvider extends ChangeNotifier {
   updateEmail(context, {account, domainId, password, quota, suspend}) async {
     if((password == null || password.toString().isEmpty) && suspend == null && (quota == null || quota.toString().isEmpty)){
       Fluttertoast.showToast(
-          msg: AppStrings.noChangesDetectedProfileIsAlreadyUpToDate.tr(),
+          msg: AppStrings.noChangesDetected.tr(),
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 5,
@@ -317,14 +316,13 @@ class EmailAccountProvider extends ChangeNotifier {
           },
         );
       }else{
-        Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
+        showToast(
+          response.data['message'],
+          context: context,
+          backgroundColor: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          duration: const Duration(seconds: 5),
+          position: StyledToastPosition.bottom,
         );
         AlertsService.error(
             context: context,
@@ -370,14 +368,13 @@ class EmailAccountProvider extends ChangeNotifier {
           },
         );
       }else{
-        Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
+        showToast(
+          response.data['message'],
+          context: context,
+          backgroundColor: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          duration: const Duration(seconds: 5),
+          position: StyledToastPosition.bottom,
         );
         AlertsService.error(
             context: context,
@@ -421,14 +418,13 @@ class EmailAccountProvider extends ChangeNotifier {
           },
         );
       }else{
-        Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
+        showToast(
+          response.data['message'],
+          context: context,
+          backgroundColor: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          duration: const Duration(seconds: 5),
+          position: StyledToastPosition.bottom,
         );
         AlertsService.error(
             context: context,
@@ -470,14 +466,13 @@ class EmailAccountProvider extends ChangeNotifier {
           },
         );
       }else{
-        Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
+        showToast(
+          response.data['message'],
+          context: context,
+          backgroundColor: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          duration: const Duration(seconds: 5),
+          position: StyledToastPosition.bottom,
         );
         AlertsService.error(
             context: context,

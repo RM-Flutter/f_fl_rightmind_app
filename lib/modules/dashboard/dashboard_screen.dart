@@ -89,7 +89,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 maxWidth: kIsWeb ? 1100 : double.infinity,
               ),
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: AppSizes.s12, horizontal: AppSizes.s25),
+                padding: EdgeInsets.symmetric(vertical: AppSizes.s12, horizontal: !kIsWeb? AppSizes.s25 : 0),
                 child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

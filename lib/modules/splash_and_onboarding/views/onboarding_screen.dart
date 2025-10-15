@@ -33,9 +33,11 @@ class OnBoardingScreen extends StatelessWidget {
                   itemCount:
                       viewModel.getAllOnboardingData(context: context)?.length,
                   itemBuilder: (context, index) {
-                    final image = viewModel
-                        .getOnboardingDataWithIndex(index, context)
-                        ?['image']![0]['file'];
+                    final onboardingData = viewModel.getOnboardingDataWithIndex(index, context);
+                    final imageList = onboardingData?['image'] as List?;
+                    final image = (imageList != null && imageList.isNotEmpty)
+                        ? imageList[0]['file']
+                        : "";
                     if (image?.startsWith('http') == true ||
                         image?.startsWith('https') == true) {
                       // Network image
@@ -92,89 +94,96 @@ class OnBoardingScreen extends StatelessWidget {
                 bottom: AppSizes.s48,
                 left: AppSizes.s0,
                 right: AppSizes.s0,
-                child: Card(
-                  margin: const EdgeInsets.symmetric(horizontal: AppSizes.s16),
-                  clipBehavior: Clip.antiAlias,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppSizes.s25),
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: AppSizes.s18, vertical: AppSizes.s20),
-                    height: AppSizes.s300,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          flex: 5,
-                          child: PageView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            controller: viewModel.pageController2,
-                            itemCount: viewModel
-                                .getAllOnboardingData(context: context)
-                                ?.length,
-                            itemBuilder: (context, index) {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 800,
+                    ),
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(horizontal: AppSizes.s16),
+                      clipBehavior: Clip.antiAlias,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppSizes.s25),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: AppSizes.s18, vertical: AppSizes.s20),
+                        height: AppSizes.s300,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 5,
+                              child: PageView.builder(
+                                physics: const NeverScrollableScrollPhysics(),
+                                controller: viewModel.pageController2,
+                                itemCount: viewModel
+                                    .getAllOnboardingData(context: context)
+                                    ?.length,
+                                itemBuilder: (context, index) {
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      AutoSizeText(
+                                        LocalizationService.isArabic(context: context)? viewModel.getOnboardingDataWithIndex(index, context)!["title"]!["ar"]!.toUpperCase() :viewModel.getOnboardingDataWithIndex(index, context)!["title"]!["en"]!.toUpperCase(),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .displayLarge
+                                            ?.copyWith(height: 1.2),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      gapH20,
+                                      AutoSizeText(
+                                        LocalizationService.isArabic(context: context)? viewModel.getOnboardingDataWithIndex(index, context)!["info"]!["ar"]!.toUpperCase() :viewModel.getOnboardingDataWithIndex(index, context)!["info"]!["en"]!.toUpperCase(),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .displaySmall
+                                            ?.copyWith(height: 1.4),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 4,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  AutoSizeText(
-                                    LocalizationService.isArabic(context: context)? viewModel.getOnboardingDataWithIndex(index, context)!["title"]!["ar"]!.toUpperCase() :viewModel.getOnboardingDataWithIndex(index, context)!["title"]!["en"]!.toUpperCase(),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .displayLarge
-                                        ?.copyWith(height: 1.2),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  gapH20,
-                                  AutoSizeText(
-                                    LocalizationService.isArabic(context: context)? viewModel.getOnboardingDataWithIndex(index, context)!["info"]!["ar"]!.toUpperCase() :viewModel.getOnboardingDataWithIndex(index, context)!["info"]!["en"]!.toUpperCase(),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .displaySmall
-                                        ?.copyWith(height: 1.4),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 4,
-                                    overflow: TextOverflow.ellipsis,
+                                  CustomElevatedButton(
+                                      onPressed: () async =>
+                                          viewModel.goNext(context),
+                                      title: AppStrings.next.tr(),
+                                      width: AppSizes.s120,
+                                      isPrimaryBackground: true,
+                                      isFuture: false),
+                                  TextButton(
+                                    onPressed: () => viewModel.skip(context),
+                                    style: ElevatedButton.styleFrom(
+                                      fixedSize:
+                                          const Size(AppSizes.s150, AppSizes.s50),
+                                    ),
+                                    child: Text(AppStrings.skip.tr(),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headlineSmall
+                                            ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary)),
                                   ),
                                 ],
-                              );
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              CustomElevatedButton(
-                                  onPressed: () async =>
-                                      viewModel.goNext(context),
-                                  title: AppStrings.next.tr(),
-                                  width: AppSizes.s120,
-                                  isPrimaryBackground: true,
-                                  isFuture: false),
-                              TextButton(
-                                onPressed: () => viewModel.skip(context),
-                                style: ElevatedButton.styleFrom(
-                                  fixedSize:
-                                      const Size(AppSizes.s150, AppSizes.s50),
-                                ),
-                                child: Text(AppStrings.skip.tr(),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineSmall
-                                        ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary)),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),

@@ -41,6 +41,22 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
   }
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final autoResponseProvider = Provider.of<AutoResponseProvider>(context, listen: false);
+      autoResponseProvider.getOneAutoRes(
+        context,
+        email: widget.email,
+        DomainId: widget.dominId.toString(),
+      );
+
+    });
+    stopController.clear();
+    startController.clear();
+    emailController.clear();
+    subjectController.clear();
+    fromController.clear();
+    intervalController.clear();
+    bodyController.clear();
     emailController.text = widget.index['email'] ?? "";
     subjectController.text = widget.index['subject'] ?? "";
     super.initState();
@@ -48,14 +64,35 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AutoResponseProvider>(
+    return  Consumer<AutoResponseProvider>(
       builder: (context, value, child) {
+        if(value.getOneAuto != null && value.controllersFilled == false){
+          value.controllersFilled = true;
+          int? timestampStop = value.getOneAuto?.res?.stop;
+          if (timestampStop != null) {
+            stopController.text = DateTime.fromMillisecondsSinceEpoch(timestampStop * 1000)
+                .toIso8601String().split('T')[0];
+          } else {
+            stopController.text = "";
+          }
+          int? timestampStart = value.getOneAuto?.res?.start;
+          if (timestampStart != null) {
+            startController.text = DateTime.fromMillisecondsSinceEpoch(timestampStart * 1000)
+                .toIso8601String().split('T')[0];
+          } else {
+            startController.text = "";
+          }
+          fromController.text = value.getOneAuto!.res!.from ?? "";
+          intervalController.text = value.getOneAuto!.res!.interval?.toString() ?? "";
+          bodyController.text = value.getOneAuto!.res!.body ?? "";
+          if(value.getOneAuto!.res!.isHtml == 1){isContainsHtml = true;}else{isContainsHtml = false;}
+        }
         return DraggableScrollableSheet(
           initialChildSize: 0.65,
           maxChildSize: 0.9,
           minChildSize: 0.4,
           builder: (_, controller) {
-            return Container(
+            return (value.getOneAuto != null)?Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
               decoration: const BoxDecoration(
                 color: Colors.white,
@@ -105,6 +142,11 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
                   if (widget.email == null)
                     _buildInputWithSuffix(AppStrings.email.tr().toUpperCase(),
                         "@${widget.dominName}", 120.0,
+                        onChanged: (String? value){
+                          setState(() {
+                            emailController.text = widget.dominName;
+                          });
+                        },
                         controller: emailController),
                   if (widget.email == null) const SizedBox(height: 15),
                   TextFormField(
@@ -305,10 +347,10 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
                         width: 20,
                       ),
                       Expanded(
-                          child: CustomElevatedButton(
+                          child: value.isLoading == false?CustomElevatedButton(
                             width: null,
                             backgroundColor: const Color(AppColors.dark),
-                            title: AppStrings.send.tr().toUpperCase(),
+                            title: AppStrings.update.tr().toUpperCase(),
                             onPressed: () async {
                               value.editAutoRes(context,
                                   start: StringConvert.sanitizeDateString(startController.text),
@@ -324,12 +366,13 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
                               );
                             },
                             isPrimaryBackground: false,
-                          )),
+                          ): const Center(child: CircularProgressIndicator()))
+                      ,
                     ],
                   )
                 ],
               ),
-            );
+            ) : const Center(child: CircularProgressIndicator(),);
           },
         );
       },
@@ -341,37 +384,42 @@ class _EditEmailBottomSheetState extends State<EditEmailBottomSheet> {
       String suffixText,
       double width, {
         TextEditingController? controller,
+        onChanged,
         bool isNumber = false, // باراميتر جديد
       }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-      decoration: InputDecoration(
-        fillColor: Colors.white,
-        labelText: label,
-        suffixIcon: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            width: width,
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xffDFDFDF),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              suffixText,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 12,
-                color: Color(AppColors.dark),
+    return IgnorePointer(
+      child: TextFormField(
+        controller: controller,
+        enabled: false,
+        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          fillColor: Colors.white,
+          labelText: label,
+          suffixIcon: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              width: width,
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xffDFDFDF),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                suffixText,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                  color: Color(AppColors.dark),
+                ),
               ),
             ),
           ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }

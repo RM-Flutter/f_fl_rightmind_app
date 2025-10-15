@@ -205,7 +205,7 @@ class _EmailForwardScreenState extends State<EmailForwardScreen> {
                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                            children: [
                              SizedBox(
-                               width: kIsWeb ? MediaQuery.sizeOf(context).width * 0.65:MediaQuery.sizeOf(context).width * 0.75,
+                               width: kIsWeb ? MediaQuery.sizeOf(context).width * 0.4:MediaQuery.sizeOf(context).width * 0.75,
                                child: Text(
                                 AppStrings.forwardAllEmailForADomain.tr(),
                                 textAlign: TextAlign.start,
@@ -369,7 +369,7 @@ class _EmailForwardScreenState extends State<EmailForwardScreen> {
                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                            children: [
                              SizedBox(
-                               width: kIsWeb ? MediaQuery.sizeOf(context).width * 0.65:MediaQuery.sizeOf(context).width * 0.75,
+                               width: kIsWeb ? MediaQuery.sizeOf(context).width * 0.4:MediaQuery.sizeOf(context).width * 0.75,
                                child: Text(
                                 AppStrings.emailAccountForwarders.tr(),
                                 textAlign: TextAlign.start,

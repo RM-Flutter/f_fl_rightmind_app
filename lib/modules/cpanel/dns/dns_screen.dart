@@ -224,257 +224,260 @@ class _DNSScreenState extends State<DNSScreen> {
             ),
             body: GradientBgImage(
               padding: EdgeInsets.all(0),
-              child: SizedBox(
-                height: MediaQuery.sizeOf(context).height * 0.8,
-                child: ListView(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(AppSizes.s12),
-                  children: [
-                    if(searchTitle != null)Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: ()async{
-                            searchTitle = null;
-                            await emailcickle();
-                          },
-                          child: Container(
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                color: Color(AppColors.dark),
-                                borderRadius: BorderRadius.circular(20)),
-                            padding: EdgeInsetsGeometry.symmetric(vertical: 4, horizontal: 10),
-                            child:  Row(
-                              children: [
-                                Text(
-                                  searchTitle,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
-                                ),
-                                const SizedBox(width: 10,),
-                                Icon(Icons.close, color: Colors.white,)
-                              ],
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: [
+                      if(searchTitle != null)Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: ()async{
+                              searchTitle = null;
+                              await emailcickle();
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color: Color(AppColors.dark),
+                                  borderRadius: BorderRadius.circular(20)),
+                              padding: EdgeInsetsGeometry.symmetric(vertical: 4, horizontal: 10),
+                              child:  Row(
+                                children: [
+                                  Text(
+                                    searchTitle,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+                                  ),
+                                  const SizedBox(width: 10,),
+                                  Icon(Icons.close, color: Colors.white,)
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    if(searchTitle != null) const SizedBox(height: 15),
-                     Text(
-                       AppStrings.dns_control_description.tr(),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(AppColors.dark)),
-                    ),
-                    const SizedBox(height: 15),
-                    Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: kIsWeb ? 1100 : double.infinity,
-                        ),
-                        child: ListView.separated(
-                          itemCount: value.isLoading && value.pageNumber == 1 ? 3 : AppConstants.accountsEmailsDNSFilter!.length,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          separatorBuilder: (_, __) => const SizedBox(height: 15),
-                          itemBuilder: (context, index) {
-                            final safeContext = context; // ✅ هذا هو الـ context الآمن
+                        ],
+                      ),
+                      if(searchTitle != null) const SizedBox(height: 15),
+                       Text(
+                         AppStrings.dns_control_description.tr(),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(AppColors.dark)),
+                      ),
+                      const SizedBox(height: 15),
+                      Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: kIsWeb ? 1100 : double.infinity,
+                          ),
+                          child: ListView.separated(
+                            itemCount: value.isLoading && value.pageNumber == 1 ? 3 : AppConstants.accountsEmailsDNSFilter!.length,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            separatorBuilder: (_, __) => const SizedBox(height: 15),
+                            itemBuilder: (context, index) {
+                              final safeContext = context; // ✅ هذا هو الـ context الآمن
 
-                            if (value.isLoading && value.pageNumber == 1) {
-                              return Shimmer.fromColors(
-                                baseColor: Colors.grey.shade300,
-                                highlightColor: Colors.grey.shade100,
-                                child: Container(height: 100, width: double.infinity, color: Colors.white),
-                              );
-                            }
-                            return GestureDetector(
-                              // onLongPress: () => onLongPress(index),
-                              // onTap: () => onTap(index),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  boxShadow: const [BoxShadow(color: Color(0x0C000000), blurRadius: 10, offset: Offset(0, 1))],
-                                ),
-                                child: Slidable(
-                                  key: ValueKey(AppConstants.accountsEmailsDNSFilter![index]['name']),
-                                  endActionPane: ActionPane(
-                                    motion: const DrawerMotion(),
-                                    extentRatio: 0.6,
-                                    children: [
-                                      CustomSlidableAction(
-                                        onPressed: (_) async{
-                                          final objName = AppConstants.accountsEmailsDNSFilter![index]['name'];
-                                          final objType = AppConstants.accountsEmailsDNSFilter![index]['type'];
-                                          final objContent = AppConstants.accountsEmailsDNSFilter![index]['content'];
-                                          final objTTL = AppConstants.accountsEmailsDNSFilter![index]['ttl'];
-                                          await Clipboard.setData(ClipboardData(text: "Name : $objName \n Type : $objType \n Content : $objContent \n TTL : $objTTL"));
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text("${AppStrings.copied.tr()}")),
-                                          );
-                                        },
-                                        child: Container(
-                                          width: 50,
-                                          height: 50,
-                                          decoration: const BoxDecoration(
-                                            color: Color(AppColors.dark),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Icon(Icons.copy, color: Colors.white,),
-                                        ),
-                                      ),
-                                      CustomSlidableAction(
-                                        onPressed: (_) async{
-                                         await showModalBottomSheet(
-                                            context: safeContext,
-                                            isScrollControlled: true,
-                                            backgroundColor: Colors.transparent,
-                                            builder: (_) => Padding(
-                                              padding: EdgeInsets.only(bottom: MediaQuery.of(safeContext).viewInsets.bottom),
-                                              child: EditEmailBottomSheet(multi: false,
-                                                  dominName:  widget.name.toString(),
-                                                  dominId: widget.dominId.toString(),
-                                              object: AppConstants.accountsEmailsDNSFilter![index],
-                                              ),
-                                            ),
-                                          );
-                                         await emailcickle();
-                                        },
-                                        child: Container(
-                                          width: 50,
-                                          height: 50,
-                                          decoration: BoxDecoration(
-                                            color: Color(0xFFA372FF),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: SvgPicture.asset("assets/images/svg/swip_edit.svg", fit: BoxFit.scaleDown),
-                                        ),
-                                      ),
-                                      CustomSlidableAction(
-                                        onPressed: (_) async{
-                                          await showModalBottomSheet(
-                                            context: safeContext,
-                                            isScrollControlled: true,
-                                            backgroundColor: Colors.transparent,
-                                            builder: (_) => Padding(
-                                              padding: EdgeInsets.only(bottom: MediaQuery.of(safeContext).viewInsets.bottom),
-                                              child: DeleteAccountBottomSheet(
-                                                domainId: widget.dominId,
-                                                multi: false,
-                                                recordId: AppConstants.accountsEmailsDNSFilter![index]['id'],
-                                                email: AppConstants.accountsEmailsDNSFilter![index]['name'],
-                                              ),
-                                            ),
-                                          );
-                                          await emailcickle();
-                                        },
-                                        child: Container(
-                                          width: 50,
-                                          height: 50,
-                                          decoration: BoxDecoration(
-                                            color: Color(0xFFE93F81),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: SvgPicture.asset("assets/images/svg/menu_delete.svg", fit: BoxFit.scaleDown, color: Colors.white,),
-                                        ),
-                                      ),
-                                    ],
+                              if (value.isLoading && value.pageNumber == 1) {
+                                return Shimmer.fromColors(
+                                  baseColor: Colors.grey.shade300,
+                                  highlightColor: Colors.grey.shade100,
+                                  child: Container(height: 100, width: double.infinity, color: Colors.white),
+                                );
+                              }
+                              return GestureDetector(
+                                // onLongPress: () => onLongPress(index),
+                                // onTap: () => onTap(index),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: const [BoxShadow(color: Color(0x0C000000), blurRadius: 10, offset: Offset(0, 1))],
                                   ),
-                                  child: GestureDetector(
-                                    onTap: ()async{
-                                      await showModalBottomSheet(
-                                        context: safeContext,
-                                        isScrollControlled: true,
-                                        backgroundColor: Colors.transparent,
-                                        builder: (_) => Padding(
-                                          padding: EdgeInsets.only(bottom: MediaQuery.of(safeContext).viewInsets.bottom),
-                                          child: EditEmailBottomSheet(multi: false,
-                                            dominName:  widget.name.toString(),
-                                            dominId: widget.dominId.toString(),
-                                            object: AppConstants.accountsEmailsDNSFilter![index],
+                                  child: Slidable(
+                                    key: ValueKey(AppConstants.accountsEmailsDNSFilter![index]['name']),
+                                    endActionPane: ActionPane(
+                                      motion: const DrawerMotion(),
+                                      extentRatio: 0.6,
+                                      children: [
+                                        CustomSlidableAction(
+                                          onPressed: (_) async{
+                                            final objName = AppConstants.accountsEmailsDNSFilter![index]['name'];
+                                            final objType = AppConstants.accountsEmailsDNSFilter![index]['type'];
+                                            final objContent = AppConstants.accountsEmailsDNSFilter![index]['content'];
+                                            final objTTL = AppConstants.accountsEmailsDNSFilter![index]['ttl'];
+                                            await Clipboard.setData(ClipboardData(text: "Name : $objName \n Type : $objType \n Content : $objContent \n TTL : $objTTL"));
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text("${AppStrings.copied.tr()}")),
+                                            );
+                                          },
+                                          child: Container(
+                                            width: 50,
+                                            height: 50,
+                                            decoration: const BoxDecoration(
+                                              color: Color(AppColors.dark),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(Icons.copy, color: Colors.white,),
                                           ),
                                         ),
-                                      );
-                                      await emailcickle();
-                                    },
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  SizedBox(
-                                                    width: MediaQuery.sizeOf(context).width * 0.6,
-                                                    child: Text(
-                                                      AppConstants.accountsEmailsDNSFilter![index]['name'],
-                                                      maxLines: 1,
-                                                      overflow: TextOverflow.ellipsis,
-                                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(AppColors.dark),
+                                        CustomSlidableAction(
+                                          onPressed: (_) async{
+                                           await showModalBottomSheet(
+                                              context: safeContext,
+                                              isScrollControlled: true,
+                                              backgroundColor: Colors.transparent,
+                                              builder: (_) => Padding(
+                                                padding: EdgeInsets.only(bottom: MediaQuery.of(safeContext).viewInsets.bottom),
+                                                child: EditEmailBottomSheet(multi: false,
+                                                    dominName:  widget.name.toString(),
+                                                    dominId: widget.dominId.toString(),
+                                                object: AppConstants.accountsEmailsDNSFilter![index],
+                                                ),
+                                              ),
+                                            );
+                                           await emailcickle();
+                                          },
+                                          child: Container(
+                                            width: 50,
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              color: Color(0xFFA372FF),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: SvgPicture.asset("assets/images/svg/swip_edit.svg", fit: BoxFit.scaleDown),
+                                          ),
+                                        ),
+                                        CustomSlidableAction(
+                                          onPressed: (_) async{
+                                            await showModalBottomSheet(
+                                              context: safeContext,
+                                              isScrollControlled: true,
+                                              backgroundColor: Colors.transparent,
+                                              builder: (_) => Padding(
+                                                padding: EdgeInsets.only(bottom: MediaQuery.of(safeContext).viewInsets.bottom),
+                                                child: DeleteAccountBottomSheet(
+                                                  domainId: widget.dominId,
+                                                  multi: false,
+                                                  recordId: AppConstants.accountsEmailsDNSFilter![index]['id'],
+                                                  email: AppConstants.accountsEmailsDNSFilter![index]['name'],
+                                                ),
+                                              ),
+                                            );
+                                            await emailcickle();
+                                          },
+                                          child: Container(
+                                            width: 50,
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              color: Color(0xFFE93F81),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: SvgPicture.asset("assets/images/svg/menu_delete.svg", fit: BoxFit.scaleDown, color: Colors.white,),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    child: GestureDetector(
+                                      onTap: ()async{
+                                        await showModalBottomSheet(
+                                          context: safeContext,
+                                          isScrollControlled: true,
+                                          backgroundColor: Colors.transparent,
+                                          builder: (_) => Padding(
+                                            padding: EdgeInsets.only(bottom: MediaQuery.of(safeContext).viewInsets.bottom),
+                                            child: EditEmailBottomSheet(multi: false,
+                                              dominName:  widget.name.toString(),
+                                              dominId: widget.dominId.toString(),
+                                              object: AppConstants.accountsEmailsDNSFilter![index],
+                                            ),
+                                          ),
+                                        );
+                                        await emailcickle();
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    SizedBox(
+                                                      width: kIsWeb? MediaQuery.sizeOf(context).width * 0.25:MediaQuery.sizeOf(context).width * 0.6,
+                                                      child: Text(
+                                                        AppConstants.accountsEmailsDNSFilter![index]['name'],
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(AppColors.dark),
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                  const Spacer(),
+                                                    const Spacer(),
 
-                                                  if(AppConstants.accountsEmailsDNSFilter![index]['proxied'] == true)SvgPicture.asset("assets/images/svg/check.svg"),
-                                                  if(AppConstants.accountsEmailsDNSFilter![index]['proxied'] == false)SvgPicture.asset("assets/images/svg/warning.svg", width: 15, height: 15, fit: BoxFit.scaleDown,),
-                                                  const SizedBox(width: 5,),
-                                                  Text(AppConstants.accountsEmailsDNSFilter![index]['ttl'].toString() == "1"?
-                                                  AppStrings.auto.tr() : AppConstants.accountsEmailsDNSFilter![index]['ttl'].toString(), style: const TextStyle(fontSize: 12, color: Color(0xff34A853), fontWeight: FontWeight.w500),),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 5),
-                                              Row(
-                                                children: [
-                                                  SvgPicture.asset("assets/images/svg/personal.svg", color: Color(0xffE93F81)),
-                                                  const SizedBox(width: 5),
-                                                  Text(
-                                                    AppConstants.accountsEmailsDNSFilter![index]['type'],
-                                                    style: const TextStyle(color: Color(0xffE93F81), fontWeight: FontWeight.bold, fontSize: 12),
-                                                  ),
-                                                  Spacer(),
-                                                  SizedBox(
-                                                    width: MediaQuery.sizeOf(context).width * 0.55,
-                                                    child: Row(
-                                                      mainAxisAlignment: MainAxisAlignment.end,
-                                                      children: [
-                                                        SvgPicture.asset("assets/images/svg/ip.svg"),
-                                                        const SizedBox(width: 5),
-                                                        SizedBox(
-                                                          width: MediaQuery.sizeOf(context).width * 0.49,
-                                                          child: Text(
-                                                            AppConstants.accountsEmailsDNSFilter![index]['content'],
-                                                            style: const TextStyle(color: Color(0xff122730), fontWeight: FontWeight.bold, fontSize: 12),
-                                                          ),
-                                                        ),
-                                                      ],
+                                                    if(AppConstants.accountsEmailsDNSFilter![index]['proxied'] == true)SvgPicture.asset("assets/images/svg/check.svg"),
+                                                    if(AppConstants.accountsEmailsDNSFilter![index]['proxied'] == false)SvgPicture.asset("assets/images/svg/warning.svg",
+                                                      width: 15, height: 15, fit: BoxFit.scaleDown, color: Colors.orange,),
+                                                    const SizedBox(width: 5,),
+                                                    Text(AppConstants.accountsEmailsDNSFilter![index]['ttl'].toString() == "1"?
+                                                    AppStrings.auto.tr() : AppConstants.accountsEmailsDNSFilter![index]['ttl'].toString(), style: const TextStyle(fontSize: 12, color: Color(0xff34A853), fontWeight: FontWeight.w500),),
+                                                   ],
+                                                ),
+                                                const SizedBox(height: 5),
+                                                Row(
+                                                  children: [
+                                                    SvgPicture.asset("assets/images/svg/personal.svg", color: Color(0xffE93F81)),
+                                                    const SizedBox(width: 5),
+                                                    Text(
+                                                      AppConstants.accountsEmailsDNSFilter![index]['type'],
+                                                      style: const TextStyle(color: Color(0xffE93F81), fontWeight: FontWeight.bold, fontSize: 12),
                                                     ),
-                                                  )
-                                                ],
-                                              ),
-                                            ],
+                                                    Spacer(),
+                                                    Container(
+                                                      alignment: Alignment.centerRight,
+                                                      width: !kIsWeb? MediaQuery.sizeOf(context).width * 0.55:MediaQuery.sizeOf(context).width * 0.3,
+                                                      child: Row(
+                                                        mainAxisAlignment: MainAxisAlignment.end,
+                                                        children: [
+                                                          SvgPicture.asset("assets/images/svg/ip.svg"),
+                                                          const SizedBox(width: 5),
+                                                          SizedBox(
+                                                            width:!kIsWeb? MediaQuery.sizeOf(context).width * 0.49:MediaQuery.sizeOf(context).width * 0.15,
+                                                            child: Text(
+                                                              AppConstants.accountsEmailsDNSFilter![index]['content'],
+                                                              style: const TextStyle(color: Color(0xff122730), fontWeight: FontWeight.bold, fontSize: 12),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        if (selectedEmails.any((e) => e.address == AppConstants.accountsEmailsDNSFilter![index]['name']))
-                                          const Icon(Icons.check_circle, color: Colors.green),
-                                      ],
+                                          if (selectedEmails.any((e) => e.address == AppConstants.accountsEmailsDNSFilter![index]['name']))
+                                            const Icon(Icons.check_circle, color: Colors.green),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
                       ),
-                    ),
 
-                    if (value.isLoading && value.pageNumber != 1)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 20),
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
-                  ],
+                      if (value.isLoading && value.pageNumber != 1)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),

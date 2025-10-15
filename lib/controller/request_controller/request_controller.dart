@@ -381,9 +381,9 @@ class RequestController extends ChangeNotifier {
     }
   }
   Future<void> addRequest(BuildContext context, {List<XFile>? images}) async {
-   images = listAttachmentPersonalImage
-        .map((e) => XFile(e["upload"].path)) // تحويل File → XFile
-        .toList();
+   // images = listAttachmentPersonalImage
+   //      .map((e) => XFile(e["upload"].path)) // تحويل File → XFile
+   //      .toList();
   isAddRequestLoading = true;
     notifyListeners();
     var response;
@@ -392,8 +392,16 @@ class RequestController extends ChangeNotifier {
       if(detailsController.text != null && detailsController.text.isNotEmpty) "content" : detailsController.text,
       "type_id" : selectDepartment.toString(),
       "main_thumbnail[]": images != null
-          ? await Future.wait(
-          images.map((file) async => await MultipartFile.fromFile(file.path, filename: file.name))
+          ? !kIsWeb? await Future.wait(
+          images.map((file) async =>await MultipartFile.fromFile(file.path, filename: file.name))
+      ):await Future.wait(
+        images.map((file) async {
+          final bytes = await file.readAsBytes();
+          return MultipartFile.fromBytes(
+            bytes,
+            filename: file.name,
+          );
+        }),
       )
           : [],
     });
@@ -476,7 +484,7 @@ class RequestController extends ChangeNotifier {
 
     if (kIsWeb) {
       Uint8List bytes = await imageFileProfile.readAsBytes();
-
+      listXAttachmentPersonalImage.add(imageFileProfile);
       listAttachmentPersonalImage.add({
         "preview": bytes,     // 🖥️ للعرض
         "upload": bytes,      // 🖥️ للرفع برضه
@@ -503,7 +511,7 @@ class RequestController extends ChangeNotifier {
 
     if (kIsWeb) {
       Uint8List bytes = await imageFileProfile.readAsBytes();
-
+      listXAttachmentPersonalImage.add(imageFileProfile);
       listAttachmentPersonalImage.add({
         "preview": bytes,     // 🖥️ للعرض
         "upload": bytes,      // 🖥️ للرفع برضه

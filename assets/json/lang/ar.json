@@ -586,6 +586,7 @@
   "updatePhoneNumber" : "تحديث رقم الهاتف",
   "pleaseProvideValidPhoneNumber" : "يرجى تقديم رقم هاتف ساري المفعول",
   "noChangesDetectedPhoneIsAlreadyUpToDate" : "لم يتم اكتشاف أي تغييرات، رقم الهاتف محدث بالفعل",
+  "noChangesDetected" : "لم يتم اكتشاف أي تغييرات",
   "failedToUpdateEmailPleaseTryLater" : "فشل تحديث البريد الإلكتروني ، يرجى المحاولة لاحقا",
   "areYouSureYouWantToUpdateYourEmail" : "هل أنت متأكد من أنك تريد تحديث بريدك الإلكتروني",
   "noChangesDetectedEmailIsAlreadyUpToDate" : "لم يتم اكتشاف أي تغييرات، البريد الإلكتروني محدث بالفعل",

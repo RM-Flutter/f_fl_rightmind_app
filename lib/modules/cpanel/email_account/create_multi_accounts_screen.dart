@@ -57,7 +57,6 @@ class _CreateMultiAccountsScreenState extends State<CreateMultiAccountsScreen> {
         title: AppStrings.createMulti.tr().toUpperCase(),
         onRefresh: () async {},
         bottomNavigationBar:  Container(
-          width: kIsWeb? 1100 : double.infinity,
           height: 120,
           padding: const EdgeInsets.symmetric(horizontal: kIsWeb ? 220:20),
           decoration: BoxDecoration(
@@ -71,39 +70,46 @@ class _CreateMultiAccountsScreenState extends State<CreateMultiAccountsScreen> {
               ],
               borderRadius: BorderRadius.circular(35)),
           alignment: Alignment.center,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: CustomElevatedButton(
-                  width: null,
-                  backgroundColor: const Color(0xffD10A11),
-                  title: AppStrings.cancel.tr().toUpperCase(),
-                  onPressed: () async {
-                    Navigator.pop(context);
-                  },
-                  isPrimaryBackground: false,
-                ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: kIsWeb ? 1100 : double.infinity,
               ),
-              const SizedBox(
-                width: 20,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: CustomElevatedButton(
+                      width: null,
+                      backgroundColor: const Color(0xffD10A11),
+                      title: AppStrings.cancel.tr().toUpperCase(),
+                      onPressed: () async {
+                        Navigator.pop(context);
+                      },
+                      isPrimaryBackground: false,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  Expanded(
+                    child: CustomElevatedButton(
+                      width: null,
+                      backgroundColor: const Color(AppColors.dark),
+                      title: AppStrings.createEmails.tr().toUpperCase(),
+                      onPressed: () async {
+                        await value.addMultiEmails(
+                          context,
+                          domainId: widget.dominId.toString(),
+                          accounts: emailAccountProvider.accountsMulti,
+                        );
+                      },
+                      isPrimaryBackground: false,
+                    ),
+                  ),
+                ],
               ),
-              Expanded(
-                child: CustomElevatedButton(
-                  width: null,
-                  backgroundColor: const Color(AppColors.dark),
-                  title: AppStrings.createEmails.tr().toUpperCase(),
-                  onPressed: () async {
-                    await value.addMultiEmails(
-                      context,
-                      domainId: widget.dominId.toString(),
-                      accounts: emailAccountProvider.accountsMulti,
-                    );
-                  },
-                  isPrimaryBackground: false,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
         body: GradientBgImage(
@@ -179,7 +185,7 @@ class _CreateMultiAccountsScreenState extends State<CreateMultiAccountsScreen> {
                                         Row(
                                           children: [
                                             SizedBox(
-                                              width: kIsWeb? MediaQuery.sizeOf(context).width * 0.65:MediaQuery.sizeOf(context).width * 0.7,
+                                              width: kIsWeb? MediaQuery.sizeOf(context).width * 0.4:MediaQuery.sizeOf(context).width * 0.7,
                                               child: Text(emailAccountProvider.accountsMulti[index]['username'],
                                                   style: const TextStyle(
                                                       fontSize: 16,

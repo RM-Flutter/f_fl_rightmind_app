@@ -43,17 +43,18 @@ class CreateAccountViewModel extends ChangeNotifier {
         return;
       }
       if (formKey.currentState?.validate() == true) {
-        if(CacheHelper.getString("role") != "merchant"){ await _createNewAccount(
-            phone: phoneController.text,
-            email: emailController.text,
-            password: passwordController.text,
-            name: nameController.text,
-            mak: making,
-            countryKey: countryCodeController.text.isEmpty
-                ? '+20'
-                : countryCodeController.text,
-            context: context,
-            departmentId: 1);}
+        if(CacheHelper.getString("role") != "merchant"){
+          await _createNewAccount(
+              phone: phoneController.text,
+              email: emailController.text,
+              password: passwordController.text,
+              name: nameController.text,
+              mak: making,
+              countryKey: countryCodeController.text.isEmpty
+                  ? '+20'
+                  : countryCodeController.text,
+              context: context,
+              departmentId: 1);}
         else{
           await _createNewAccount(
               phone: phoneController.text,
@@ -94,6 +95,8 @@ class CreateAccountViewModel extends ChangeNotifier {
         required int departmentId,
         var mak,
         required BuildContext context}) async {
+    isEmailRegister = true;
+    notifyListeners();
     final appConfigServiceProvider =
     Provider.of<AppConfigService>(context, listen: false);
     final result = await AuthenticationService.createAccount(
@@ -121,7 +124,9 @@ class CreateAccountViewModel extends ChangeNotifier {
       );
       if(mak == null) Navigator.pop(context, result);
       if(mak != null){mak();}
+      isEmailRegister = false;
       isRegisterSuccess = true;
+      notifyListeners();
     } else {
       errors = result.errors ?? [];
       if(errors != [] && errors!.isNotEmpty){
@@ -129,6 +134,7 @@ class CreateAccountViewModel extends ChangeNotifier {
         nameError = null;
         passwordError = null;
         phoneError = null;
+        isEmailRegister = false;
         for (var e in errors!) {
           if (e.contains("email") || e.contains("ايميل") || e.contains("البريد")) {
             emailError = e;

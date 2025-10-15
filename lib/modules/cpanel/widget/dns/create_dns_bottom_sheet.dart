@@ -37,7 +37,6 @@ class _CreateEmailBottomSheetState extends State<CreateEmailBottomSheet> {
   }
   @override
   void initState() {
-    priorityController.text = "0";
     super.initState();
   }
   @override

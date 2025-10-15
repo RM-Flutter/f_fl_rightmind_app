@@ -64,387 +64,384 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                     ),
                   ),
                   body: SingleChildScrollView(
-                    child: GradientBgImage(
-                      padding: EdgeInsets.all(0),
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            maxWidth: kIsWeb ? 1100 : double.infinity,
-                          ),
-                          child: Center(
-                            child: kIsWeb? Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const MainLogoAndTitleWidget(),
-                                const SizedBox(
-                                  height: 40,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(15.0),
-                                      child: SizedBox(
-                                        height: 200,
-                                        child: defaultTapBarItem(
-                                          items: taps,
-                                          tapBarItemsWidth: MediaQuery.sizeOf(context).width * 0.95,
-                                          selectIndex: selectIndex,
-                                          onTapItem: (index) {
-                                            setState(() {
-                                              selectIndex = index;
-                                            });
-                                          },
-                                        ),
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: kIsWeb ? 1100 : double.infinity,
+                        ),
+                        child: Center(
+                          child: kIsWeb? Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const MainLogoAndTitleWidget(),
+                              const SizedBox(
+                                height: 40,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(15.0),
+                                    child: SizedBox(
+                                      height: 200,
+                                      child: defaultTapBarItem(
+                                        items: taps,
+                                        tapBarItemsWidth: MediaQuery.sizeOf(context).width * 0.95,
+                                        selectIndex: selectIndex,
+                                        onTapItem: (index) {
+                                          setState(() {
+                                            selectIndex = index;
+                                          });
+                                        },
                                       ),
                                     ),
-                                    const SizedBox(width: 20,),
-                                    SizedBox(
-                                      width: 800,
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          if (value.aboutUsModel != null)
-                                            Padding(
-                                              padding: const EdgeInsets.symmetric(horizontal: 15),
-                                              child: (selectIndex == 0)
-                                                  ? SizedBox(
-                                                height: MediaQuery.sizeOf(context)
-                                                    .height *
-                                                    0.45,
-                                                child: SingleChildScrollView(
-                                                  child: Html(
-                                                      shrinkWrap: true,
-                                                      data: value.aboutUsModel!.page!.content,
-                                                      style: TextsStyles.htmlStyles),
-                                                ),
-                                              )
-                                                  : (selectIndex == 1)
-                                                  ? SingleChildScrollView(
-                                                child:Html(
-                                                    data: value.aboutUsModel!.page!.history!,
+                                  ),
+                                  const SizedBox(width: 20,),
+                                  SizedBox(
+                                    width: 800,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        if (value.aboutUsModel != null)
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                                            child: (selectIndex == 0)
+                                                ? SizedBox(
+                                              height: MediaQuery.sizeOf(context)
+                                                  .height *
+                                                  0.45,
+                                              child: SingleChildScrollView(
+                                                child: Html(
+                                                    shrinkWrap: true,
+                                                    data: value.aboutUsModel!.page!.content,
                                                     style: TextsStyles.htmlStyles),
-                                              )
-                                              // : (selectIndex == 2)
-                                              //     ? Container(
-                                              //         height: MediaQuery.sizeOf(context)
-                                              //                 .height *
-                                              //             0.45,
-                                              //         child: GridView.builder(
-                                              //           gridDelegate:
-                                              //               const SliverGridDelegateWithFixedCrossAxisCount(
-                                              //             crossAxisCount:
-                                              //                 3, // 3 items per row
-                                              //             mainAxisSpacing: 16.0,
-                                              //             crossAxisSpacing: 16.0,
-                                              //             childAspectRatio:
-                                              //                 1, // Square aspect ratio
-                                              //           ),
-                                              //           itemCount: value.aboutUsModel!
-                                              //               .page!.certificates!.length,
-                                              //           itemBuilder: (context, index) {
-                                              //             return Container(
-                                              //               decoration: BoxDecoration(
-                                              //                 color: Colors.white,
-                                              //                 borderRadius:
-                                              //                     BorderRadius.circular(
-                                              //                         12),
-                                              //                 boxShadow: [
-                                              //                   BoxShadow(
-                                              //                     color: Colors.black
-                                              //                         .withOpacity(0.1),
-                                              //                     blurRadius: 8,
-                                              //                     offset:
-                                              //                         const Offset(0, 4),
-                                              //                   ),
-                                              //                 ],
-                                              //               ),
-                                              //               child: Padding(
-                                              //                   padding:
-                                              //                       const EdgeInsets.all(
-                                              //                           12.0),
-                                              //                   child: CachedNetworkImage(
-                                              //                     imageUrl: value
-                                              //                             .aboutUsModel!
-                                              //                             .page!
-                                              //                             .certificates![
-                                              //                                 index]
-                                              //                             .file ??
-                                              //                         "",
-                                              //                     fit: BoxFit.cover,
-                                              //                     placeholder: (context,
-                                              //                             url) =>
-                                              //                         const ShimmerAnimatedLoading(),
-                                              //                     errorWidget: (context,
-                                              //                             url, error) =>
-                                              //                         const Icon(
-                                              //                       Icons
-                                              //                           .image_not_supported_outlined,
-                                              //                       size: AppSizes.s32,
-                                              //                       color: Colors.white,
-                                              //                     ),
-                                              //                   )),
-                                              //             );
-                                              //           },
-                                              //         ),
-                                              //       )
-                                                  : (selectIndex == 2)
-                                                  ? Container(
-                                                child: GridView.builder(
-                                                  physics: NeverScrollableScrollPhysics(),
-                                                  shrinkWrap: true,
-                                                  reverse: false,
-                                                  gridDelegate:
-                                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                                    crossAxisCount:
-                                                    4, // 3 items per row
-                                                    mainAxisSpacing: 16.0,
-                                                    crossAxisSpacing: 16.0,
-                                                    childAspectRatio:
-                                                    1, // Square aspect ratio
-                                                  ),
-                                                  itemCount: value.aboutUsModel!
-                                                      .page!.partners!.length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    return Container(
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.white,
-                                                        borderRadius: BorderRadius.circular(12),
-                                                        boxShadow: [
-                                                          BoxShadow(
-                                                            color: Colors.black
-                                                                .withOpacity(
-                                                                0.1),
-                                                            blurRadius: 8,
-                                                            offset:
-                                                            const Offset(
-                                                                0, 4),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      child: Padding(
-                                                          padding:
-                                                          const EdgeInsets
-                                                              .all(12.0),
-                                                          child:
-                                                          CachedNetworkImage(
-                                                            imageUrl: value
-                                                                .aboutUsModel!
-                                                                .page!
-                                                                .partners![
-                                                            index]
-                                                                .file ??
-                                                                "",
-                                                            fit: BoxFit.contain,
-                                                            placeholder: (context,
-                                                                url) =>
-                                                            const ShimmerAnimatedLoading(),
-                                                            errorWidget:
-                                                                (context, url,
-                                                                error) =>
-                                                            const Icon(
-                                                              Icons
-                                                                  .image_not_supported_outlined,
-                                                              size:
-                                                              AppSizes.s32,
-                                                              color:
-                                                              Colors.white,
-                                                            ),
-                                                          )),
-                                                    );
-                                                  },
-                                                ),
-                                              )
-                                                  : Container(
-                                                height: 0,
                                               ),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(height: 25,)
-                                  ],
-                                ),
-                              ],
-                            ) :
-                            Column(
-                              children: [
-                                const SizedBox(width: 20,),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: Column(
-                                    children: [
-                                      const MainLogoAndTitleWidget(),
-                                      const SizedBox(
-                                        height: 40,
-                                      ),
-                                      if (value.aboutUsModel != null)
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                                          child: (selectIndex == 0)
-                                              ? SizedBox(
-                                            height: MediaQuery.sizeOf(context)
-                                                .height *
-                                                0.45,
-                                            child: SingleChildScrollView(
-                                              child: Html(
-                                                  shrinkWrap: true,
-                                                  data: value.aboutUsModel!.page!.content,
+                                            )
+                                                : (selectIndex == 1)
+                                                ? SingleChildScrollView(
+                                              child:Html(
+                                                  data: value.aboutUsModel!.page!.history!,
                                                   style: TextsStyles.htmlStyles),
-                                            ),
-                                          )
-                                              : (selectIndex == 1)
-                                              ? SingleChildScrollView(
-                                            child:Html(
-                                                data: value.aboutUsModel!.page!.history!,
-                                                style: TextsStyles.htmlStyles),
-                                          )
-                                          // : (selectIndex == 2)
-                                          //     ? Container(
-                                          //         height: MediaQuery.sizeOf(context)
-                                          //                 .height *
-                                          //             0.45,
-                                          //         child: GridView.builder(
-                                          //           gridDelegate:
-                                          //               const SliverGridDelegateWithFixedCrossAxisCount(
-                                          //             crossAxisCount:
-                                          //                 3, // 3 items per row
-                                          //             mainAxisSpacing: 16.0,
-                                          //             crossAxisSpacing: 16.0,
-                                          //             childAspectRatio:
-                                          //                 1, // Square aspect ratio
-                                          //           ),
-                                          //           itemCount: value.aboutUsModel!
-                                          //               .page!.certificates!.length,
-                                          //           itemBuilder: (context, index) {
-                                          //             return Container(
-                                          //               decoration: BoxDecoration(
-                                          //                 color: Colors.white,
-                                          //                 borderRadius:
-                                          //                     BorderRadius.circular(
-                                          //                         12),
-                                          //                 boxShadow: [
-                                          //                   BoxShadow(
-                                          //                     color: Colors.black
-                                          //                         .withOpacity(0.1),
-                                          //                     blurRadius: 8,
-                                          //                     offset:
-                                          //                         const Offset(0, 4),
-                                          //                   ),
-                                          //                 ],
-                                          //               ),
-                                          //               child: Padding(
-                                          //                   padding:
-                                          //                       const EdgeInsets.all(
-                                          //                           12.0),
-                                          //                   child: CachedNetworkImage(
-                                          //                     imageUrl: value
-                                          //                             .aboutUsModel!
-                                          //                             .page!
-                                          //                             .certificates![
-                                          //                                 index]
-                                          //                             .file ??
-                                          //                         "",
-                                          //                     fit: BoxFit.cover,
-                                          //                     placeholder: (context,
-                                          //                             url) =>
-                                          //                         const ShimmerAnimatedLoading(),
-                                          //                     errorWidget: (context,
-                                          //                             url, error) =>
-                                          //                         const Icon(
-                                          //                       Icons
-                                          //                           .image_not_supported_outlined,
-                                          //                       size: AppSizes.s32,
-                                          //                       color: Colors.white,
-                                          //                     ),
-                                          //                   )),
-                                          //             );
-                                          //           },
-                                          //         ),
-                                          //       )
-                                              : (selectIndex == 2)
-                                              ? Container(
-                                            height:
-                                            MediaQuery.sizeOf(context)
-                                                .height *
-                                                0.45,
-                                            child: GridView.builder(
-                                              gridDelegate:
-                                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                                crossAxisCount:
-                                                3, // 3 items per row
-                                                mainAxisSpacing: 16.0,
-                                                crossAxisSpacing: 16.0,
-                                                childAspectRatio:
-                                                1, // Square aspect ratio
-                                              ),
-                                              itemCount: value.aboutUsModel!
-                                                  .page!.partners!.length,
-                                              itemBuilder:
-                                                  (context, index) {
-                                                return Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius: BorderRadius.circular(12),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.black
-                                                            .withOpacity(
-                                                            0.1),
-                                                        blurRadius: 8,
-                                                        offset:
-                                                        const Offset(
-                                                            0, 4),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  child: Padding(
-                                                      padding:
-                                                      const EdgeInsets
-                                                          .all(12.0),
-                                                      child:
-                                                      CachedNetworkImage(
-                                                        imageUrl: value
-                                                            .aboutUsModel!
-                                                            .page!
-                                                            .partners![
-                                                        index]
-                                                            .file ??
-                                                            "",
-                                                        fit: BoxFit.contain,
-                                                        placeholder: (context,
-                                                            url) =>
-                                                        const ShimmerAnimatedLoading(),
-                                                        errorWidget:
-                                                            (context, url,
-                                                            error) =>
-                                                        const Icon(
-                                                          Icons
-                                                              .image_not_supported_outlined,
-                                                          size:
-                                                          AppSizes.s32,
-                                                          color:
-                                                          Colors.white,
+                                            )
+                                            // : (selectIndex == 2)
+                                            //     ? Container(
+                                            //         height: MediaQuery.sizeOf(context)
+                                            //                 .height *
+                                            //             0.45,
+                                            //         child: GridView.builder(
+                                            //           gridDelegate:
+                                            //               const SliverGridDelegateWithFixedCrossAxisCount(
+                                            //             crossAxisCount:
+                                            //                 3, // 3 items per row
+                                            //             mainAxisSpacing: 16.0,
+                                            //             crossAxisSpacing: 16.0,
+                                            //             childAspectRatio:
+                                            //                 1, // Square aspect ratio
+                                            //           ),
+                                            //           itemCount: value.aboutUsModel!
+                                            //               .page!.certificates!.length,
+                                            //           itemBuilder: (context, index) {
+                                            //             return Container(
+                                            //               decoration: BoxDecoration(
+                                            //                 color: Colors.white,
+                                            //                 borderRadius:
+                                            //                     BorderRadius.circular(
+                                            //                         12),
+                                            //                 boxShadow: [
+                                            //                   BoxShadow(
+                                            //                     color: Colors.black
+                                            //                         .withOpacity(0.1),
+                                            //                     blurRadius: 8,
+                                            //                     offset:
+                                            //                         const Offset(0, 4),
+                                            //                   ),
+                                            //                 ],
+                                            //               ),
+                                            //               child: Padding(
+                                            //                   padding:
+                                            //                       const EdgeInsets.all(
+                                            //                           12.0),
+                                            //                   child: CachedNetworkImage(
+                                            //                     imageUrl: value
+                                            //                             .aboutUsModel!
+                                            //                             .page!
+                                            //                             .certificates![
+                                            //                                 index]
+                                            //                             .file ??
+                                            //                         "",
+                                            //                     fit: BoxFit.cover,
+                                            //                     placeholder: (context,
+                                            //                             url) =>
+                                            //                         const ShimmerAnimatedLoading(),
+                                            //                     errorWidget: (context,
+                                            //                             url, error) =>
+                                            //                         const Icon(
+                                            //                       Icons
+                                            //                           .image_not_supported_outlined,
+                                            //                       size: AppSizes.s32,
+                                            //                       color: Colors.white,
+                                            //                     ),
+                                            //                   )),
+                                            //             );
+                                            //           },
+                                            //         ),
+                                            //       )
+                                                : (selectIndex == 2)
+                                                ? Container(
+                                              child: GridView.builder(
+                                                physics: NeverScrollableScrollPhysics(),
+                                                shrinkWrap: true,
+                                                reverse: false,
+                                                gridDelegate:
+                                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount:
+                                                  4, // 3 items per row
+                                                  mainAxisSpacing: 16.0,
+                                                  crossAxisSpacing: 16.0,
+                                                  childAspectRatio:
+                                                  1, // Square aspect ratio
+                                                ),
+                                                itemCount: value.aboutUsModel!
+                                                    .page!.partners!.length,
+                                                itemBuilder:
+                                                    (context, index) {
+                                                  return Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius: BorderRadius.circular(12),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.black
+                                                              .withOpacity(
+                                                              0.1),
+                                                          blurRadius: 8,
+                                                          offset:
+                                                          const Offset(
+                                                              0, 4),
                                                         ),
-                                                      )),
-                                                );
-                                              },
+                                                      ],
+                                                    ),
+                                                    child: Padding(
+                                                        padding:
+                                                        const EdgeInsets
+                                                            .all(12.0),
+                                                        child:
+                                                        CachedNetworkImage(
+                                                          imageUrl: value
+                                                              .aboutUsModel!
+                                                              .page!
+                                                              .partners![
+                                                          index]
+                                                              .file ??
+                                                              "",
+                                                          fit: BoxFit.contain,
+                                                          placeholder: (context,
+                                                              url) =>
+                                                          const ShimmerAnimatedLoading(),
+                                                          errorWidget:
+                                                              (context, url,
+                                                              error) =>
+                                                          const Icon(
+                                                            Icons
+                                                                .image_not_supported_outlined,
+                                                            size:
+                                                            AppSizes.s32,
+                                                            color:
+                                                            Colors.white,
+                                                          ),
+                                                        )),
+                                                  );
+                                                },
+                                              ),
+                                            )
+                                                : Container(
+                                              height: 0,
                                             ),
-                                          )
-                                              : Container(
-                                            height: 0,
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 25,)
+                                ],
+                              ),
+                            ],
+                          ) :
+                          Column(
+                            children: [
+                              const SizedBox(width: 20,),
+                              SizedBox(
+                                width: double.infinity,
+                                child: Column(
+                                  children: [
+                                    const MainLogoAndTitleWidget(),
+                                    const SizedBox(
+                                      height: 40,
+                                    ),
+                                    if (value.aboutUsModel != null)
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                                        child: (selectIndex == 0)
+                                            ? SizedBox(
+                                          height: MediaQuery.sizeOf(context)
+                                              .height *
+                                              0.45,
+                                          child: SingleChildScrollView(
+                                            child: Html(
+                                                shrinkWrap: true,
+                                                data: value.aboutUsModel!.page!.content,
+                                                style: TextsStyles.htmlStyles),
                                           ),
                                         )
-                                    ],
-                                  ),
+                                            : (selectIndex == 1)
+                                            ? SingleChildScrollView(
+                                          child:Html(
+                                              data: value.aboutUsModel!.page!.history!,
+                                              style: TextsStyles.htmlStyles),
+                                        )
+                                        // : (selectIndex == 2)
+                                        //     ? Container(
+                                        //         height: MediaQuery.sizeOf(context)
+                                        //                 .height *
+                                        //             0.45,
+                                        //         child: GridView.builder(
+                                        //           gridDelegate:
+                                        //               const SliverGridDelegateWithFixedCrossAxisCount(
+                                        //             crossAxisCount:
+                                        //                 3, // 3 items per row
+                                        //             mainAxisSpacing: 16.0,
+                                        //             crossAxisSpacing: 16.0,
+                                        //             childAspectRatio:
+                                        //                 1, // Square aspect ratio
+                                        //           ),
+                                        //           itemCount: value.aboutUsModel!
+                                        //               .page!.certificates!.length,
+                                        //           itemBuilder: (context, index) {
+                                        //             return Container(
+                                        //               decoration: BoxDecoration(
+                                        //                 color: Colors.white,
+                                        //                 borderRadius:
+                                        //                     BorderRadius.circular(
+                                        //                         12),
+                                        //                 boxShadow: [
+                                        //                   BoxShadow(
+                                        //                     color: Colors.black
+                                        //                         .withOpacity(0.1),
+                                        //                     blurRadius: 8,
+                                        //                     offset:
+                                        //                         const Offset(0, 4),
+                                        //                   ),
+                                        //                 ],
+                                        //               ),
+                                        //               child: Padding(
+                                        //                   padding:
+                                        //                       const EdgeInsets.all(
+                                        //                           12.0),
+                                        //                   child: CachedNetworkImage(
+                                        //                     imageUrl: value
+                                        //                             .aboutUsModel!
+                                        //                             .page!
+                                        //                             .certificates![
+                                        //                                 index]
+                                        //                             .file ??
+                                        //                         "",
+                                        //                     fit: BoxFit.cover,
+                                        //                     placeholder: (context,
+                                        //                             url) =>
+                                        //                         const ShimmerAnimatedLoading(),
+                                        //                     errorWidget: (context,
+                                        //                             url, error) =>
+                                        //                         const Icon(
+                                        //                       Icons
+                                        //                           .image_not_supported_outlined,
+                                        //                       size: AppSizes.s32,
+                                        //                       color: Colors.white,
+                                        //                     ),
+                                        //                   )),
+                                        //             );
+                                        //           },
+                                        //         ),
+                                        //       )
+                                            : (selectIndex == 2)
+                                            ? Container(
+                                          height:
+                                          MediaQuery.sizeOf(context)
+                                              .height *
+                                              0.45,
+                                          child: GridView.builder(
+                                            gridDelegate:
+                                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                              crossAxisCount:
+                                              3, // 3 items per row
+                                              mainAxisSpacing: 16.0,
+                                              crossAxisSpacing: 16.0,
+                                              childAspectRatio:
+                                              1, // Square aspect ratio
+                                            ),
+                                            itemCount: value.aboutUsModel!
+                                                .page!.partners!.length,
+                                            itemBuilder:
+                                                (context, index) {
+                                              return Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.black
+                                                          .withOpacity(
+                                                          0.1),
+                                                      blurRadius: 8,
+                                                      offset:
+                                                      const Offset(
+                                                          0, 4),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Padding(
+                                                    padding:
+                                                    const EdgeInsets
+                                                        .all(12.0),
+                                                    child:
+                                                    CachedNetworkImage(
+                                                      imageUrl: value
+                                                          .aboutUsModel!
+                                                          .page!
+                                                          .partners![
+                                                      index]
+                                                          .file ??
+                                                          "",
+                                                      fit: BoxFit.contain,
+                                                      placeholder: (context,
+                                                          url) =>
+                                                      const ShimmerAnimatedLoading(),
+                                                      errorWidget:
+                                                          (context, url,
+                                                          error) =>
+                                                      const Icon(
+                                                        Icons
+                                                            .image_not_supported_outlined,
+                                                        size:
+                                                        AppSizes.s32,
+                                                        color:
+                                                        Colors.white,
+                                                      ),
+                                                    )),
+                                              );
+                                            },
+                                          ),
+                                        )
+                                            : Container(
+                                          height: 0,
+                                        ),
+                                      )
+                                  ],
                                 ),
-                              ],
-                            ) ,
-                          )
-                        ),
+                              ),
+                            ],
+                          ) ,
+                        )
                       ),
                     ),
                   ),

@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/dio.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class EmailForwardProvider extends ChangeNotifier {
@@ -153,14 +154,13 @@ class EmailForwardProvider extends ChangeNotifier {
           },
         );
       }else{
-        Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
+        showToast(
+          response.data['message'],
+          context: context,
+          backgroundColor: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          duration: const Duration(seconds: 5),
+          position: StyledToastPosition.bottom,
         );
       }
       isLoading = false;
@@ -203,14 +203,13 @@ class EmailForwardProvider extends ChangeNotifier {
           },
         );
       }else{
-        Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
+        showToast(
+          response.data['message'],
+          context: context,
+          backgroundColor: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          duration: const Duration(seconds: 5),
+          position: StyledToastPosition.bottom,
         );
       }
       isLoading = false;
@@ -256,14 +255,13 @@ class EmailForwardProvider extends ChangeNotifier {
           },
         );
       }else{
-        Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
+        showToast(
+          response.data['message'],
+          context: context,
+          backgroundColor: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          duration: const Duration(seconds: 5),
+          position: StyledToastPosition.bottom,
         );
       }
       isLoading = false;
@@ -301,14 +299,13 @@ class EmailForwardProvider extends ChangeNotifier {
           },
         );
       }else{
-        Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
+        showToast(
+          response.data['message'],
+          context: context,
+          backgroundColor: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          duration: const Duration(seconds: 5),
+          position: StyledToastPosition.bottom,
         );
         AlertsService.error(
             context: context,

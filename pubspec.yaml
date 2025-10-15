@@ -29,7 +29,7 @@ dependencies:
   flutter_pdfview: ^1.4.0+1
   internet_connection_checker:
   just_audio:
-  record:
+  record: ^5.0.0
   flutter_staggered_grid_view:
   photo_view:
   fluttertoast:
@@ -78,6 +78,7 @@ dependencies:
   path_provider: ^2.1.5
   permission_handler: ^11.3.1
   provider: ^6.1.2
+  flutter_styled_toast:
   qr_flutter: ^4.1.0
   shared_preferences: ^2.5.1
   syncfusion_flutter_calendar: ^28.2.3

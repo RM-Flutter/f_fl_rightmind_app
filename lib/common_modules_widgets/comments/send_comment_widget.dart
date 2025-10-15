@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:cpanal/common_modules_widgets/comments/record_service.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:path_provider/path_provider.dart';
@@ -11,6 +13,7 @@ import 'package:cpanal/common_modules_widgets/comments/logic/view_model.dart';
 import 'package:cpanal/constants/app_colors.dart';
 import 'package:cpanal/constants/app_strings.dart';
 import 'package:cpanal/controller/request_controller/request_controller.dart';
+import 'dart:html' as html;
 
 class SendCommentWidget extends StatefulWidget {
   final String id;
@@ -26,33 +29,87 @@ class _SendCommentWidgetState extends State<SendCommentWidget> {
   final _audioRecorder = AudioRecorder();
   String? _recordedFilePath;
   bool _isRecording = false;
+  late RecordingService? recordingService;
+
   Timer? _timer;
   int _elapsedTime = 0;
+  html.MediaRecorder? _webRecorder;
+  List<html.Blob> _audioChunks = [];
+  @override
+  void initState() {
+    recordingService = RecordingService();
+    super.initState();
+  }
+
+
+  Future<void> _startWebRecording() async {
+    final stream = await html.window.navigator.mediaDevices?.getUserMedia({'audio': true});
+    if (stream == null) return;
+
+    // 🧹 تأكد من تنظيف القديم قبل بدء تسجيل جديد
+    _audioChunks.clear();
+    _webRecorder?.stop();
+    _webRecorder = null;
+
+    _webRecorder = html.MediaRecorder(stream);
+    _webRecorder!.addEventListener('dataavailable', (event) {
+      final e = event as html.BlobEvent;
+      if (e.data != null) _audioChunks.add(e.data!);
+    });
+
+    _webRecorder!.addEventListener('stop', (_) {
+      // عند الإيقاف، نوقف كل الميكروفونات المفتوحة
+      for (var track in stream.getTracks()) {
+        track.stop();
+      }
+    });
+
+    _webRecorder!.start();
+    print("🎙️ Web recording started");
+  }
+
+  Future<Uint8List?> _stopWebRecording() async {
+    final completer = Completer<Uint8List>();
+    if (_webRecorder == null) return null;
+
+    _webRecorder!.addEventListener('stop', (_) async {
+      final blob = html.Blob(_audioChunks, 'audio/webm');
+      _audioChunks.clear(); // ✅ تنظيف الذاكرة بعد كل تسجيل
+      final reader = html.FileReader();
+      reader.readAsArrayBuffer(blob);
+      reader.onLoadEnd.listen((_) {
+        completer.complete(reader.result as Uint8List);
+      });
+
+      _webRecorder = null; // ✅ مهم جدًا لإعادة التهيئة في التسجيل القادم
+    });
+
+    _webRecorder!.stop();
+    print("🛑 Web recording stopped");
+    return completer.future;
+  }
+
 
   Future<void> _startRecording() async {
-    try {
-      if (await _audioRecorder.hasPermission()) {
-        final directory = await getApplicationDocumentsDirectory();
-        final path = '${directory.path}/recorded_audio.m4a';
+    if (_isRecording) return;
+    _elapsedTime = 0;
 
-        await _audioRecorder.start(
-          RecordConfig(encoder: AudioEncoder.aacLc, bitRate: 128000),
-          path: path,
-        );
-
-        setState(() {
-          _isRecording = true;
-          _elapsedTime = 0;
-          _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-            setState(() {
-              _elapsedTime++;
-            });
-          });
-        });
-      }
-    } catch (e) {
-      print("Error starting recording: $e");
+    if (kIsWeb) {
+      await _startWebRecording();
+    } else {
+      await recordingService!.start();
     }
+
+    setState(() {
+      _isRecording = true;
+    });
+
+    // ⏱️ تشغيل العداد
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() {
+        _elapsedTime++;
+      });
+    });
   }
   Future<Duration?> _getAudioDuration(String filePath) async {
     try {
@@ -88,36 +145,46 @@ class _SendCommentWidgetState extends State<SendCommentWidget> {
 
         }
         Future<void> _stopRecording() async {
-          try {
-            final path = await _audioRecorder.stop();
-            if (path != null) {
-              final file = File(path);
-              if (await file.exists()) {
-                Duration? duration = await _getAudioDuration(path);
-                if (duration != null && duration.inSeconds > 0) {
-                  print("Audio Duration: ${duration.inSeconds} seconds");
-                  value.addComment(context, id: widget.id, voicePath: path, slug: "csrequests");
-                } else {
-                  print("Error: Recorded audio has zero duration!");
-                }
-              } else {
-                print("Error: Recorded file does not exist.");
-              }
-            }
-          } catch (e) {
-            print("Error stopping recording: $e");
-          } finally {
-            setState(() {
-              _isRecording = false;
-              _timer?.cancel();
-            });
-          }
-        }
+          if (!_isRecording) return;
+          _timer?.cancel();
 
+          if (kIsWeb) {
+            final bytes = await _stopWebRecording();
+            if (bytes != null && bytes.isNotEmpty) {
+              print("✅ Web voice recorded ${bytes.length} bytes");
+              await Provider.of<CommentProvider>(context, listen: false).addComment(
+                context,
+                id: widget.id,
+                slug: "csrequests",
+                voiceBytes: bytes,
+              );
+            } else {
+              print("⚠️ Empty audio on web!");
+            }
+          } else {
+            final result = await recordingService!.stop();
+            if (result?.path != null) {
+              print("✅ Mobile voice recorded: ${result!.path}");
+              await Provider.of<CommentProvider>(context, listen: false).addComment(
+                context,
+                id: widget.id,
+                slug: "csrequests",
+                voicePath: result.path,
+              );
+            }
+          }
+
+          setState(() {
+            _isRecording = false;
+            _elapsedTime = 0;
+          });
+        }
         return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: MediaQuery.of(context).size.width * 0.75,
+              width: !kIsWeb?MediaQuery.of(context).size.width * 0.75:MediaQuery.of(context).size.width * 0.5,
+              alignment: Alignment.center,
               padding: EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -132,9 +199,12 @@ class _SendCommentWidgetState extends State<SendCommentWidget> {
               child: Row(
                 children: [
                   SizedBox(
-                    width: _isRecording
+                    width:!kIsWeb? _isRecording
                         ? MediaQuery.of(context).size.width * 0.48
-                        : MediaQuery.of(context).size.width * 0.54,
+                        : MediaQuery.of(context).size.width * 0.54:
+                    _isRecording
+                        ? MediaQuery.of(context).size.width * 0.4
+                        : MediaQuery.of(context).size.width * 0.45,
                     child: TextField(
                       controller: value.contentController,
                       decoration: InputDecoration(
@@ -174,17 +244,23 @@ class _SendCommentWidgetState extends State<SendCommentWidget> {
                   ),
                   SizedBox(width: 15),
                   GestureDetector(
-                    onTap: _isRecording ? () => _stopRecording() : null,
-                    onLongPress: _isRecording ? () => _stopRecording() : _startRecording,
-                    onLongPressUp: () => _stopRecording(),
+                    onLongPressStart: (_) => _startRecording(),
+                    onLongPressEnd: (_) => _stopRecording(),
                     child: _isRecording
                         ? Text(
-                      '$_elapsedTime s',
+                      '${_elapsedTime}s',
                       style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold, color: Color(AppColors.primary)),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(AppColors.primary),
+                      ),
                     )
-                        : SvgPicture.asset("assets/images/svg/voice.svg", color: Color(AppColors.primary)),
+                        : SvgPicture.asset(
+                      "assets/images/svg/voice.svg",
+                      color: Color(AppColors.primary),
+                    ),
                   ),
+
                 ],
               ),
             ),

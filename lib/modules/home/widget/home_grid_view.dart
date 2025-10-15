@@ -4,6 +4,7 @@ import 'package:cpanal/constants/app_strings.dart';
 import 'package:cpanal/modules/home/widget/grid_view_model.dart';
 import 'package:cpanal/modules/home/widget/home_grid_view_item.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../routing/app_router.dart';
@@ -85,7 +86,7 @@ class HomeGridView extends StatelessWidget {
           },
           backgroundColor: const Color(AppColors.dark)),
     ];
-    return SliverPadding(
+    return !kIsWeb?SliverPadding(
       padding: const EdgeInsetsDirectional.only(
           top: AppSizes.s90),
       sliver: SliverGrid(
@@ -101,6 +102,29 @@ class HomeGridView extends StatelessWidget {
         ),
       ),
 
+    ): SliverToBoxAdapter(
+      child: Align(
+        alignment: Alignment.center, // يوسّط الجريد أفقيًا
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1400),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 300,
+                mainAxisSpacing: 20,
+                crossAxisSpacing: 20,
+                childAspectRatio: 0.9,
+              ),
+              itemCount: grideItems.length,
+              itemBuilder: (context, index) =>
+                  HomeGridViewItem(itemModel: grideItems[index]),
+            ),
+          ),
+        ),
+      ),
     );
   }
 

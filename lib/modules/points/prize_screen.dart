@@ -167,7 +167,7 @@ class _PrizeScreenState extends State<PrizeScreen> {
                                 );
                               } else {
                                 return InkWell(
-                                  onTap: () {
+                                  onTap: points.isRedeemLoading == false ?() {
                                     setState(() {
                                       points.selectIndex = index;
                                       points.type = points.prizes[index]['type']['key'];
@@ -186,24 +186,27 @@ class _PrizeScreenState extends State<PrizeScreen> {
                                    }
                                    else if((points.prizes[index]['type']['key'] != "external" && points.prizes[index]['type']['key'] != "internal") &&
                                        (points.prizes[index]['needed_data'].isEmpty ||points.prizes[index]['needed_data'] == [] || points.prizes[index]['needed_data'] == null)){
-                                     PointsSuccessSheet.showConfirmationSheet(context, onTap: (){
-                                       points.postRedeemPrize(context, id: points.prizes[index]['id'].toString());
+                                     PointsSuccessSheet.showConfirmationSheet(context, onTap: ()async{
+                                       Navigator.pop(context);
+                                      await points.postRedeemPrize(context, id: points.prizes[index]['id'].toString());
                                      });
                                    }
                                    else if((points.prizes[index]['type']['key'] == "external" || points.prizes[index]['type']['key'] == "internal") &&
                                        (points.prizes[index]['needed_data'].isEmpty || points.prizes[index]['needed_data'] == [] || points.prizes[index]['needed_data'] == null)){
-                                     PointsSuccessSheet.showConfirmationSheet(context, onTap: (){
-                                       points.postRedeemPrize(context, id: points.prizes[index]['id'].toString());
+                                     PointsSuccessSheet.showConfirmationSheet(context, onTap: ()async{
+                                       Navigator.pop(context);
+                                      await points.postRedeemPrize(context, id: points.prizes[index]['id'].toString());
                                      });
                                    }
                                    else if(points.prizes[index]['type']['key'] == null){
-                                     PointsSuccessSheet.showConfirmationSheet(context, onTap: (){
-                                       points.postRedeemPrize(context, id: points.prizes[index]['id'].toString());
+                                     PointsSuccessSheet.showConfirmationSheet(context, onTap: ()async{
+                                       Navigator.pop(context);
+                                      await points.postRedeemPrize(context, id: points.prizes[index]['id'].toString());
                                      });
                                    }else{
                                      print("DATA --> ${points.prizes[index]['needed_data']}");
                                    }
-                                  },
+                                  } : (){},
                                   child: Container(
                                     padding: const EdgeInsetsDirectional.symmetric(
                                         horizontal: AppSizes.s15, vertical: AppSizes.s12),

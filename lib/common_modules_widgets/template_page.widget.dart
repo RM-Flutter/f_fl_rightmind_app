@@ -53,7 +53,13 @@ class TemplatePage extends StatelessWidget {
         leading: Padding(
           padding: const EdgeInsets.all(AppSizes.s10),
           child: InkWell(
-            onTap: () => context.pop(context),
+            onTap: () {
+              if(context.canPop()){
+                context.pop(context);
+              }else{
+                Navigator.pop(context);
+              }
+            },
             child: Container(
               decoration: BoxDecoration(
                   shape: BoxShape.circle,

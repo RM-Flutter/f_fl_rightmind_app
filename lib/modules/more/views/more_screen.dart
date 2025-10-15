@@ -15,6 +15,7 @@ import 'package:cpanal/modules/more/widgets/customize_notification_screen.dart';
 import 'package:cpanal/utils/custom_shimmer_loading/shimmer_animated_loading.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../../../constants/app_colors.dart';
+import '../../../constants/app_sizes.dart';
 import '../../../constants/app_strings.dart';
 import '../../../constants/web_image.dart';
 import '../../../models/settings/user_settings.model.dart';
@@ -92,11 +93,26 @@ class _MoreScreenState extends State<MoreScreen> {
                     ),
                     Padding(
                       padding: EdgeInsetsGeometry.only(left: 16, top: 40),
-                      child: GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Icon(Icons.arrow_back, color: Colors.white)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                              onTap: () {Navigator.pop(context);},
+                              child: Icon(Icons.arrow_back, color: Colors.white)),
+                          Text(
+                            AppStrings.accountAndSettings.tr(),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w400,
+                              fontSize: AppSizes.s14,
+                              letterSpacing: 1.4,
+                              color: Colors.white,
+                            ),
+                          ),
+                          GestureDetector(
+                              onTap: () {},
+                              child: Icon(Icons.arrow_back, color: Colors.transparent)),
+                        ],
+                      ),
                     )
                   ],
                 ),
@@ -127,13 +143,20 @@ class _MoreScreenState extends State<MoreScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 15),
                             child: ListView(
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: kIsWeb? 220 : 0),
-                                  child: Text(AppStrings.more.tr().toUpperCase(),
-                                      style: const TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(AppColors.primary))),
+                                Center(
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxWidth: kIsWeb ? 1070 : double.infinity,
+                                    ),
+                                    child: Container(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(AppStrings.more.tr().toUpperCase(),
+                                          style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: Color(AppColors.primary))),
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(height: 15),
                                 DefaultListTile(
@@ -317,13 +340,20 @@ class _MoreScreenState extends State<MoreScreen> {
                                 //   },
                                 // ),
                                 const SizedBox(height: 15),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: kIsWeb? 220 : 0),
-                                  child: Text(AppStrings.myAccount.tr().toUpperCase(),
-                                      style: const TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(AppColors.primary))),
+                                Center(
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxWidth: kIsWeb ? 1070 : double.infinity,
+                                    ),
+                                    child: Container(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(AppStrings.myAccount.tr().toUpperCase(),
+                                          style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: Color(AppColors.primary))),
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(height: 15),
                                 DefaultListTile(
@@ -428,7 +458,7 @@ class _MoreScreenState extends State<MoreScreen> {
                             height: 124,
                             child:  CachedNetworkImage(
                                     imageUrl: (gCache != null)
-                                        ? gCache['photo']
+                                        ? gCache['photo'] ?? ""
                                         : "",
                                     fit: BoxFit.cover,
                                     placeholder: (context, url) =>
@@ -451,7 +481,7 @@ class _MoreScreenState extends State<MoreScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 50),
                         width: MediaQuery.sizeOf(context).width * 1,
                         child: Text(
-                          (gCache != null ? gCache['name'] ?? '' : "")
+                          (gCache != null && gCache['name'] != null ? gCache['name'] ?? '' : "")
                               .toUpperCase(),
                           maxLines: 1,
                           textAlign: TextAlign.center,
@@ -469,7 +499,7 @@ class _MoreScreenState extends State<MoreScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        gCache != null ? gCache['job_title'] ?? "" : "",
+                        gCache != null && gCache['job_title'] != null ? gCache['job_title'] ?? "" : "",
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Color(0xff4F4F4F),
                               fontSize: 11,
@@ -499,7 +529,7 @@ class _MoreScreenState extends State<MoreScreen> {
 
 class DefaultListTile extends StatelessWidget {
   final String src;
-  final String title;
+  final String? title;
   final VoidCallback? onTap;
 
   const DefaultListTile({
@@ -527,7 +557,7 @@ class DefaultListTile extends StatelessWidget {
               width: 20, height: 20,
             ),
             title: Text(
-              title.toUpperCase(),
+              title!.toUpperCase() ?? "",
               style: Theme.of(context).textTheme.labelSmall,
             ),
             // trailing: Icon(

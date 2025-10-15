@@ -21,7 +21,8 @@ class _VoiceMessageWidgetState extends State<VoiceMessageWidget> {
     super.initState();
     _audioPlayer = AudioPlayer();
 
-    _audioPlayer.setUrl(widget.audioUrl);
+    _audioPlayer.setUrl("${widget.audioUrl}?t=${DateTime.now().millisecondsSinceEpoch}");
+
     _audioPlayer.durationStream.listen((d) {
       if (d != null) {
         setState(() {
