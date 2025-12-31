@@ -7,6 +7,7 @@ import 'package:easy_localization/easy_localization.dart' as locale;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cpanal/common_modules_widgets/dynamic_image_widget.dart';
 import 'package:cpanal/constants/app_images.dart';
 import 'package:cpanal/constants/app_strings.dart';
 import 'package:cpanal/constants/check_values.dart';
@@ -15,13 +16,18 @@ import 'package:cpanal/general_services/backend_services/api_service/dio_api_ser
 import 'package:cpanal/general_services/layout.service.dart';
 import 'package:cpanal/models/settings/user_settings.model.dart';
 import 'package:cpanal/modules/personal_profile/viewmodels/personal_profile.viewmodel.dart';
+import 'package:provider/provider.dart';
 import '../../../../../constants/app_sizes.dart';
 import '../../../../constants/app_colors.dart';
 import '../../../../constants/web_image.dart';
+import '../../../../general_services/app_config.service.dart';
 import '../../../../routing/app_router.dart';
 import '../../../../utils/custom_shimmer_loading/shimmer_animated_loading.dart';
+import '../../../splash_and_onboarding/views/splash_screen.dart';
 
 class PersonalProfileHeaderWidget extends StatelessWidget {
+
+
   final PersonalProfileViewModel viewModel;
   final String headerImage;
   final double notchedContainerHeight;
@@ -49,12 +55,48 @@ class PersonalProfileHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String getVerificationStatus(us1Cache) {
+      final email = us1Cache['email'];
+      final phone = us1Cache['phone'];
+      final emailVerified = us1Cache['email_verified_at'] != null;
+      final phoneVerified = us1Cache['phone_verified_at'] != null;
+
+      // لا يوجد ايميل ولا تليفون
+      if (email == null && phone == null) {
+        return "";
+      }
+
+      // عنده ايميل فقط
+      if (email != null && phone == null) {
+        return emailVerified ? "" : AppStrings.email_not_verified.tr();
+      }
+
+      // عنده تليفون فقط
+      if (phone != null && email == null) {
+        return phoneVerified ? "" : AppStrings.phone_not_verified.tr();
+      }
+
+      // عنده الاتنين Email + Phone
+      if (!emailVerified && !phoneVerified) {
+        return AppStrings.email_phone_not_verified.tr();
+      }
+
+      if (!emailVerified && phoneVerified) {
+        return AppStrings.email_not_verified.tr();
+      }
+
+      if (emailVerified && !phoneVerified) {
+        return AppStrings.phone_not_verified.tr();
+      }
+      return "";
+    }
     var jsonString;
     var us1Cache;
     jsonString = CacheHelper.getString("US1");
     if (jsonString != null && jsonString.isNotEmpty && jsonString != "") {
       us1Cache = json.decode(jsonString) as Map<String, dynamic>; // Convert String back to JSON
     }
+
     return SizedBox(
       width: LayoutService.getWidth(context),
       height: backgroundHeight +
@@ -86,7 +128,7 @@ class PersonalProfileHeaderWidget extends StatelessWidget {
               width: LayoutService.getWidth(context),
               child: Column(
                 children: [
-                  if(us1Cache['email_verified_at'] == null || us1Cache['phone_verified_at'] == null) Container(
+                  if ( us1Cache != null &&  ( (us1Cache['phone'] != null && us1Cache['phone_verified_at'] == null) ||(us1Cache['email'] != null && us1Cache['email_verified_at'] == null)  ) )  Container(
                     padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
                     color: Colors.yellow,
                     child: Row(
@@ -96,10 +138,7 @@ class PersonalProfileHeaderWidget extends StatelessWidget {
                         SizedBox(
                           width: MediaQuery.sizeOf(context).width * 0.6,
                           child: Text(
-                            (us1Cache['email_verified_at'] == null && us1Cache['phone_verified_at'] != null)? AppStrings.email_not_verified.tr():
-                            (us1Cache['email_verified_at'] != null && us1Cache['phone_verified_at'] == null)? AppStrings.phone_not_verified.tr():
-                            (us1Cache['email_verified_at'] == null && us1Cache['phone_verified_at'] == null)? AppStrings.email_phone_not_verified.tr(): "",
-                            style: const TextStyle(color: Colors.red),
+                            getVerificationStatus(us1Cache),style: const TextStyle(color: Colors.red),
                           ),
                         ),
                         const Spacer(),
@@ -107,7 +146,7 @@ class PersonalProfileHeaderWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if(us1Cache['email_verified_at'] == null || us1Cache['phone_verified_at'] == null)const SizedBox(height: 15,),
+                  if ( us1Cache != null &&  ( (us1Cache['phone'] != null && us1Cache['phone_verified_at'] == null) ||(us1Cache['email'] != null && us1Cache['email_verified_at'] == null)  ) ) const SizedBox(height: 15,),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: AppSizes.s12),
                   child: Row(
@@ -145,8 +184,17 @@ class PersonalProfileHeaderWidget extends StatelessWidget {
                             ),
                             child: Center(
                               child: IconButton(
-                                onPressed: () async =>
-                                await viewModel.logout(context: context),
+                                onPressed: ()  async {
+                                  final appConfigService =
+                                  Provider.of<AppConfigService>(context,
+                                      listen: false);
+                                  appConfigService.logout(context, viewAlert: true).then((v) {
+                                    context.goNamed(
+                                      AppRoutes.splash.name,
+                                      pathParameters: {'lang': context.locale.languageCode,},
+                                    );
+                                  });
+                                },
                                 icon: const Icon(
                                   Icons.logout_outlined,
                                   color: Colors.red,
@@ -298,8 +346,8 @@ class _CompanyInfoNotchedContainerState extends State<CompanyInfoNotchedContaine
                             )
                                 : UserSettingConst.userSettings?.photo ==
                                 null
-                                ? Image.asset(
-                              AppImages.logo,
+                                ? DynamicImageWidget(
+                              imageUrl: AppImages.logo,
                               fit: BoxFit.contain,
                             )
                                 : CachedNetworkImage(
@@ -321,8 +369,8 @@ class _CompanyInfoNotchedContainerState extends State<CompanyInfoNotchedContaine
                                       .image_not_supported_outlined,
                                   size: AppSizes
                                       .s60,
-                                )) : Image.asset(
-                              AppImages.logo,
+                                )) : DynamicImageWidget(
+                              imageUrl: AppImages.logo,
                               fit: BoxFit.contain,
                             ),
                           ),

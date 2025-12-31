@@ -1,4 +1,5 @@
 package com.rightminddev.cpanal
+import android.os.Bundle
 import android.view.WindowManager
 import android.provider.Settings  // Add this import statement
 import io.flutter.embedding.android.FlutterActivity
@@ -8,6 +9,11 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity: FlutterActivity(){
     private val nativeChannel = "com.rightminddev.cpanal/secure"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)

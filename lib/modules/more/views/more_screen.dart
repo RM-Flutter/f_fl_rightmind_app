@@ -18,6 +18,7 @@ import '../../../constants/app_colors.dart';
 import '../../../constants/app_sizes.dart';
 import '../../../constants/app_strings.dart';
 import '../../../constants/web_image.dart';
+import '../../../general_services/localization.service.dart';
 import '../../../models/settings/user_settings.model.dart';
 import '../../../general_services/app_config.service.dart';
 import '../../../routing/app_router.dart';
@@ -92,20 +93,20 @@ class _MoreScreenState extends State<MoreScreen> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsetsGeometry.only(left: 16, top: 40),
+                      padding: EdgeInsetsGeometry.only(left: 16, top: 40, right: 16),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           GestureDetector(
                               onTap: () {Navigator.pop(context);},
-                              child: Icon(Icons.arrow_back, color: Colors.white)),
+                              child: Icon(Icons.arrow_back, color: Color(AppColors.backgroundColor))),
                           Text(
                             AppStrings.accountAndSettings.tr(),
                             style: const TextStyle(
                               fontWeight: FontWeight.w400,
                               fontSize: AppSizes.s14,
                               letterSpacing: 1.4,
-                              color: Colors.white,
+                              color: Color(AppColors.backgroundColor),
                             ),
                           ),
                           GestureDetector(
@@ -124,7 +125,7 @@ class _MoreScreenState extends State<MoreScreen> {
                       gradient: LinearGradient(
                         begin: Alignment(0, 0),
                         end: Alignment(1, 0),
-                        colors: [Colors.white, Color(AppColors.bgC4)],
+                        colors: [Color(AppColors.backgroundColor), Color(AppColors.bgC4)],
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.only(
@@ -149,7 +150,7 @@ class _MoreScreenState extends State<MoreScreen> {
                                       maxWidth: kIsWeb ? 1070 : double.infinity,
                                     ),
                                     child: Container(
-                                      alignment: Alignment.centerLeft,
+                                      alignment: LocalizationService.isArabic(context: context)? Alignment.centerRight:Alignment.centerLeft,
                                       child: Text(AppStrings.more.tr().toUpperCase(),
                                           style: const TextStyle(
                                               fontSize: 13,
@@ -346,7 +347,7 @@ class _MoreScreenState extends State<MoreScreen> {
                                       maxWidth: kIsWeb ? 1070 : double.infinity,
                                     ),
                                     child: Container(
-                                      alignment: Alignment.centerLeft,
+                                      alignment: LocalizationService.isArabic(context: context)? Alignment.centerRight:Alignment.centerLeft,
                                       child: Text(AppStrings.myAccount.tr().toUpperCase(),
                                           style: const TextStyle(
                                               fontSize: 13,
@@ -421,13 +422,11 @@ class _MoreScreenState extends State<MoreScreen> {
                                     final appConfigService =
                                         Provider.of<AppConfigService>(context,
                                             listen: false);
-                                    appConfigService.logout().then((v) {
-                                      Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const SplashScreen(),
-                                          ));
+                                    appConfigService.logout(context, viewAlert: true).then((v) {
+                                     context.goNamed(
+                                        AppRoutes.splash.name,
+                                        pathParameters: {'lang': context.locale.languageCode,},
+                                      );
                                     });
                                   },
                                 ),
@@ -501,7 +500,7 @@ class _MoreScreenState extends State<MoreScreen> {
                       Text(
                         gCache != null && gCache['job_title'] != null ? gCache['job_title'] ?? "" : "",
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Color(0xff4F4F4F),
+                              color: Color(AppColors.subtitleTextColor),
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
                               // height: 0,
@@ -552,7 +551,7 @@ class DefaultListTile extends StatelessWidget {
           child: ListTile(
             leading: SvgPicture.asset(
               src,
-              color: const Color(AppColors.primary),
+              color: Color(AppColors.primary),
               fit: BoxFit.scaleDown,
               width: 20, height: 20,
             ),

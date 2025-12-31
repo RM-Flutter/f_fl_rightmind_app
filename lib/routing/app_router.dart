@@ -25,6 +25,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../general_services/app_config.service.dart';
 import '../general_services/general_listener.dart';
 import '../general_services/internet_check.dart';
+import '../main.dart';
 import '../modules/authentication/views/login_screen.dart';
 import '../modules/authentication/views/update_main_data.dart';
 import '../modules/complain_screen/add_complain_screen.dart';
@@ -52,6 +53,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../general_services/sentry_service.dart';
 
 enum AppRoutes {
   home,
@@ -140,47 +142,48 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 GoRouter goRouter(BuildContext context) => GoRouter(
       navigatorKey: rootNavigatorKey,
       initialLocation: '/${context.locale.languageCode}/splash-screen',
-      refreshListenable:         Provider.of<AppConfigService>(context),
-      redirect: (context, state) {
-        final appConfigServiceProvider =
-            Provider.of<AppConfigService>(context, listen: false);
-        final isLoggedIn = appConfigServiceProvider.isLogin &&
-            appConfigServiceProvider.token.isNotEmpty;
-        final lang = state.pathParameters['lang'] ?? 'en';
-        context.setLocale(Locale(lang));
-            appConfigServiceProvider.token.isNotEmpty;
-        final connectionService = Provider.of<ConnectionService>(context, listen: false);
+      refreshListenable: Provider.of<GoRouterRefreshNotifier>(context),
+  redirect: (context, state) {
+    final appConfig = Provider.of<AppConfigService>(context, listen: false);
 
+    // ⏳ لسه بيعمل Init → مفيش Redirect
+    if (!appConfig.isInitialized) return null;
 
-        context.setLocale(Locale(lang));
+    final lang = state.pathParameters['lang'] ?? 'en';
+    final isLoggedIn = appConfig.isLogin && appConfig.token.isNotEmpty;
 
-        // 🌐 Offline redirection
-        // if (!isConnected && !(state.fullPath?.contains('offline') ?? false)) {
-        //   return '/$lang/offline-screen';
-        // }
-        if (!connectionService.isConnected &&
-            !(state.fullPath?.contains('offline') ?? false)) {
-          return '/$lang/offline-screen';
-        }
-        if (isLoggedIn && state.fullPath?.contains('login') == true) {
-          var update = CacheHelper.getString("update_url");
-          if (update != null && update.isNotEmpty && update != "") {
-            return '/$lang/webviewMainData';
-          }
-          return '/$lang';
-        }
+    // 🌐 Offline handling is now done via overlay, no redirect needed
+    // The overlay will be shown/hidden by ConnectionService
 
-        // User not logged in and the current screen not (splash - onboarding - offline)
-        if (isLoggedIn == false &&
-            (state.fullPath?.contains('splash') == false &&
-                state.fullPath?.contains('offline') == false &&
-                state.fullPath?.contains('onboarding') == false)) {
-          return '/$lang/login-screen';
-        }
+    // ✅ Logged in → لو في Login أو Splash أو Register أو Onboarding → روحه للـ Home
+    if (isLoggedIn &&
+        (current.contains('login-screen') ||
+            current.contains('splash-screen') ||
+            current.contains('register') ||
+            current.contains('onboarding'))) {
+      var update = CacheHelper.getString("update_url");
+      if (update != null && update.isNotEmpty) {
+        return '/$lang/webviewMainData';
+      }
+      return '/$lang';
+    }
 
-        return null;
-      },
-      routes: [
+    // ❌ Not Logged In → امنعه يدخل غير الصفحات المسموح بها
+    final allowForGuests = [
+      '/$lang/login-screen',
+      '/$lang/splash-screen',
+      '/$lang/offline-screen',
+      '/$lang/onboarding',
+    ];
+
+    if (!isLoggedIn && !allowForGuests.any((p) => current.startsWith(p))) {
+      return '/$lang/login-screen';
+    }
+
+    return null;
+  },
+
+  routes: [
         ShellRoute(
           navigatorKey: _shellNavigatorKey,
           builder: (context, state, child) => MainScreen(
@@ -196,6 +199,10 @@ GoRouter goRouter(BuildContext context) => GoRouter(
               parentNavigatorKey: _shellNavigatorKey,
               name: AppRoutes.home.name,
               pageBuilder: (context, state) {
+                // Track screen navigation for Sentry
+                final screenName = state.uri.path.split('/').last;
+                SentryService.setCurrentScreen(screenName, context: context);
+                
                 Offset? begin = state.extra as Offset?;
                 final lang = state.uri.queryParameters['lang'];
                 if (lang != null) {
@@ -1492,5 +1499,10 @@ GoRouter goRouter(BuildContext context) => GoRouter(
         ),
       ],
       debugLogDiagnostics: true,
-      errorBuilder: (context, state) => const NotFoundScreen(),
+      errorBuilder: (context, state) {
+        // Track error screen for Sentry
+        final screenName = state.uri.path.split('/').last;
+        SentryService.setCurrentScreen(screenName);
+        return const NotFoundScreen();
+      },
     );

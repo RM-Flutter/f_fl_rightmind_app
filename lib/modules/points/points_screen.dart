@@ -39,7 +39,7 @@ class _PointsScreenState extends State<PointsScreen> {
               padding: EdgeInsets.zero,
               child: RefreshIndicator.adaptive(
                 onRefresh: () async {
-          await Provider.of<HomeViewModel>(context, listen: false).initializeHomeScreen(context, ["user_settings"]);
+          await Provider.of<HomeViewModel>(context, listen: false).initializeHomeScreen(context, null);
           },
             child: CustomScrollView(
               physics: AlwaysScrollableScrollPhysics(), // << مهم هنا

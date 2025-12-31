@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cpanal/main.dart';
 import 'package:cpanal/modules/splash_and_onboarding/views/splash_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -48,11 +49,22 @@ class DioHelper{
           if (error.response?.statusCode == 401) {
             final appConfigService =
             Provider.of<AppConfigService>(context, listen: false);
-            appConfigService.logout().then((v){
-              context.goNamed(
-                AppRoutes.splash.name,
-                pathParameters: {'lang': context.locale.languageCode,},
-              );
+            // Skip server logout to avoid infinite loop (token is already invalid)
+            appConfigService.logout(context, viewAlert: false, skipServerLogout: true).then((v){
+              if (context.mounted) {
+                context.goNamed(
+                  AppRoutes.splash.name,
+                  pathParameters: {'lang': context.locale.languageCode,},
+                );
+              }
+            }).catchError((e) {
+              // If logout fails, still try to navigate
+              if (context.mounted) {
+                context.goNamed(
+                  AppRoutes.splash.name,
+                  pathParameters: {'lang': context.locale.languageCode,},
+                );
+              }
             });
           }
           return handler.next(error);
@@ -95,7 +107,7 @@ class DioHelper{
 
     return await dio!.delete(url, queryParameters: query, data: data??null);
   }
-  static Future<Response> postData({ context ,@required url,@required Map<String, dynamic>? query, token, @required data})async{
+  static Future<Response> postData({ context ,@required url,Map<String, dynamic>? query, token, data})async{
     final appConfigServiceProvider = Provider.of<AppConfigService>(context, listen: false);
     dio!.options.headers = {
       'Accept':'application/json',

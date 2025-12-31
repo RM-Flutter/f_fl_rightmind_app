@@ -1,12 +1,14 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/shared.dart';
 import 'package:cpanal/general_services/localization.service.dart';
 import '../../../common_modules_widgets/custom_elevated_button.widget.dart';
 import '../../../common_modules_widgets/language_dropdown_button.widget.dart';
+import '../../../common_modules_widgets/dynamic_image_widget.dart';
 import '../../../constants/app_images.dart';
 import '../../../constants/app_sizes.dart';
 import '../../../constants/app_strings.dart';
@@ -63,9 +65,9 @@ class OnBoardingScreen extends StatelessWidget {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  Color(0xFF090B60).withOpacity(0.0), // #090B60 at 0%
-                                  Color(0xFF090B60).withOpacity(0.30), // #090B60 at 15%
-                                  Color(0xFF090B60).withOpacity(0.7), // #090B60 at 30%
+                                  Color(AppColors.titleTextColor).withOpacity(0.0), // #090B60 at 0%
+                                  Color(AppColors.titleTextColor).withOpacity(0.30), // #090B60 at 15%
+                                  Color(AppColors.titleTextColor).withOpacity(0.7), // #090B60 at 30%
                                 ],
                                 stops: [0.0, 0.1, 0.3], // Define stops for each color
                                 begin: Alignment.center,
@@ -82,11 +84,11 @@ class OnBoardingScreen extends StatelessWidget {
                 top: MediaQuery.of(context).size.height * 0.3,
                 left: AppSizes.s0,
                 right: AppSizes.s0,
-                child: Image.asset(
-                  AppImages.logo,
+                child: DynamicImageWidget(
+                  imageUrl: AppImages.logo,
                   width: AppSizes.s125,
                   height: AppSizes.s125,
-                  key: const ValueKey<String>(AppImages.logo),
+                  key: ValueKey<String>(AppImages.logo),
                 ),
               ),
 
@@ -97,7 +99,7 @@ class OnBoardingScreen extends StatelessWidget {
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(
-                      maxWidth: 800,
+                      maxWidth: kIsWeb?800: double.infinity,
                     ),
                     child: Card(
                       margin: const EdgeInsets.symmetric(horizontal: AppSizes.s16),

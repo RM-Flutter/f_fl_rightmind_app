@@ -28,7 +28,7 @@ class NotificationService {
     if (kIsWeb) {
       final permission = html.Notification.permission; // "granted", "denied", "default"
       if (permission == "denied") {
-        _showWebToast("تم رفض الإشعارات من المتصفح. لتفعيلها افتح Site Settings واختر Allow.");
+        print("تم رفض الإشعارات من المتصفح. لتفعيلها افتح Site Settings واختر Allow.");
       }
       return; // لا تنادي أي دوال Firebase لو محجوبة
     }
@@ -100,8 +100,27 @@ class NotificationService {
   void _setupForegroundMessages() {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       debugPrint("🔔 Foreground Notification: ${message.notification?.title}");
-      _showNotification(message);
+      // Filter out notifications with no title or body
+      if (_shouldShowNotification(message)) {
+        _showNotification(message);
+      } else {
+        debugPrint("⚠️ Skipping notification: No valid title or body");
+      }
     });
+  }
+
+  bool _shouldShowNotification(RemoteMessage message) {
+    final title = message.data['title'] ?? message.notification?.title ?? '';
+    final body = message.data['body'] ?? message.notification?.body ?? '';
+    
+    // Don't show if title or body is empty, null, or equals "No Title"/"No Body"
+    if (title.isEmpty || 
+        title == 'No Title' || 
+        body.isEmpty || 
+        body == 'No Body') {
+      return false;
+    }
+    return true;
   }
 
   void _setupBackgroundMessages(BuildContext? context) {
@@ -130,11 +149,15 @@ class NotificationService {
     const iOSDetails = DarwinNotificationDetails();
     const details = NotificationDetails(android: androidDetails, iOS: iOSDetails);
 
+    // Get title and body (should already be validated by _shouldShowNotification)
+    final title = message.data['title'] ?? message.notification?.title ?? '';
+    final body = message.data['body'] ?? message.notification?.body ?? '';
+
     try {
       await flutterLocalNotificationsPlugin.show(
         0,
-        message.data['title'] ?? message.notification?.title ?? "No Title",
-        message.data['body'] ?? message.notification?.body ?? "No Body",
+        title,
+        body,
         details,
         payload: message.data['endpoint'],
       );

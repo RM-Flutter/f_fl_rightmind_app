@@ -220,7 +220,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                                             validate: true,
                                             sendBy: "email",
                                             newEmail: viewModel.emailController.text,
-                                            emailUuid: CacheHelper.getString("uuid"));
+                                            emailUuid: CacheHelper.getString("uuid")!);
                                       } else {
                                         viewModel.updateProfileEmail(
                                             context: context);
@@ -253,7 +253,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                                                     .userSettings?.phone !=
                                                 null
                                         ? Colors.yellow
-                                        : const Color(AppColors.primary),
+                                        : Color(AppColors.primary),
                                     title: UserSettingConst.userSettings
                                                     ?.phoneVerifiedAt ==
                                                 null &&
@@ -275,7 +275,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                                             sendBy: "sms",
                                             newPhoneNumber: viewModel
                                                 .phoneNumberController.text,
-                                            phoneUuid: CacheHelper.getString("uuid"));
+                                            phoneUuid: CacheHelper.getString("uuid")!);
                                       } else {
                                         viewModel.updateProfilePhoneNumber(
                                             context: context);
@@ -334,7 +334,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                                 titleSize: AppSizes.s14,
                                 width: LayoutService.getWidth(context),
                                 radius: AppSizes.s10,
-                                backgroundColor: const Color(0xffFF0000),
+                                backgroundColor: Color(AppColors.errorColor),
                                 title: AppStrings.deleteYourAccount.tr(),
                                 onPressed: () async => await viewModel
                                     .removeAccount(context: context),
@@ -467,7 +467,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                                                 validate: true,
                                                 sendBy: "email",
                                                 newEmail: viewModel.emailController.text,
-                                                emailUuid: CacheHelper.getString("uuid"));
+                                                emailUuid: CacheHelper.getString("uuid")!);
                                           } else {
                                             viewModel.updateProfileEmail(
                                                 context: context);
@@ -514,7 +514,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                                                         .userSettings?.phone !=
                                                     null
                                             ? Colors.yellow
-                                            : const Color(AppColors.primary),
+                                            : Color(AppColors.primary),
                                         title: UserSettingConst.userSettings
                                                         ?.phoneVerifiedAt ==
                                                     null &&
@@ -536,7 +536,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                                                 sendBy: "sms",
                                                 newPhoneNumber: viewModel
                                                     .phoneNumberController.text,
-                                                phoneUuid: CacheHelper.getString("uuid"));
+                                                phoneUuid: CacheHelper.getString("uuid")!);
                                           } else {
                                             viewModel.updateProfilePhoneNumber(
                                                 context: context);
@@ -574,7 +574,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                                   ],
                                 ),
 
-                                if( us1Cache['tfa'] == true) Center(
+                                if( us1Cache!= null && us1Cache['tfa'] == true) Center(
                                   child: CustomElevatedButton( isOutlined: true,titleColor: Color(AppColors.primary),
                                     titleSize: AppSizes.s14,
                                     width: LayoutService.getWidth(context),
@@ -597,7 +597,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                                     titleSize: AppSizes.s14,
                                     width: LayoutService.getWidth(context),
                                     radius: AppSizes.s10,
-                                    backgroundColor: const Color(0xffFF0000),
+                                    backgroundColor: Color(AppColors.errorColor),
                                     title: AppStrings.deleteYourAccount.tr(),
                                     onPressed: () async => await viewModel
                                         .removeAccount(context: context),

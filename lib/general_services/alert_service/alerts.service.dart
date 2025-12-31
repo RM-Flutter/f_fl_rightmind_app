@@ -268,8 +268,8 @@ abstract class AlertsService {
                               borderRadius: BorderRadius.circular(50.0)),
                           color: Colors.white,
                           onPressed: () {
-                            Navigator.of(dialogContext).pop(false);
-                            return;
+                            Navigator.of(dialogContext)
+                                .pop(false);
                           },
                           child: Text(AppStrings.no.tr(),
                               style:

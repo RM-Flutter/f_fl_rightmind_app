@@ -45,14 +45,14 @@ class _LangSettingScreensState extends State<LangSettingScreens> {
     return ChangeNotifierProvider(create: (context) => LangControllerProvider(),
       child: Consumer<LangControllerProvider>(builder: (context, value, child) {
         return Scaffold(
-          backgroundColor: const Color(0xffFFFFFF),
+          backgroundColor: Color(AppColors.backgroundColor),
           appBar: AppBar(
-            backgroundColor: const Color(0xffFFFFFF),
+            backgroundColor: Color(AppColors.backgroundColor),
             leading: GestureDetector(
                 onTap: (){
                   Navigator.pop(context);
                 },
-                child: const Icon(Icons.arrow_back, color: Color(AppColors.dark),)),
+                child: Icon(Icons.arrow_back, color: Color(AppColors.dark),)),
             title: Text(
               AppStrings.languageSettings.tr().toUpperCase(),
               style: const TextStyle(
@@ -72,7 +72,7 @@ class _LangSettingScreensState extends State<LangSettingScreens> {
                     height: MediaQuery.sizeOf(context).height * 1,
                     width: MediaQuery.of(context).size.width < 600
                         ? double.infinity
-                        : 400,
+                        : 1100,
                     child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         child: Column(
@@ -102,10 +102,10 @@ class _LangSettingScreensState extends State<LangSettingScreens> {
                                     width: double.infinity,
                                     padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                                     decoration: BoxDecoration(
-                                        color: const Color(0xffFFFFFF),
+                                        color: Color(AppColors.backgroundColor),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Color(0xffC9CFD2).withOpacity(0.5),
+                                            color: Color(AppColors.borderColor).withOpacity(0.5),
                                             blurRadius: AppSizes.s5,
                                             spreadRadius: 1,
                                           )
@@ -120,15 +120,15 @@ class _LangSettingScreensState extends State<LangSettingScreens> {
                                           padding: const EdgeInsets.all(2),
                                           decoration: BoxDecoration(
                                               shape: BoxShape.circle,
-                                              border: Border.all(color: const Color(AppColors.primary)),
-                                              color:(selectIndex == index)? const Color(AppColors.primary) : const Color(0xffFFFFFF)
+                                              border: Border.all(color: Color(AppColors.primary)),
+                                              color:(selectIndex == index)? Color(AppColors.primary) : Color(AppColors.backgroundColor)
                                           ),
-                                          child: const Icon(Icons.check, color: Colors.white, size: 18,),
+                                          child: Icon(Icons.check, color: Color(AppColors.backgroundColor), size: 18,),
                                         ),
                                         const SizedBox(width: 15,),
-                                        Text((lang![index].contains("English language")||lang![index].contains("en"))?"English language".toUpperCase() : "اللغه العربية", style: const TextStyle(color: Color(0xff191C1F), fontWeight: FontWeight.w500, fontSize: 14),)
+                                        Text((lang![index].contains("English language")||lang![index].contains("en"))?"English language".toUpperCase() : "اللغه العربية", style: TextStyle(color: Color(AppColors.overlayColor), fontWeight: FontWeight.w500, fontSize: 14),)
                                         ,const Spacer(),
-                                        Text((lang![index].contains("en"))?"change".toUpperCase() : "تغيير", style: const TextStyle(fontSize: 12 ,fontWeight: FontWeight.w500, color: Color(AppColors.primary)),)
+                                        Text((lang![index].contains("en"))?"change".toUpperCase() : "تغيير", style: TextStyle(fontSize: 12 ,fontWeight: FontWeight.w500, color: Color(AppColors.primary)),)
                                       ],
                                     ),
                                   ),

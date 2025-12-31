@@ -1,17 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/shared.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../constants/app_strings.dart';
 import '../models/device_information.model.dart';
 import '../models/settings/app_settings_model.dart';
 import '../models/settings/general_settings.model.dart';
 import '../models/settings/user_settings.model.dart';
 import '../models/settings/user_settings_2.model.dart';
+import 'alert_service/alerts.service.dart';
 import 'settings.service.dart';
 
-class AppConfigService extends ChangeNotifier {
+class   AppConfigService extends ChangeNotifier {
   AppConfigService() {
     //intialize application services
     _initializeConnectionListener();
@@ -19,6 +23,8 @@ class AppConfigService extends ChangeNotifier {
     init();
   }
   bool isConnected = true;
+  bool isInitialized = false;
+
   late StreamSubscription<InternetConnectionStatus> _listener;
   void _initializeConnectionListener() {
     _listener = InternetConnectionChecker.instance.onStatusChange.listen((status) {
@@ -309,6 +315,8 @@ class AppConfigService extends ChangeNotifier {
     try {
       if (_prefs != null) return;
       _prefs = await SharedPreferences.getInstance();
+      isInitialized = true;
+      notifyListeners();
       debugPrint('--------- Config Service is Initialized Successfully ✔️');
       return;
     } catch (err, t) {
@@ -402,16 +410,33 @@ class AppConfigService extends ChangeNotifier {
       notifyListeners();
     }
   }
-  Future<void> logout() async {
-    await clearToken();
-    await CacheHelper.deleteData(key: "US1");
-    await CacheHelper.deleteData(key: "US2");
-   // await CacheHelper.deleteData(key: "USG");
-    await CacheHelper.deleteData(key: "gDate");
-    await CacheHelper.deleteData(key: "s1Date");
-    await CacheHelper.deleteData(key: "s2Date");
-    await CacheHelper.deleteData(key: "fcmToken");
-    await setIsLogin(false);
+  Future<void> logout(context, {bool viewAlert = false, bool skipServerLogout = false}) async {
+    if(viewAlert == true){
+      bool isLogout = await AlertsService.confirmMessage(context, AppStrings.logout.tr(),
+          message: AppStrings.areYouSureYouWantToLogout.tr());
+      if (isLogout == false) return;
+    }
+    
+    // Clear local data first
+    clearToken();
+    CacheHelper.deleteData(key: "US1");
+    CacheHelper.deleteData(key: "US2");
+    //  CacheHelper.deleteData(key: "USG");
+    CacheHelper.deleteData(key: "gDate");
+    CacheHelper.deleteData(key: "s1Date");
+    CacheHelper.deleteData(key: "s2Date");
+    CacheHelper.deleteData(key: "fcmToken");
+    setIsLogin(false);
     debugPrint('User has been logged out, and token is cleared.');
+    
+    // Try to notify server, but don't fail if it doesn't work (e.g., 401)
+    if (!skipServerLogout) {
+      try {
+        await DioHelper.postData(url: "/rm_users/v1/log_out", context: context);
+      } catch (e) {
+        // Ignore errors when logging out (especially 401)
+        debugPrint('Logout API call failed (this is OK): $e');
+      }
+    }
   }
 }

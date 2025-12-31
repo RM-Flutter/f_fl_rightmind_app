@@ -27,7 +27,43 @@ class AppbarProfileContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String getVerificationStatus(us1Cache) {
+      final email = us1Cache['email'];
+      final phone = us1Cache['phone'];
+      final emailVerified = us1Cache['email_verified_at'] != null;
+      final phoneVerified = us1Cache['phone_verified_at'] != null;
 
+      // لا يوجد ايميل ولا تليفون
+      if (email == null && phone == null) {
+        return "";
+      }
+
+      // عنده ايميل فقط
+      if (email != null && phone == null) {
+        return emailVerified ? "" : AppStrings.email_not_verified.tr();
+      }
+
+      // عنده تليفون فقط
+      if (phone != null && email == null) {
+        return phoneVerified ? "" : AppStrings.phone_not_verified.tr();
+      }
+
+      // عنده الاتنين Email + Phone
+      if (!emailVerified && !phoneVerified) {
+        return AppStrings.email_phone_not_verified.tr();
+      }
+
+      if (!emailVerified && phoneVerified) {
+        return AppStrings.email_not_verified.tr();
+      }
+
+      if (emailVerified && !phoneVerified) {
+        return AppStrings.phone_not_verified.tr();
+      }
+
+      // الاتنين متحققين ✅
+      return "";
+    }
     String formatName(String fullName) {
       List<String> nameParts = fullName.split(' ');
       if (nameParts.length < 2) {
@@ -46,7 +82,7 @@ class AppbarProfileContainer extends StatelessWidget {
     }
     return Column(
       children: [
-        if(us1Cache['email_verified_at'] == null || us1Cache['phone_verified_at'] == null) GestureDetector(
+        if ( us1Cache != null &&  ( (us1Cache['phone'] != null && us1Cache['phone_verified_at'] == null) ||(us1Cache['email'] != null && us1Cache['email_verified_at'] == null)  ) )  GestureDetector(
           onTap: ()async{
             await context.pushNamed(
                 AppRoutes.personalProfile.name,
@@ -62,10 +98,7 @@ class AppbarProfileContainer extends StatelessWidget {
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width * 0.6,
                   child: Text(
-                    (us1Cache['email_verified_at'] == null && us1Cache['phone_verified_at'] != null)? AppStrings.email_not_verified.tr():
-                    (us1Cache['email_verified_at'] != null && us1Cache['phone_verified_at'] == null)? AppStrings.phone_not_verified.tr():
-                    (us1Cache['email_verified_at'] == null && us1Cache['phone_verified_at'] == null)? AppStrings.email_phone_not_verified.tr(): "",
-                    style: TextStyle(color: Colors.red),
+                    getVerificationStatus(us1Cache),   style: TextStyle(color: Colors.red),
                   ),
                 ),
                 Spacer(),
@@ -74,8 +107,8 @@ class AppbarProfileContainer extends StatelessWidget {
             ),
           ),
         ),
-        if(us1Cache['email_verified_at'] == null || us1Cache['phone_verified_at'] == null) SizedBox(height: 15,),
-        Container(
+        SizedBox(height: 15,),
+       if(us1Cache != null) Container(
             color: Colors.transparent,
             alignment: Alignment.center,
             padding: const EdgeInsets.only(

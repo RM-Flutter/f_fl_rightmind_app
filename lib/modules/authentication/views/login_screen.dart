@@ -9,6 +9,8 @@ import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:provider/provider.dart';
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/shared.dart';
@@ -95,6 +97,39 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
     super.dispose();
   }
 
+  Widget _buildLogoImage() {
+    final logoUrl = AppImages.logo;
+    final isNetworkImage = logoUrl.startsWith('http://') || logoUrl.startsWith('https://');
+    
+    if (isNetworkImage) {
+      return CachedNetworkImage(
+        imageUrl: logoUrl,
+        height: AppSizes.s75,
+        width: AppSizes.s75,
+        fit: BoxFit.contain,
+        placeholder: (context, url) => Image.asset(
+          'assets/images/general_images/logo.png',
+          height: AppSizes.s75,
+          width: AppSizes.s75,
+          fit: BoxFit.contain,
+        ),
+        errorWidget: (context, url, error) => Image.asset(
+          'assets/images/general_images/logo.png',
+          height: AppSizes.s75,
+          width: AppSizes.s75,
+          fit: BoxFit.contain,
+        ),
+      );
+    } else {
+      return Image.asset(
+        logoUrl,
+        height: AppSizes.s75,
+        width: AppSizes.s75,
+        fit: BoxFit.contain,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var gCache;
@@ -131,12 +166,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const SizedBox(height: 60,),
-                            Image.asset(
-                              AppImages.logo,
-                              height: AppSizes.s75,
-                              width: AppSizes.s75,
-                              fit: BoxFit.contain,
-                            ),
+                            _buildLogoImage(),
                             gapH32,
                             // Login Page Headline
                             AutoSizeText(
@@ -461,13 +491,29 @@ class _AnimatedBackgroundWidgetState extends State<AnimatedBackgroundWidget>
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) {
+        final bgUrl = AppImages.loginBackground;
+        final isNetworkImage = bgUrl.startsWith('http://') || bgUrl.startsWith('https://');
+        
         return FractionallySizedBox(
           widthFactor: AppSizes.s4,
           alignment: Alignment((animation.value * 2) - 1, 0),
-          child: Image.asset(
-            AppImages.loginBackground,
-            fit: BoxFit.cover,
-          ),
+          child: isNetworkImage
+              ? CachedNetworkImage(
+                  imageUrl: bgUrl,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Image.asset(
+                    'assets/images/login_images/login_background.png',
+                    fit: BoxFit.cover,
+                  ),
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/images/login_images/login_background.png',
+                    fit: BoxFit.cover,
+                  ),
+                )
+              : Image.asset(
+                  bgUrl,
+                  fit: BoxFit.cover,
+                ),
         );
       },
     );

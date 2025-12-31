@@ -65,7 +65,7 @@ class _ChooseDomainScreenState extends State<ChooseDomainScreen> {
                             children: [
                               Text(AppStrings.pleaseChooseTheDomainYouWantToControl.tr().toUpperCase(),
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(AppColors.primary)),
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(AppColors.primary)),
                               ),
                               const SizedBox(height: 20,),
                               if(kIsWeb)GridView.builder(
@@ -82,12 +82,12 @@ class _ChooseDomainScreenState extends State<ChooseDomainScreen> {
                                 itemBuilder: (context, index) {
                                   return (value.isLoading)
                                       ? Shimmer.fromColors(
-                                    baseColor: Colors.grey.shade300,
-                                    highlightColor: Colors.grey.shade100,
+                                    baseColor: Color(AppColors.borderColor).withOpacity(0.3),
+                                    highlightColor: Color(AppColors.borderColor).withOpacity(0.1),
                                     child: Container(
                                       height: 180,
                                       width: double.infinity,
-                                      color: Colors.white,
+                                      color: Color(AppColors.backgroundColor),
                                     ),
                                   )
                                       : Column(
@@ -103,6 +103,9 @@ class _ChooseDomainScreenState extends State<ChooseDomainScreen> {
                                           errorWidget: (context, url, error) =>
                                           const Icon(Icons.image_not_supported_outlined),
                                         ),
+                                      if (value.domains[index]['logo'].isEmpty || value.domains[index]['logo'][0]['file'] == null) Image.asset("assets/images/png/domain.png",  width: double.infinity,
+                                        height: 120, // تصغير شوية في الويب
+                                        fit: BoxFit.contain,),
                                       const SizedBox(height: 10),
                                       Text(
                                         value.domains[index]['domain'],
@@ -145,22 +148,22 @@ class _ChooseDomainScreenState extends State<ChooseDomainScreen> {
                                   reverse: false,
                                   itemBuilder: (context, index) =>(value.isLoading)?
                                   Shimmer.fromColors(
-                                    baseColor: Colors.grey.shade300,
-                                    highlightColor: Colors.grey.shade100,
+                                    baseColor: Color(AppColors.borderColor).withOpacity(0.3),
+                                    highlightColor: Color(AppColors.borderColor).withOpacity(0.1),
                                     child: Column(
                                       children: [
                                         // Shimmer placeholder for image
                                         Container(
                                           height: 180,
                                           width: double.infinity,
-                                          color: Colors.white,
+                                          color: Color(AppColors.backgroundColor),
                                         ),
                                         const SizedBox(height: 10),
                                         // Shimmer placeholder for text
                                         Container(
                                           height: 20,
                                           width: 200,
-                                          color: Colors.white,
+                                          color: Color(AppColors.backgroundColor),
                                         ),
                                         const SizedBox(height: 10),
                                         // Shimmer placeholder for button
@@ -168,7 +171,7 @@ class _ChooseDomainScreenState extends State<ChooseDomainScreen> {
                                           height: 50,
                                           width: double.infinity,
                                           margin: const EdgeInsets.symmetric(horizontal: 16),
-                                          color: Colors.white,
+                                          color: Color(AppColors.backgroundColor),
                                         ),
                                       ],
                                     ),
@@ -187,13 +190,13 @@ class _ChooseDomainScreenState extends State<ChooseDomainScreen> {
                                             errorWidget: (context, url, error) => const Icon(
                                               Icons.image_not_supported_outlined,
                                               size: AppSizes.s32,
-                                              color: Colors.white,
+                                              color: Color(AppColors.backgroundColor),
                                             ),
                                           ),
 
                                         ),
                                         if(value.domains[index]['logo'].isNotEmpty)const SizedBox(height: 10,),
-                                        Text(value.domains[index]['domain'], style: const TextStyle(color: Color(AppColors.dark), fontWeight: FontWeight.w700,fontSize: 18),),
+                                        Text(value.domains[index]['domain'], style: TextStyle(color: Color(AppColors.dark), fontWeight: FontWeight.w700,fontSize: 18),),
                                         const SizedBox(height: 10,),
                                         CustomElevatedButton(
                                           title: AppStrings.select.tr().toUpperCase(),

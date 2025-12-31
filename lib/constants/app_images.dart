@@ -1,3 +1,5 @@
+import '../general_services/dynamic_app_config.service.dart';
+
 abstract class AppImages {
   // base images directories
   static const String _baseImagesDirectory = 'assets/images';
@@ -25,7 +27,14 @@ abstract class AppImages {
       '$_baseImagesDirectory/reward_penalties_images';
 
   // general images
-  static const String logo = '$_generalImagesDirectory/logo.png';
+  static String get logo {
+    final url = DynamicAppConfigService.getLogoUrl();
+    // Return default if url is null or empty
+    if (url == null || url.isEmpty) {
+      return '$_generalImagesDirectory/logo.png';
+    }
+    return url;
+  }
   // for in-app notifications
   static const String logoWithWihteText = 'assets/images/logo.png';
   // for alerts messages
@@ -46,8 +55,14 @@ abstract class AppImages {
   static const String onboardingBackground3 =
       '$_onboardingImagesDirectory/onboarding_3.png';
   // login images
-  static const String loginBackground =
-      '$_loginImagesDirectory/login_background.png';
+  static String get loginBackground {
+    final url = DynamicAppConfigService.getLoginBackgroundUrl();
+    // Return default if url is null or empty
+    if (url == null || url.isEmpty) {
+      return '$_loginImagesDirectory/login_background.png';
+    }
+    return url;
+  }
   // home images
   // --> App bar images
   static const String appbarBackground =

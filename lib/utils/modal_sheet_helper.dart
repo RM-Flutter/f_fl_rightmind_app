@@ -31,6 +31,7 @@ abstract class ModalSheetHelper {
         height: height + MediaQuery.of(context).viewInsets.bottom,
         color: Colors.white,
         child: Scaffold(
+          resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
           body: Padding(
             padding: const EdgeInsets.all(AppSizes.s16),
@@ -43,7 +44,7 @@ abstract class ModalSheetHelper {
                   height: AppSizes.s5,
                   width: AppSizes.s80,
                   decoration: BoxDecoration(
-                      color: const Color(0xffB9C0C9),
+                      color: Color(AppColors.buttonDisabledColor),
                       borderRadius: BorderRadius.circular(AppSizes.s4)),
                 ), gapH24,
                 // Modal Sheet title
@@ -75,7 +76,10 @@ abstract class ModalSheetHelper {
                 gapH26,
                 // Modal Sheet content
                 Expanded(
-                    child: SingleChildScrollView(child: modalContent))
+                    child: SingleChildScrollView(
+                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.manual,
+                      child: modalContent
+                    ))
               ],
             ),
           ),

@@ -1,15 +1,23 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../general_services/sentry_service.dart';
 
 void registerErrorHandlers() {
   // * Show some error UI if any uncaught exception happens
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
     debugPrint(details.toString());
+    // Send to Sentry
+    SentryService.captureException(
+      details.exception,
+      stackTrace: details.stack,
+    );
   };
   // * Handle errors from the underlying platform/OS
   PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
     debugPrint(error.toString());
+    // Send to Sentry
+    SentryService.captureException(error, stackTrace: stack);
     return true;
   };
   // * Show some error UI when any widget in the app fails to build

@@ -22,7 +22,8 @@
     <application
         android:label="CPanal"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:windowSoftInputMode="adjustResize|stateVisible">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -31,8 +32,9 @@
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize">
+            android:resizeableActivity="true"
             android:requestLegacyExternalStorage="true"
+            android:windowSoftInputMode="adjustResize|stateVisible">
 
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"

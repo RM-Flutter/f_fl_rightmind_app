@@ -29,6 +29,8 @@ import 'app.dart';
 import 'controller/request_controller/request_controller.dart';
 import 'firebase_options.dart';
 import 'general_services/app_config.service.dart';
+import 'general_services/sentry_service.dart';
+import 'utils/error_handling/global_error_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'general_services/conditional_imports/change_url_strategy.service.dart';
@@ -48,6 +50,13 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Sentry before anything else
+  await SentryService.init();
+  
+  // Register global error handlers
+  registerErrorHandlers();
+
   await CacheHelper.init();
   //await ConnectionsService.init();
   await EasyLocalization.ensureInitialized();
@@ -97,6 +106,11 @@ void main() async {
           ChangeNotifierProvider<AutoResponseProvider>(
             create: (_) => AutoResponseProvider(),
           ),
+          ChangeNotifierProvider(create: (_) => AppConfigService()),
+          ChangeNotifierProxyProvider<AppConfigService, GoRouterRefreshNotifier>(
+            create: (_) => GoRouterRefreshNotifier(),
+            update: (_, appConfigService, notifier) => notifier!..update(appConfigService),
+          ),
           ChangeNotifierProvider(create: (context) => RequestController()),
           ChangeNotifierProvider(create: (context) => BlogProviderModel()),
           ChangeNotifierProvider(create: (context) => EmailForwardProvider()),
@@ -113,4 +127,15 @@ void main() async {
         ],
         child: MyApp(),
       )));
+}
+class GoRouterRefreshNotifier extends ChangeNotifier {
+  void update(AppConfigService service) {
+    // نربط notifier ده مع appConfigService
+    service.addListener(notifyListeners);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

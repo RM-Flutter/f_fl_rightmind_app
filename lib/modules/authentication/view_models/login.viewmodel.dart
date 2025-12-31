@@ -6,7 +6,6 @@ import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:go_router/go_router.dart';
-import 'package:flutter/foundation.dart';
 
 import 'package:provider/provider.dart';
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/dio.dart';
@@ -208,12 +207,11 @@ class AuthenticationViewModel extends ChangeNotifier {
     OperationResult<Map<String, dynamic>>? result =
     await ModalSheetHelper.showModalSheet(
         context: context,
-        viewProfile: false,
         modalContent: ForgotPasswordModal(
           isPhoneLogin: isPhoneLogin,
         ),
         height: LayoutService.getHeight(context) * 0.45,
-        title: AppStrings.forgetPassword.tr());
+        title: AppStrings.forgetPassword.tr(), viewProfile: false);
     if (result?.success ?? false) {
       Future.delayed(const Duration(seconds: 1));
       AlertsService.success(
@@ -231,8 +229,8 @@ class AuthenticationViewModel extends ChangeNotifier {
   }
   Future<void> showCreateAccountModal({required BuildContext context}) async {
     OperationResult<Map<String, dynamic>>? result =
-    await ModalSheetHelper.showModalSheet(
-        context: context,viewProfile: false,
+    await ModalSheetHelper.showModalSheet(viewProfile: false,
+        context: context,
         modalContent: const CreateAccountModal(),
         title: AppStrings.createNewAccount.tr(),
         height: MediaQuery.of(context).viewInsets.bottom > AppSizes.s32
@@ -260,78 +258,167 @@ class AuthenticationViewModel extends ChangeNotifier {
     return await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSizes.s12),
-          ),
-          backgroundColor: Colors.white,
-          insetPadding: const EdgeInsets.all(AppSizes.s16),
-          titlePadding: const EdgeInsets.all(AppSizes.s16),
-          contentPadding: const EdgeInsets.all(AppSizes.s12),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                AppStrings.twoFactorVerification.tr(),
-                style: Theme.of(context).textTheme.displayLarge,
+        return Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+                maxWidth: kIsWeb ? 800 : double.infinity
+            ),
+            child: AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSizes.s12),
               ),
-              IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(
-                    Icons.cancel_outlined,
-                    size: AppSizes.s32,
-                    color: Colors.red,
-                  ))
-            ],
-          ),
-          content: SizedBox(
-            width: LayoutService.getWidth(context),
-            height: AppSizes.s300,
-            child: PageView(
-              controller: pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                // First Page: Method Selection
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              backgroundColor: Colors.white,
+              insetPadding: const EdgeInsets.all(AppSizes.s16),
+              titlePadding: const EdgeInsets.all(AppSizes.s16),
+              contentPadding: const EdgeInsets.all(AppSizes.s12),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppStrings.twoFactorVerification.tr(),
+                    style: Theme.of(context).textTheme.displayLarge,
+                  ),
+                  IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(
+                        Icons.cancel_outlined,
+                        size: AppSizes.s32,
+                        color: Colors.red,
+                      ))
+                ],
+              ),
+              content: SizedBox(
+                width: LayoutService.getWidth(context),
+                height: AppSizes.s300,
+                child: PageView(
+                  controller: pageController,
+                  physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    Text(
-                      AppStrings.pleaseSelectAMethod.tr(),
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          fontWeight: FontWeight.bold, fontSize: AppSizes.s16),
-                      textAlign: TextAlign.center,
+                    // First Page: Method Selection
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          AppStrings.pleaseSelectAMethod.tr(),
+                          style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                              fontWeight: FontWeight.bold, fontSize: AppSizes.s16),
+                          textAlign: TextAlign.center,
+                        ),
+                        gapH16,
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: methods.entries.map((m) {
+                                final Map<String, dynamic> method = {
+                                  m.key: m.value
+                                };
+                                return VerificationTileWidget(
+                                  method: method,
+                                  onSelected: () async {
+                                    AlertsService.showLoading(context);
+                                    final result =
+                                    await TwoFactorAuthenticationService.send2FAVerificationCode(
+                                        context: context,
+                                        uuid: uuid,
+                                        sendType: method.keys.first);
+
+                                    if (result.success && method.isNotEmpty) {
+                                      Navigator.pop(context);
+
+                                      choosenMethod = method.keys.first;
+                                      // Move to the next page
+                                      pageController.nextPage(
+                                        duration: const Duration(milliseconds: 500),
+                                        curve: Curves.easeInOut,
+                                      );
+                                    } else {
+                                      Fluttertoast.showToast(
+                                          msg: result.message!,
+                                          toastLength: Toast.LENGTH_LONG,
+                                          gravity: ToastGravity.BOTTOM,
+                                          timeInSecForIosWeb: 5,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0
+                                      );
+                                    }
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    gapH16,
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
+                    // Second Page: Code Input
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Column(
                           mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          children: methods.entries.map((m) {
-                            final Map<String, dynamic> method = {
-                              m.key: m.value
-                            };
-                            return VerificationTileWidget(
-                              method: method,
-                              onSelected: () async {
-                                AlertsService.showLoading(context);
-                                final result =
-                                await TwoFactorAuthenticationService.send2FAVerificationCode(
-                                    context: context,
+                          children: [
+                            Text(
+                              AppStrings.twoFAVerificationCodeSent.tr(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displaySmall
+                                  ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: AppSizes.s16),
+                              textAlign: TextAlign.center,
+                            ),
+                            gapH12,
+                            Text(
+                              AppStrings.aVerificationCodeHasBeenSent.tr(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displaySmall
+                                  ?.copyWith(color: Colors.black),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                        Form(
+                          key: codeFormKey,
+                          child: TextFormField(
+                            controller: codeController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              hintText: AppStrings.enterVerificationCode.tr(),
+                            ),
+                            validator: (value) =>
+                                ValidationService.validateNumeric(value),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CustomElevatedButton(
+                              title: AppStrings.verify.tr(),
+                              onPressed: () async {
+                                if (codeFormKey.currentState?.validate() == false) {
+                                  return;
+                                }
+                                final result = await TwoFactorAuthenticationService
+                                    .validate2FAVerificationCode(
                                     uuid: uuid,
-                                    sendType: method.keys.first);
-
-                                if (result.success && method.isNotEmpty) {
-                                  Navigator.pop(context);
-
-                                  choosenMethod = method.keys.first;
-                                  // Move to the next page
-                                  pageController.nextPage(
-                                    duration: const Duration(milliseconds: 500),
-                                    curve: Curves.easeInOut,
-                                  );
+                                    context: context,
+                                    code: codeController.text,
+                                    sendType: choosenMethod!,
+                                    deviceInformation: appConfigServiceProvider
+                                        .deviceInformation
+                                        .toMap());
+                                if (result.success &&
+                                    (result.data?.isNotEmpty ?? false)) {
+                                  return await _handleLoginResponse(
+                                      result: result.data!, context: context);
                                 } else {
                                   Fluttertoast.showToast(
                                       msg: result.message!,
@@ -342,147 +429,65 @@ class AuthenticationViewModel extends ChangeNotifier {
                                       textColor: Colors.white,
                                       fontSize: 16.0
                                   );
+                                  return;
                                 }
                               },
-                            );
-                          }).toList(),
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-                // Second Page: Code Input
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          AppStrings.twoFAVerificationCodeSent.tr(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .displaySmall
-                              ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontSize: AppSizes.s16),
-                          textAlign: TextAlign.center,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              AppStrings.didnotReciveCode.tr(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displaySmall
+                                  ?.copyWith(color: Colors.black),
+                              textAlign: TextAlign.center,
+                            ),
+                            TextButton(
+                              child: Text(
+                                AppStrings.resendCode.tr(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displaySmall
+                                    ?.copyWith(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                              ),
+                              onPressed: () async {
+                                AlertsService.showLoading(context);
+                                final result = await TwoFactorAuthenticationService
+                                    .send2FAVerificationCode(
+                                    context: context,
+                                    uuid: uuid,
+                                    sendType: choosenMethod ?? 'auth_app');
+                                Navigator.pop(context);
+                                if (!result.success) {
+                                  Fluttertoast.showToast(
+                                      msg: result.message ??
+                                          AppStrings
+                                              .failed2FAVerificationPleaseTryAgain
+                                              .tr(),
+                                      toastLength: Toast.LENGTH_LONG,
+                                      gravity: ToastGravity.BOTTOM,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0
+                                  );
+                                }
+                              },
+                            )
+                          ],
                         ),
-                        gapH12,
-                        Text(
-                          AppStrings.aVerificationCodeHasBeenSent.tr(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .displaySmall
-                              ?.copyWith(color: Colors.black),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                    Form(
-                      key: codeFormKey,
-                      child: TextFormField(
-                        controller: codeController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          hintText: AppStrings.enterVerificationCode.tr(),
-                        ),
-                        validator: (value) =>
-                            ValidationService.validateNumeric(value),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CustomElevatedButton(
-                          title: AppStrings.verify.tr(),
-                          onPressed: () async {
-                            if (codeFormKey.currentState?.validate() == false) {
-                              return;
-                            }
-                            final result = await TwoFactorAuthenticationService
-                                .validate2FAVerificationCode(
-                                uuid: uuid,
-                                context: context,
-                                code: codeController.text,
-                                sendType: choosenMethod!,
-                                deviceInformation: appConfigServiceProvider
-                                    .deviceInformation
-                                    .toMap());
-                            if (result.success &&
-                                (result.data?.isNotEmpty ?? false)) {
-                              return await _handleLoginResponse(
-                                  result: result.data!, context: context);
-                            } else {
-                              Fluttertoast.showToast(
-                                  msg: result.message!,
-                                  toastLength: Toast.LENGTH_LONG,
-                                  gravity: ToastGravity.BOTTOM,
-                                  timeInSecForIosWeb: 5,
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0
-                              );
-                              return;
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          AppStrings.didnotReciveCode.tr(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .displaySmall
-                              ?.copyWith(color: Colors.black),
-                          textAlign: TextAlign.center,
-                        ),
-                        TextButton(
-                          child: Text(
-                            AppStrings.resendCode.tr(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .displaySmall
-                                ?.copyWith(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
-                          ),
-                          onPressed: () async {
-                            AlertsService.showLoading(context);
-                            final result = await TwoFactorAuthenticationService
-                                .send2FAVerificationCode(
-                                context: context,
-                                uuid: uuid,
-                                sendType: choosenMethod ?? 'auth_app');
-                            Navigator.pop(context);
-                            if (!result.success) {
-                              Fluttertoast.showToast(
-                                  msg: result.message ??
-                                      AppStrings
-                                          .failed2FAVerificationPleaseTryAgain
-                                          .tr(),
-                                  toastLength: Toast.LENGTH_LONG,
-                                  gravity: ToastGravity.BOTTOM,
-                                  timeInSecForIosWeb: 1,
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0
-                              );
-                            }
-                          },
-                        )
                       ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         );
@@ -500,78 +505,170 @@ class AuthenticationViewModel extends ChangeNotifier {
     return await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSizes.s12),
-          ),
-          backgroundColor: Colors.white,
-          insetPadding: const EdgeInsets.all(AppSizes.s16),
-          titlePadding: const EdgeInsets.all(AppSizes.s16),
-          contentPadding: const EdgeInsets.all(AppSizes.s12),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                AppStrings.accountVerification.tr(),
-                style: Theme.of(context).textTheme.displayLarge,
+        return Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+                maxWidth: kIsWeb ? 800 : double.infinity
+            ),
+            child: AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSizes.s12),
               ),
-              IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(
-                    Icons.cancel_outlined,
-                    size: AppSizes.s32,
-                    color: Colors.red,
-                  ))
-            ],
-          ),
-          content: SizedBox(
-            width: LayoutService.getWidth(context),
-            height: AppSizes.s340,
-            child: PageView(
-              controller: pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                // First Page: Method Selection
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              backgroundColor: Colors.white,
+              insetPadding: const EdgeInsets.all(AppSizes.s16),
+              titlePadding: const EdgeInsets.all(AppSizes.s16),
+              contentPadding: const EdgeInsets.all(AppSizes.s12),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppStrings.accountVerification.tr(),
+                    style: Theme.of(context).textTheme.displayLarge,
+                  ),
+                  IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(
+                        Icons.cancel_outlined,
+                        size: AppSizes.s32,
+                        color: Colors.red,
+                      ))
+                ],
+              ),
+              content: SizedBox(
+                width: LayoutService.getWidth(context),
+                height: AppSizes.s340,
+                child: PageView(
+                  controller: pageController,
+                  physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    Text(
-                      AppStrings.pleaseSelectAMethod.tr(),
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          fontWeight: FontWeight.bold, fontSize: AppSizes.s17),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    gapH16,
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: methods.entries.map((m) {
-                            final Map<String, dynamic> method = {
-                              m.key: m.value
-                            };
-                            return VerificationTileWidget(
-                              method: method,
-                              onSelected: () async {
-                                AlertsService.showLoading(context);
-                                final result = await AccountVerificationService
-                                    .accoutnVerification(
-                                    uuid: uuid,
-                                    method: method.keys.first,
-                                    context: context);
-                                if (result.success && method.isNotEmpty) {
-                                  Navigator.pop(context);
+                    // First Page: Method Selection
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          AppStrings.pleaseSelectAMethod.tr(),
+                          style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                              fontWeight: FontWeight.bold, fontSize: AppSizes.s17),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        gapH16,
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: methods.entries.map((m) {
+                                final Map<String, dynamic> method = {
+                                  m.key: m.value
+                                };
+                                return VerificationTileWidget(
+                                  method: method,
+                                  onSelected: () async {
+                                    AlertsService.showLoading(context);
+                                    final result = await AccountVerificationService
+                                        .accoutnVerification(
+                                        uuid: uuid,
+                                        method: method.keys.first,
+                                        context: context);
+                                    if (result.success && method.isNotEmpty) {
+                                      Navigator.pop(context);
 
-                                  choosenMethod = method.keys.first;
-                                  // Move to the next page
-                                  pageController.nextPage(
-                                    duration: const Duration(milliseconds: 500),
-                                    curve: Curves.easeInOut,
-                                  );
+                                      choosenMethod = method.keys.first;
+                                      // Move to the next page
+                                      pageController.nextPage(
+                                        duration: const Duration(milliseconds: 500),
+                                        curve: Curves.easeInOut,
+                                      );
+                                    } else {
+                                      Fluttertoast.showToast(
+                                          msg: result.message!,
+                                          toastLength: Toast.LENGTH_LONG,
+                                          gravity: ToastGravity.BOTTOM,
+                                          timeInSecForIosWeb: 5,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0
+                                      );
+                                    }
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    // Second Page: Code Input
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppStrings.verificationCodeSent.tr(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displaySmall
+                                  ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: AppSizes.s18,
+                                  color: Colors.black),
+                              textAlign: TextAlign.center,
+                            ),
+                            gapH16,
+                            Text(
+                              AppStrings.aVerificationCodeHasBeenSent.tr(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displaySmall
+                                  ?.copyWith(color: Colors.black),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                        Form(
+                          key: codeFormKey,
+                          child: TextFormField(
+                            controller: codeController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              hintText: AppStrings.enterVerificationCode.tr(),
+                            ),
+                            validator: (value) =>
+                                ValidationService.validateNumeric(value),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CustomElevatedButton(
+                              isPrimaryBackground: false,
+                              title: AppStrings.verify.tr(),
+                              onPressed: () async {
+                                if (codeFormKey.currentState?.validate() == false) {
+                                  return;
+                                }
+                                final result = await AccountVerificationService
+                                    .validateAccoutnVerificationCode(
+                                    uuid: uuid,
+                                    context: context,
+                                    code: codeController.text,
+                                    method: choosenMethod!,
+                                    deviceInformation: appConfigServiceProvider
+                                        .deviceInformation
+                                        .toMap());
+                                if (result.success &&
+                                    (result.data?.isNotEmpty ?? false)) {
+                                  return await _handleLoginResponse(
+                                      result: result.data!, context: context);
                                 } else {
                                   Fluttertoast.showToast(
                                       msg: result.message!,
@@ -582,156 +679,71 @@ class AuthenticationViewModel extends ChangeNotifier {
                                       textColor: Colors.white,
                                       fontSize: 16.0
                                   );
+                                  return;
                                 }
                               },
-                            );
-                          }).toList(),
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-                // Second Page: Code Input
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppStrings.verificationCodeSent.tr(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .displaySmall
-                              ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontSize: AppSizes.s18,
-                              color: Colors.black),
-                          textAlign: TextAlign.center,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              AppStrings.didnotReciveCode.tr(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displaySmall
+                                  ?.copyWith(color: Colors.black),
+                              textAlign: TextAlign.center,
+                            ),
+                            TextButton(
+                              child: Text(
+                                AppStrings.resendCode.tr(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displaySmall
+                                    ?.copyWith(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                              ),
+                              onPressed: () async {
+                                AlertsService.showLoading(context);
+                                final result = await AccountVerificationService.accoutnVerification(
+                                    uuid: uuid,
+                                    method: choosenMethod ?? 'email',
+                                    context: context);
+                                if (!result.success) {
+                                  Fluttertoast.showToast(
+                                      msg: result.message!,
+                                      toastLength: Toast.LENGTH_LONG,
+                                      gravity: ToastGravity.BOTTOM,
+                                      timeInSecForIosWeb: 5,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0
+                                  );
+                                }else{
+                                  Navigator.pop(context);
+                                  Fluttertoast.showToast(
+                                      msg: result.message!,
+                                      toastLength: Toast.LENGTH_LONG,
+                                      gravity: ToastGravity.BOTTOM,
+                                      timeInSecForIosWeb: 5,
+                                      backgroundColor: Colors.green,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0
+                                  );
+                                }
+                              },
+                            )
+                          ],
                         ),
-                        gapH16,
-                        Text(
-                          AppStrings.aVerificationCodeHasBeenSent.tr(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .displaySmall
-                              ?.copyWith(color: Colors.black),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                    Form(
-                      key: codeFormKey,
-                      child: TextFormField(
-                        controller: codeController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          hintText: AppStrings.enterVerificationCode.tr(),
-                        ),
-                        validator: (value) =>
-                            ValidationService.validateNumeric(value),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CustomElevatedButton(
-                          isPrimaryBackground: false,
-                          title: AppStrings.verify.tr(),
-                          onPressed: () async {
-                            if (codeFormKey.currentState?.validate() == false) {
-                              return;
-                            }
-                            final result = await AccountVerificationService
-                                .validateAccoutnVerificationCode(
-                                uuid: uuid,
-                                context: context,
-                                code: codeController.text,
-                                method: choosenMethod!,
-                                deviceInformation: appConfigServiceProvider
-                                    .deviceInformation
-                                    .toMap());
-                            if (result.success &&
-                                (result.data?.isNotEmpty ?? false)) {
-                              return await _handleLoginResponse(
-                                  result: result.data!, context: context);
-                            } else {
-                              Fluttertoast.showToast(
-                                  msg: result.message!,
-                                  toastLength: Toast.LENGTH_LONG,
-                                  gravity: ToastGravity.BOTTOM,
-                                  timeInSecForIosWeb: 5,
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0
-                              );
-                              return;
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          AppStrings.didnotReciveCode.tr(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .displaySmall
-                              ?.copyWith(color: Colors.black),
-                          textAlign: TextAlign.center,
-                        ),
-                        TextButton(
-                          child: Text(
-                            AppStrings.resendCode.tr(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .displaySmall
-                                ?.copyWith(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
-                          ),
-                          onPressed: () async {
-                            AlertsService.showLoading(context);
-                            final result = await AccountVerificationService.accoutnVerification(
-                                uuid: uuid,
-                                method: choosenMethod ?? 'email',
-                                context: context);
-                            if (!result.success) {
-                              Fluttertoast.showToast(
-                                  msg: result.message!,
-                                  toastLength: Toast.LENGTH_LONG,
-                                  gravity: ToastGravity.BOTTOM,
-                                  timeInSecForIosWeb: 5,
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0
-                              );
-                            }else{
-                              Navigator.pop(context);
-                              Fluttertoast.showToast(
-                                  msg: result.message!,
-                                  toastLength: Toast.LENGTH_LONG,
-                                  gravity: ToastGravity.BOTTOM,
-                                  timeInSecForIosWeb: 5,
-                                  backgroundColor: Colors.green,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0
-                              );
-                            }
-                          },
-                        )
                       ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         );

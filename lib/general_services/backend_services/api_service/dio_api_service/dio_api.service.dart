@@ -16,6 +16,7 @@ import 'package:cpanal/routing/app_router.dart';
 
 import '../../../../models/operation_result.model.dart';
 import '../../../app_config.service.dart';
+import '../../../sentry_service.dart';
 import '../../api_service_helpers.dart';
 import '../../backend_services_interface.dart';
 
@@ -99,10 +100,18 @@ class DioApiService implements BackEndServicesInterface {
         print("Unauthorized is ${respond}");
         // _toast.toastMethod(LocaleKeys.respond_401.tr());
         final appConfigService = Provider.of<AppConfigService>(context, listen: false);
-        appConfigService.logout().then((v){
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => SplashScreen()));
+        appConfigService.logout(context, viewAlert: false, skipServerLogout: true).then((v){
+          if (context.mounted) {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => SplashScreen()));
+          }
+        }).catchError((e) {
+          if (context.mounted) {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => SplashScreen()));
+          }
         });
         return OperationResult<T>(success: false, message: respond);
 
@@ -228,7 +237,7 @@ class DioApiService implements BackEndServicesInterface {
         print("Unauthorized (caught in DioError catch block)");
         final appConfigService =
         Provider.of<AppConfigService>(context, listen: false);
-        appConfigService.logout().then((v) {
+        appConfigService.logout(context, viewAlert: false).then((v) {
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => SplashScreen()));
@@ -243,6 +252,18 @@ class DioApiService implements BackEndServicesInterface {
     } catch (err, t) {
       debugPrint(
         '--------- Failed get() from Api Service ❌ \n error ${err.toString()} - in Line :- ${t.toString()}',
+      );
+      // Send to Sentry
+      final screenName = SentryService.getCurrentScreenName(context);
+      SentryService.captureException(
+        err,
+        stackTrace: t,
+        screenName: screenName,
+        extra: {
+          'url': url,
+          'method': 'GET',
+          'dataKey': dataKey,
+        },
       );
       return OperationResult(success: false, message: err.toString());
     }
@@ -279,11 +300,20 @@ class DioApiService implements BackEndServicesInterface {
         print("Unauthorized (caught in DioError catch block)");
         final appConfigService =
         Provider.of<AppConfigService>(context, listen: false);
-        appConfigService.logout().then((v) {
-          context.goNamed(
-            AppRoutes.splash.name,
-            pathParameters: {'lang': context.locale.languageCode,},
-          );
+        appConfigService.logout(context, viewAlert: false, skipServerLogout: true).then((v) {
+          if (context.mounted) {
+            context.goNamed(
+              AppRoutes.splash.name,
+              pathParameters: {'lang': context.locale.languageCode,},
+            );
+          }
+        }).catchError((e) {
+          if (context.mounted) {
+            context.goNamed(
+              AppRoutes.splash.name,
+              pathParameters: {'lang': context.locale.languageCode,},
+            );
+          }
         });
         return OperationResult<T>(success: false, message: 'Unauthorized');
       }
@@ -295,6 +325,18 @@ class DioApiService implements BackEndServicesInterface {
     } catch (err, t) {
       debugPrint(
           '--------- Failed post() from Api Service ❌ \n error ${err.toString()} - in Line :- ${t.toString()}');
+      // Send to Sentry
+      final screenName = SentryService.getCurrentScreenName(context);
+      SentryService.captureException(
+        err,
+        stackTrace: t,
+        screenName: screenName,
+        extra: {
+          'url': url,
+          'method': 'POST',
+          'dataKey': dataKey,
+        },
+      );
       return OperationResult(success: false, message: err.toString());
     }
   }
@@ -369,7 +411,7 @@ class DioApiService implements BackEndServicesInterface {
         print("Unauthorized (caught in DioError catch block)");
         final appConfigService =
         Provider.of<AppConfigService>(context, listen: false);
-        appConfigService.logout().then((v) {
+        appConfigService.logout(context, viewAlert: false).then((v) {
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => SplashScreen()));
@@ -482,7 +524,7 @@ class DioApiService implements BackEndServicesInterface {
         print("Unauthorized (caught in DioError catch block)");
         final appConfigService =
         Provider.of<AppConfigService>(context, listen: false);
-        appConfigService.logout().then((v) {
+        appConfigService.logout(context, viewAlert: false).then((v) {
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => SplashScreen()));
@@ -530,7 +572,7 @@ class DioApiService implements BackEndServicesInterface {
         print("Unauthorized (caught in DioError catch block)");
         final appConfigService =
         Provider.of<AppConfigService>(context, listen: false);
-        appConfigService.logout().then((v) {
+        appConfigService.logout(context, viewAlert: false).then((v) {
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => SplashScreen()));
@@ -603,7 +645,7 @@ class DioApiService implements BackEndServicesInterface {
         print("Unauthorized (caught in DioError catch block)");
         final appConfigService =
         Provider.of<AppConfigService>(context, listen: false);
-        appConfigService.logout().then((v) {
+        appConfigService.logout(context, viewAlert: false).then((v) {
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => SplashScreen()));

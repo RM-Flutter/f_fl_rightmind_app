@@ -774,7 +774,7 @@ class PersonalProfileViewModel extends ChangeNotifier {
           message: AppStrings.areYouSureYouWantToLog.tr());
       final appConfigService =
       Provider.of<AppConfigService>(context, listen: false);
-      await appConfigService.logout();
+      await appConfigService.logout(context, viewAlert: true);
       if (isLogout == false) return;
       final result = await PersonalProfileService.logout(context: context);
       if (result.success) {

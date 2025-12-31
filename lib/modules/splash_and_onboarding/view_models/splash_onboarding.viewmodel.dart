@@ -168,7 +168,12 @@ class OnboardingViewModel extends ChangeNotifier {
   Future<void> _initializeAppServices(BuildContext context, AppConfigService appConfigService) async {
     try {
       // Precache logo image
-      await precacheImage(const AssetImage(AppImages.logo), context);
+      final logoUrl = AppImages.logo;
+      if (logoUrl.startsWith('http://') || logoUrl.startsWith('https://')) {
+        await precacheImage(CachedNetworkImageProvider(logoUrl), context);
+      } else {
+        await precacheImage(AssetImage(logoUrl), context);
+      }
 
       // Initialize application services
       await appConfigService.init();
@@ -268,6 +273,7 @@ class OnboardingViewModel extends ChangeNotifier {
     try {
       await _initializeAppServices(context, appConfigService);
       if (appConfigService.isLogin && appConfigService.token.isNotEmpty) {
+        print("YES LOGIN");
         // try {
         //   // await PushNotificationService.init(
         //   //   context: context,
@@ -280,7 +286,12 @@ class OnboardingViewModel extends ChangeNotifier {
         //   debugPrint(
         //       'Failed to send notification device token to server $ex');
         // }
-        final features = getAllOnboardingData(context: context);
+        final jsonString2 = CacheHelper.getString("USG");
+        var cache;
+        if (jsonString2 != null && jsonString2.isNotEmpty) {
+          cache = json.decode(jsonString2) as Map<String, dynamic>;
+        }
+        final features = cache['features']['items'];
         final jsonString = CacheHelper.getString("USG");
         var gCache;
         if (jsonString != null && jsonString != "") {
@@ -305,12 +316,12 @@ class OnboardingViewModel extends ChangeNotifier {
             );
           }
         } else {
+          print("HOME 5");
           context.goNamed(
             AppRoutes.home.name,
             pathParameters: {'lang': context.locale.languageCode},
           );
         }
-        return;
       } else {
         print("WATCH 0");
         final jsonString2 = CacheHelper.getString("USG");
@@ -413,7 +424,7 @@ class OnboardingViewModel extends ChangeNotifier {
       var us1Cache;
       var role;
       if (jsonString != "") {
-        us1Cache = json.decode(jsonString) as Map<String,
+        us1Cache = json.decode(jsonString!) as Map<String,
             dynamic>; // Convert String back to JSON
         print("S2 IS --> $us1Cache");
         role = us1Cache['role'];

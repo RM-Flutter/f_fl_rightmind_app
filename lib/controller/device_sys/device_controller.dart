@@ -1,12 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/dio.dart';
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/shared.dart';
 import '../../constants/app_strings.dart';
 import '../../general_services/alert_service/alerts.service.dart';
+import 'dart:html' as html;
 
 
 class DeviceControllerProvider extends ChangeNotifier {
@@ -112,57 +114,99 @@ class DeviceControllerProvider extends ChangeNotifier {
       }
     }
   }
+  Future<bool> requestNotificationPermission() async {
+    if (kIsWeb) {
+      final permission = html.Notification.permission; // granted - denied - default
 
+      if (permission == "granted") return true;
+
+      // لو denied → مقدرش أطلب تاني، لازم يفتح الإعدادات
+      if (permission == "denied") {
+        html.window.alert(
+            "⚠️ لقد قمت بحظر الإشعارات من المتصفح.\n\n"
+                "افتح Site Settings وقم بتفعيل Allow للإشعارات."
+        );
+        return false;
+      }
+
+      // default → أطلب إذن إشعارات
+      final newPermission = await html.Notification.requestPermission();
+      return newPermission == "granted";
+    }
+
+    // 📱 Mobile
+    final settings = await FirebaseMessaging.instance.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    return settings.authorizationStatus == AuthorizationStatus.authorized;
+  }
   getDeviceSysSet({context, required bool state}) async {
+    // 1️⃣ اطلب الإذن الأول
+    bool allowed = await requestNotificationPermission();
+    if (!allowed) {
+      Fluttertoast.showToast(
+        msg: "الإشعارات غير مفعلة – برجاء السماح أولاً.",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+      return;
+    }
+
     isLoading2 = true;
     notifyListeners();
+
     try {
+      String? token = await FirebaseMessaging.instance.getToken();
+
       final response = await DioHelper.postData(
         url: "/rm_users/v1/device_sys",
         context: context,
         data: {
           "action": "set",
           "key": "notification_token",
-          "value": await FirebaseMessaging.instance.getToken(),
+          "value": token,
         },
       );
+
       isLoading2 = false;
       notificationStatus = state;
-      print("state---$state");
       CacheHelper.setBool("status", state);
-      print("STATUS IS ---> ${CacheHelper.getBool("status")}");
-      if(response.data['status'] == true){
-        getDeviceSysSet2(context: context,state: state);
-      }else{
+
+      if (response.data['status'] == true) {
         Fluttertoast.showToast(
-            msg: response.data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
+          msg: response.data['message'],
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
+        getDeviceSysSet2(context: context, state: state);
+      } else {
+        Fluttertoast.showToast(
+          msg: response.data['message'],
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
         );
       }
+
       notifyListeners();
     } catch (error) {
       isLoading2 = false;
       notifyListeners();
+
       if (error is DioError) {
         errorMessage2 = error.response?.data['message'] ?? 'Something went wrong';
       } else {
         errorMessage2 = error.toString();
       }
-    }
-    Fluttertoast.showToast(
+
+      Fluttertoast.showToast(
         msg: errorMessage2!,
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 5,
         backgroundColor: Colors.red,
         textColor: Colors.white,
-        fontSize: 16.0
-    );
+      );
+    }
   }
   getDeviceSysSet2({context, required bool state}) async {
     isLoading2 = true;

@@ -19,7 +19,7 @@ import '../../constants/web_image.dart';
 import '../../utils/componentes/general_components/gradient_bg_image.dart';
 
 
-  class ComplainDetailsScreen extends StatefulWidget {
+class ComplainDetailsScreen extends StatefulWidget {
     var id;
     ComplainDetailsScreen({required this.id});
 

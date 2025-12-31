@@ -2,8 +2,11 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:html' as html;
+
 import 'package:flutter/widgets.dart';
 import 'package:cpanal/constants/app_constants.dart';
 import 'package:cpanal/general_services/backend_services/api_service/dio_api_service/dio.dart';
@@ -155,7 +158,10 @@ abstract class AppSettingsService {
   static Future<void> initializeGeneralSettings({required SettingsType settingType,List? need, bool? allData = false, required BuildContext context}) async {
     final appConfigServiceProvider =
     Provider.of<AppConfigService>(context, listen: false);
-    if(CacheHelper.getString("flag") == null || CacheHelper.getString("flag") == "" || CacheHelper.getString("flagCode") == null || CacheHelper.getString("flagCode") == ""){
+    final flag = CacheHelper.getString("flag")?.trim();
+    final flagCode = CacheHelper.getString("flagCode")?.trim();
+
+    if (flag == null || flag.isEmpty || flagCode == null || flagCode.isEmpty) {
       await printCountryInfo();
     }
     var settingsData = appConfigServiceProvider.getSettings(type: settingType);
@@ -164,7 +170,33 @@ abstract class AppSettingsService {
     var s1Cache;
     var s2Cache;
     var gCache;
-    var fcm_token = await FirebaseMessaging.instance.getToken();
+    print("FAAAAAAAAAAAAAAAILD");
+    String? fcm_token;
+
+    try {
+      if (kIsWeb) {
+        // اطلب الإشعارات من المتصفح
+        if (html.Notification.permission != "granted") {
+          final permission = await html.Notification.requestPermission();
+
+          print("🔔 Web notification permission result: $permission");
+
+          if (permission != "granted") {
+            print("⛔ User denied permission, won't request FCM token");
+          }
+        }
+        fcm_token = await FirebaseMessaging.instance.getToken();
+      } else {
+        fcm_token = await FirebaseMessaging.instance.getToken();
+      }
+    } catch (e) {
+      print("🔥 Error while requesting permission or token: $e");
+    }
+
+    print("FAAAAAAAAAAAAAAAILD 2");
+
+    fcm_token ??= CacheHelper.getString("fcm_token"); // fallback
+
     if (settingType == SettingsType.startupSettings) {
       Map<String, dynamic> body = {
         if(CacheHelper.getString("fcm_token") != fcm_token.toString()) "notification_token" : fcm_token,
