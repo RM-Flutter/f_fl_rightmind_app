@@ -44,7 +44,7 @@ abstract class ModalSheetHelper {
                   height: AppSizes.s5,
                   width: AppSizes.s80,
                   decoration: BoxDecoration(
-                      color: Color(AppColors.buttonDisabledColor),
+                      color: const Color(0xffB9C0C9),
                       borderRadius: BorderRadius.circular(AppSizes.s4)),
                 ), gapH24,
                 // Modal Sheet title

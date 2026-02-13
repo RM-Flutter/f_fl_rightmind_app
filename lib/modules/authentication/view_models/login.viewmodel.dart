@@ -43,8 +43,9 @@ class AuthenticationViewModel extends ChangeNotifier {
   final phoneController = TextEditingController();
   final emailController =  TextEditingController();
   final passwordController =  TextEditingController();
-  late AnimationController animationController;
-  late Animation<double> animation;
+  AnimationController? animationController;
+  Animation<double>? animation;
+  bool _isDisposed = false;
   final otpController = TextEditingController();
   final countryCodeController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -53,7 +54,19 @@ class AuthenticationViewModel extends ChangeNotifier {
   // Triggered Automatically when the view model not used !!
   @override
   void dispose() {
-    animationController.dispose();
+    if (_isDisposed) return;
+    _isDisposed = true;
+    
+    try {
+      if (animationController != null) {
+        animationController!.dispose();
+        animationController = null;
+      }
+    } catch (e) {
+      // Ignore if animationController is not initialized or already disposed
+      debugPrint('Warning: animationController dispose error: $e');
+    }
+    
     phoneController.dispose();
     emailController.dispose();
     passwordController.dispose();
@@ -72,7 +85,7 @@ class AuthenticationViewModel extends ChangeNotifier {
       vsync: vsync,
     )..repeat(reverse: true);
     animation =
-        Tween<double>(begin: 0.0, end: 1.0).animate(animationController);
+        Tween<double>(begin: 0.0, end: 1.0).animate(animationController!);
   }
   Future<void> getDeviceToken({required BuildContext context}) async {
     OperationResult<Map<String, dynamic>> result =
